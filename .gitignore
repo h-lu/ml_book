@@ -1,0 +1,27 @@
+# Quarto cache and temporary files
+.quarto/
+.jupyter_cache/
+
+# Python generated files
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Editor specific files
+.DS_Store
+.vdoc.*.py
+
+# Environment files
+.env
+.env.local
+
+# Data directory (if used for downloaded/large data)
+data/
+
+# Python virtual environments
+venv/
+.venv/
+
+# Build/distribution directories
+dist/
+build/ 

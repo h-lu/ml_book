@@ -1,0 +1,1103 @@
+---
+title: "模型评估、优化与特征工程"
+jupyter: python3
+---
+
+## 学习目标
+
+::: {.callout-note appearance="simple"}
+**学习目标：**
+
+*   理解模型评估在机器学习流程中的重要性及其基本原则。
+*   掌握分类模型常用的评估指标：准确率、精确率、召回率、F1分数、ROC曲线、AUC值，并理解它们的计算方法和适用场景。
+*   掌握回归模型常用的评估指标：均方误差 (MSE)、均方根误差 (RMSE)、平均绝对误差 (MAE)、R方 (R-squared)，并理解它们的含义。
+*   理解过拟合与欠拟合的概念、产生原因以及常见的解决方法。
+*   掌握验证集和交叉验证（K折交叉验证、留一交叉验证）的原理和应用，以进行更可靠的模型评估和选择。
+*   理解偏差 (Bias) 与方差 (Variance) 的概念，以及它们与模型复杂度和拟合程度的关系（偏差-方差权衡）。
+*   掌握超参数调优的基本方法：网格搜索 (Grid Search) 和随机搜索 (Randomized Search)。
+*   理解特征工程的基本概念、重要性及其主要任务。
+*   掌握常见的特征预处理技术：数据清洗（缺失值处理、异常值处理）、特征缩放（标准化、归一化）。
+*   了解特征编码技术：独热编码 (One-Hot Encoding)、标签编码 (Label Encoding)。
+*   初步了解特征选择和特征提取的基本方法（回顾降维章节）。
+*   能够使用 Scikit-learn 实现上述模型评估指标计算、交叉验证、超参数调优及特征工程方法。
+*   能够构建一个相对完整的机器学习项目流程，包括数据预处理、特征工程、模型训练、模型评估和参数调优。
+:::
+
+## 9.1 模型评估
+
+在机器学习中，仅仅构建一个模型是不够的，我们还需要评估其性能，了解它在未知数据上的表现如何。模型评估是选择最佳模型、调整模型参数以及最终确定模型是否可用的关键步骤。
+
+### 9.1.1 为什么需要模型评估？
+
+*   **模型选择：** 对于一个特定问题，我们可能会尝试多种不同的算法或模型。评估指标可以帮助我们比较这些模型，并选择表现最好的那一个。
+*   **超参数调优：** 许多模型都有超参数（例如KNN中的K值，SVM中的C和gamma参数）。通过在验证集上评估不同超参数组合的性能，我们可以找到最优的超参数设置。
+*   **泛化能力判断：** 我们关心的是模型在新的、未见过的数据上的表现能力（即泛化能力），而不是它在训练数据上拟合得有多好。模型评估帮助我们估计这种泛化能力。
+*   **避免过拟合与欠拟合：** 通过比较模型在训练集和测试集上的性能，我们可以判断模型是否存在过拟合（在训练集上表现好，在测试集上表现差）或欠拟合（在训练集和测试集上表现都差）的问题。
+*   **业务决策：** 模型的评估结果直接关系到它是否能满足实际业务需求。例如，一个欺诈检测模型的精确率和召回率会直接影响银行的风险控制和用户体验。
+
+### 9.1.2 训练集、验证集与测试集
+
+为了得到对模型泛化能力的可靠评估，我们通常会将数据集划分为三个互不相交的部分：
+
+*   **训练集 (Training Set)：** 用于训练模型，即调整模型的参数（例如，线性回归中的权重）。
+*   **验证集 (Validation Set)：** 用于调整模型的超参数和进行模型选择。模型在训练集上训练完成后，在验证集上评估性能，根据评估结果来选择最佳的模型架构或超参数组合。
+*   **测试集 (Test Set)：** 用于在模型最终选定（包括超参数也已确定）后，评估其最终的、无偏的泛化性能。测试集的数据不应以任何形式参与模型的训练或超参数调优过程，以保证评估的客观性。
+
+**划分比例：** 常见的划分比例是 60% 训练集、20% 验证集、20% 测试集，或者 70% 训练集、15% 验证集、15% 测试集。具体比例取决于数据集的大小和特性。如果数据集较小，可能会使用交叉验证代替简单的验证集划分。
+
+```{python}
+#| echo: true
+#| label: code-train-val-test-split
+
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# 假设我们有一个特征矩阵 X 和目标向量 y
+X_example = np.random.rand(100, 10)
+y_example = np.random.randint(0, 2, 100)
+
+# 第一次划分：将数据分为训练集+验证集 和 测试集
+X_train_val, X_test, y_train_val, y_test = train_test_split(
+    X_example, y_example, test_size=0.2, random_state=42, stratify=y_example
+)
+
+# 第二次划分：将训练集+验证集 分为 训练集 和 验证集
+# 例如，如果希望原始训练集占60%，验证集占20%，测试集占20%
+# 那么 X_train_val 占了80%的原始数据，我们需要从中分出 20% / 80% = 25% 作为验证集
+X_train, X_val, y_train, y_val = train_test_split(
+    X_train_val, y_train_val, test_size=0.25, random_state=42, stratify=y_train_val # 0.25 * 0.8 = 0.2
+)
+
+print(f"原始数据量: {len(X_example)}")
+print(f"训练集数量: {len(X_train)}")
+print(f"验证集数量: {len(X_val)}")
+print(f"测试集数量: {len(X_test)}")
+```
+
+### 9.1.3 分类模型评估指标
+
+#### 9.1.3.1 混淆矩阵 (Confusion Matrix)
+
+混淆矩阵是评估分类模型性能的一个非常直观和基础的工具。对于一个二分类问题，混淆矩阵如下：
+
+|                    | 预测为正类 (Predicted Positive) | 预测为负类 (Predicted Negative) |
+| :----------------- | :------------------------------ | :------------------------------ |
+| **实际为正类 (Actual Positive)** | 真阳性 (True Positive, TP)      | 假阴性 (False Negative, FN)     |
+| **实际为负类 (Actual Negative)** | 假阳性 (False Positive, FP)     | 真阴性 (True Negative, TN)      |
+
+*   **TP (True Positive)：** 实际为正类，模型也预测为正类。
+*   **FN (False Negative)：** 实际为正类，但模型错误地预测为负类 (漏报)。
+*   **FP (False Positive)：** 实际为负类，但模型错误地预测为正类 (误报)。
+*   **TN (True Negative)：** 实际为负类，模型也预测为负类。
+
+```{python}
+#| echo: true
+#| label: code-confusion-matrix
+
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression # 举例用
+
+# 假设 y_true 是真实标签，y_pred 是模型预测标签
+model_example = LogisticRegression()
+model_example.fit(X_train, y_train)
+y_pred_val = model_example.predict(X_val)
+
+cm = confusion_matrix(y_val, y_pred_val)
+print("混淆矩阵:\n", cm)
+
+# 可视化混淆矩阵
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1]) # display_labels根据实际类别
+disp.plot(cmap=plt.cm.Blues)
+plt.title("Confusion Matrix for Validation Set")
+# plt.savefig('images/09-model-evaluation/confusion_matrix_val.svg', format='svg')
+plt.show()
+```
+
+#### 9.1.3.2 准确率 (Accuracy)
+
+准确率是指模型正确预测的样本数占总样本数的比例。
+$$ \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} $$
+
+:::{.callout-note}
+## 准确率的优缺点
+
+**优点**  
+- 非常直观，易于理解  
+- 计算简单，解释性强  
+
+**缺点**  
+- 在类别不平衡的数据集上会产生误导  
+- 无法反映模型对不同类别的识别能力  
+
+**示例**  
+如果数据集中95%的样本是负类，一个将所有样本都预测为负类的"愚蠢"模型也能达到95%的准确率，但实际上该模型完全无法识别正类样本。
+:::
+
+```{python}
+#| echo: true
+#| label: code-accuracy
+
+from sklearn.metrics import accuracy_score
+
+accuracy = accuracy_score(y_val, y_pred_val)
+print(f"准确率 (Accuracy): {accuracy:.4f}")
+
+# 手动计算 (来自混淆矩阵cm)
+# TP = cm[1, 1]
+# TN = cm[0, 0]
+# FP = cm[0, 1]
+# FN = cm[1, 0]
+# accuracy_manual = (TP + TN) / (TP + TN + FP + FN)
+# print(f"手动计算准确率: {accuracy_manual:.4f}")
+```
+
+#### 9.1.3.3 精确率 (Precision)
+
+精确率（也称查准率）是指在所有被模型预测为正类的样本中，实际为正类的样本所占的比例。
+$$ \text{Precision} = \frac{TP}{TP + FP} $$
+它衡量的是模型预测为正类的结果有多"准"。高精确率意味着模型预测为正类的样本中，很少有误报。
+
+:::{.callout-note appearance="simple"}
+**精确率的应用场景**
+
+当我们非常关注误报(False Positive)的成本时，精确率是一个关键指标。例如：
+
+- **垃圾邮件检测**：不希望将正常邮件错误标记为垃圾邮件
+- **金融风控**：不希望错误拒绝正常交易(造成客户体验下降) 
+- **医疗诊断**：不希望将健康人误诊为患病(避免不必要的治疗)
+
+在这些场景中，我们需要尽可能降低FP(误报)，保持高精确率。
+:::
+
+#### 9.1.3.4 召回率 (Recall)
+
+召回率（也称查全率、敏感度 Sensitivity）是指在所有实际为正类的样本中，被模型成功预测为正类的样本所占的比例。
+$$ \text{Recall} = \frac{TP}{TP + FN} $$
+它衡量的是模型能找出多少"真正"的正类。高召回率意味着模型很少漏掉正类样本。
+
+:::{.callout-note appearance="simple"}
+**召回率的应用场景**
+
+当我们非常关注漏报(False Negative)的成本时，召回率是一个关键指标。例如：
+
+- **疾病诊断**：不希望漏掉任何一个真正患病的病人（避免延误治疗）
+- **安全检测**：不希望漏掉任何真正的安全威胁（如机场安检）
+- **缺陷检测**：不希望漏掉任何有缺陷的产品（如生产线质检）
+
+在这些场景中，我们需要尽可能降低FN(漏报)，保持高召回率。
+:::
+
+#### 9.1.3.5 F1 分数 (F1-Score)
+
+F1分数是精确率和召回率的调和平均数，它综合了这两个指标。
+$$ F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} $$
+F1分数在精确率和召回率都较高时才会较高。
+
+:::{.callout-note appearance="simple"}
+**F1分数的应用场景**
+
+当我们希望同时关注精确率和召回率，或者当它们之间存在权衡时，F1分数是一个很好的综合评估指标。例如：
+
+- **信息检索**：需要平衡返回结果的相关性(精确率)和覆盖率(召回率)
+- **异常检测**：需要平衡误报(FP)和漏报(FN)的成本
+- **分类任务中的类别不平衡**：当正负样本比例悬殊时，F1比准确率更能反映模型性能
+:::
+
+```{python}
+#| echo: true
+#| label: code-precision-recall-f1
+
+from sklearn.metrics import precision_score, recall_score, f1_score, classification_report
+
+precision = precision_score(y_val, y_pred_val, zero_division=0) # zero_division处理分母为0的情况
+recall = recall_score(y_val, y_pred_val, zero_division=0)
+f1 = f1_score(y_val, y_pred_val, zero_division=0)
+
+print(f"精确率 (Precision): {precision:.4f}")
+print(f"召回率 (Recall): {recall:.4f}")
+print(f"F1 分数 (F1-Score): {f1:.4f}")
+
+# classification_report 可以一次性输出多个指标
+print("\n分类报告 (Classification Report):\n", classification_report(y_val, y_pred_val, zero_division=0))
+```
+
+#### 9.1.3.6 ROC 曲线与 AUC 值
+
+**ROC 曲线 (Receiver Operating Characteristic Curve)**：
+ROC曲线描述了在不同分类阈值下，分类器的真正类率 (TPR, True Positive Rate，即召回率) 与假正类率 (FPR, False Positive Rate) 之间的关系。
+*   **TPR (召回率)**: $TPR = \frac{TP}{TP + FN}$
+*   **FPR (误报率)**: $FPR = \frac{FP}{FP + TN}$
+
+ROC曲线的横轴是FPR，纵轴是TPR。曲线越靠近左上角（TPR高，FPR低），模型的性能越好。完全随机猜测的模型，其ROC曲线是一条从(0,0)到(1,1)的对角线。
+
+**AUC (Area Under the ROC Curve)**：
+AUC是ROC曲线下的面积。AUC值介于0到1之间，值越大表示模型性能越好。
+*   AUC = 1：完美分类器。
+*   AUC = 0.5：随机猜测。
+*   AUC < 0.5：比随机猜测还差（可能模型学反了，或者数据标签有问题）。
+
+:::{.callout-note appearance="simple"}
+**AUC指标的特点**
+
+AUC (Area Under the ROC Curve) 是评估二分类模型性能的常用指标，具有以下优势：
+
+- **阈值无关性**：不依赖于特定的分类阈值，能够综合评估模型在所有可能阈值下的表现
+- **类别不平衡鲁棒性**：对类别分布不敏感，适用于正负样本比例悬殊的情况
+- **综合评估**：同时考虑了模型对正负样本的区分能力
+:::
+
+```{python}
+#| echo: true
+#| fig-cap: "ROC曲线示例及其AUC值。"
+#| label: fig-roc-auc
+
+from sklearn.metrics import roc_curve, auc, roc_auc_score
+
+# 获取模型预测为正类的概率 (很多分类器有 predict_proba 方法)
+# LogisticRegression 默认用 decision_function 来确定阈值，这里用 predict_proba 获取概率
+y_pred_proba_val = model_example.predict_proba(X_val)[:, 1] # 取正类的概率
+
+fpr, tpr, thresholds = roc_curve(y_val, y_pred_proba_val)
+roc_auc = auc(fpr, tpr)
+# 或者直接计算 roc_auc_score(y_val, y_pred_proba_val)
+
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Chance')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate (FPR)')
+plt.ylabel('True Positive Rate (TPR)')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc="lower right")
+plt.grid(True)
+# plt.savefig('images/09-model-evaluation/roc_auc_curve.svg', format='svg')
+plt.show()
+
+print(f"AUC 值: {roc_auc:.4f}")
+# 直接计算 AUC
+auc_score_direct = roc_auc_score(y_val, y_pred_proba_val)
+print(f"直接计算的 AUC 值: {auc_score_direct:.4f}")
+
+```
+
+:::{.callout-tip appearance="simple"}
+**如何选择分类指标？**
+
+选择哪个指标取决于具体的应用场景和业务需求：
+
+- **准确率 (Accuracy)**：适用于类别平衡且误分类代价相同的情况
+- **精确率 (Precision)**：关注"不要错杀好人"的场景（如垃圾邮件过滤）
+- **召回率 (Recall)**：关注"不要放过坏人"的场景（如疾病诊断）  
+- **F1分数**：当需要平衡精确率和召回率时使用
+- **AUC**：评估模型整体性能或处理类别不平衡问题
+:::
+
+### 9.1.4 回归模型评估指标
+
+#### 9.1.4.1 平均绝对误差 (Mean Absolute Error, MAE)
+
+MAE 计算的是预测值与真实值之间绝对误差的平均值。
+$$ \text{MAE} = \frac{1}{m} \sum_{i=1}^{m} |y^{(i)} - \hat{y}^{(i)}| $$
+其中 $m$ 是样本数量，$y^{(i)}$ 是真实值，$\hat{y}^{(i)}$ 是预测值。
+
+::: {.callout-note appearance="simple"}
+**MAE 特点：**
+
+- **优点：**  
+  - 易于理解
+  - 对异常值不那么敏感（相比MSE）
+  
+- **缺点：**  
+  - 绝对值函数在零点不可导，可能给某些优化算法带来问题（虽然在评估时这不是主要问题）
+:::
+
+#### 9.1.4.2 均方误差 (Mean Squared Error, MSE)
+
+MSE 计算的是预测值与真实值之间误差平方的平均值。
+$$ \text{MSE} = \frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2 $$
+
+::: {.callout-note appearance="simple"}
+**MSE 特点：**
+
+- **优点：**  
+  - 对误差进行平方，可以放大较大的误差，因此对大误差更敏感
+  - 数学上易于处理（可导）
+
+- **缺点：**  
+  - 量纲与原始目标变量的平方相同，不易直观解释
+  - 对异常值非常敏感
+:::
+
+#### 9.1.4.3 均方根误差 (Root Mean Squared Error, RMSE)
+
+RMSE 是 MSE 的平方根。
+$$ \text{RMSE} = \sqrt{\text{MSE}} = \sqrt{\frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2} $$
+
+::: {.callout-note appearance="simple"}
+**RMSE 特点：**
+
+- **优点：**  
+  - 与原始目标变量具有相同的量纲，更易于解释
+  - 仍然对大误差敏感（通过平方运算放大误差）
+
+- **缺点：**  
+  - 仍然对异常值敏感（继承了MSE的特性）
+:::
+
+#### 9.1.4.4 R 方 (R-squared，决定系数)
+
+R方（也称决定系数 Coefficient of Determination）衡量的是模型对数据变异性的解释程度。它的取值范围通常在0到1之间（但在某些情况下可能为负）。
+$$ R^2 = 1 - \frac{\text{SS}_{\text{res}}}{\text{SS}_{\text{tot}}} = 1 - \frac{\sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2}{\sum_{i=1}^{m} (y^{(i)} - \bar{y})^2} $$
+其中：
+
+*   $\text{SS}_{\text{res}}$ 是残差平方和 (Sum of Squares of Residuals)。
+*   $\text{SS}_{\text{tot}}$ 是总平方和 (Total Sum of Squares)，即数据本身的方差。
+*   $\bar{y}$ 是真实值的平均值。
+
+**解释：**
+
+*   $R^2 = 1$: 模型完美拟合数据。
+*   $R^2 = 0$: 模型等同于用均值进行预测，没有解释任何变异性。
+*   $R^2 < 0$: 模型表现非常差，甚至不如用均值预测。
+
+::: {.callout-note appearance="simple"}
+**R方特点：**
+
+- **优点：**  
+  - 提供了相对的性能度量，易于比较不同模型
+  - 无量纲指标，便于跨数据集比较
+
+- **缺点：**  
+  - 添加不相关特征时R方可能会虚假增加
+  - 对于不同特征数量的模型比较，调整R方(Adjusted R-squared)更合适
+  - Scikit-learn中`score`方法默认返回的是R方而非调整R方
+:::
+
+```{python}
+#| echo: true
+#| label: code-regression-metrics
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# 生成一些回归数据示例
+np.random.seed(0)
+X_reg = np.random.rand(100, 1) * 10
+y_reg = 2.5 * X_reg.squeeze() + np.random.randn(100) * 2 + 5
+
+X_reg_train, X_reg_test, y_reg_train, y_reg_test = train_test_split(X_reg, y_reg, test_size=0.2, random_state=42)
+
+reg_model = LinearRegression()
+reg_model.fit(X_reg_train, y_reg_train)
+y_reg_pred = reg_model.predict(X_reg_test)
+
+mae = mean_absolute_error(y_reg_test, y_reg_pred)
+mse = mean_squared_error(y_reg_test, y_reg_pred)
+rmse = np.sqrt(mse) # 或者 mean_squared_error(y_reg_test, y_reg_pred, squared=False)
+r2 = r2_score(y_reg_test, y_reg_pred)
+# 对于回归器， .score() 方法通常返回 R^2
+# r2_from_score = reg_model.score(X_reg_test, y_reg_test)
+
+print(f"回归模型在测试集上的评估指标:")
+print(f"平均绝对误差 (MAE): {mae:.4f}")
+print(f"均方误差 (MSE): {mse:.4f}")
+print(f"均方根误差 (RMSE): {rmse:.4f}")
+print(f"R方 (R-squared): {r2:.4f}")
+# print(f"R方 (from .score()): {r2_from_score:.4f}")
+
+# 可视化回归结果
+plt.figure(figsize=(8,6))
+plt.scatter(X_reg_test, y_reg_test, color='blue', label='Actual values', alpha=0.7)
+plt.plot(X_reg_test, y_reg_pred, color='red', linewidth=2, label='Predicted values')
+plt.xlabel("Feature")
+plt.ylabel("Target")
+plt.title("Regression Model: Actual vs. Predicted")
+plt.legend()
+plt.grid(True)
+# plt.savefig('images/09-model-evaluation/regression_actual_vs_predicted.svg', format='svg')
+plt.show()
+
+```
+
+## 9.2 模型优化：过拟合、欠拟合与验证
+
+### 9.2.1 过拟合 (Overfitting) 与欠拟合 (Underfitting)
+
+*   **欠拟合 (Underfitting)：**
+    *   **现象：** 模型在训练集和测试集（或验证集）上都表现不佳。
+    *   **原因：** 通常是因为模型过于简单，无法捕捉数据中的复杂模式和关系。也可能是因为特征不足。
+    *   **解决方法：**
+        *   尝试更复杂的模型（例如，从线性模型换到非线性模型，或增加神经网络的层数/单元数）。
+        *   增加更多有用的特征（特征工程）。
+        *   减少正则化强度。
+        *   训练更长时间（对于迭代算法）。
+
+*   **过拟合 (Overfitting)：**
+    *   **现象：** 模型在训练集上表现非常好，但在测试集（或验证集）上表现显著较差。模型学习了训练数据中的噪声和细节，而不是潜在的通用模式，导致其泛化能力差。
+    *   **原因：** 通常是因为模型过于复杂（相对于数据量而言），或者训练数据量太小，或者训练时间过长。
+    *   **解决方法：**
+        *   获取更多训练数据。
+        *   使用更简单的模型或降低模型复杂度。
+        *   **正则化 (Regularization)：** 在损失函数中加入惩罚项，限制模型参数的大小（如L1、L2正则化）。
+        *   **数据增强 (Data Augmentation)：** 对于图像、文本等数据，通过变换生成新的训练样本。
+        *   **Dropout (常用于神经网络)：** 在训练过程中随机丢弃一部分神经元。
+        *   **早停 (Early Stopping)：** 在验证集上性能不再提升时停止训练。
+        *   特征选择，减少特征数量。
+        *   **交叉验证：** 用于更可靠地评估模型性能和选择超参数，间接帮助避免过拟合。
+
+**理想情况：** 模型在训练集和测试集上都表现良好，并且两者性能接近。
+
+::: {.callout-tip appearance="simple"}
+**诊断技巧：**
+绘制学习曲线 (Learning Curves)，观察模型在训练集和验证集上的性能随训练样本数量或训练轮数的变化情况，有助于诊断过拟合和欠拟合。
+:::
+
+### 9.2.2 交叉验证 (Cross-Validation)
+
+当数据集较小时，简单地划分为训练集、验证集和测试集可能会导致验证集或测试集过小，使得模型评估结果偶然性太大，不够可靠。交叉验证是一种更稳健的模型评估和选择方法。
+
+#### 9.2.2.1 K 折交叉验证 (K-Fold Cross-Validation)
+
+K折交叉验证是最常用的交叉验证方法。步骤如下：
+
+1.  将原始训练数据随机划分为 $K$ 个大小相似的、互不相交的子集（称为"折"，fold）。
+2.  进行 $K$ 轮迭代：
+    *   在每一轮中，选择其中一个折作为验证集，其余 $K-1$ 个折合并作为训练集。
+    *   在训练集上训练模型，在验证集上评估模型性能。
+3.  最终的模型性能是 $K$ 轮评估结果的平均值（例如，平均准确率、平均MSE）。
+
+**优点：**
+*   所有数据都参与了训练和验证，评估结果更稳定、更可靠。
+*   减少了因特定划分方式带来的偶然性。
+
+**选择K值：** 常见的K值为5或10。K值越大，计算成本越高，但评估结果的方差通常越小。
+
+```{python}
+#| echo: true
+#| label: code-kfold-cv
+
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+
+# 使用鸢尾花数据集示例
+iris = load_iris()
+X_iris_full = iris.data
+y_iris_full = iris.target
+
+# 数据标准化
+scaler_cv = StandardScaler()
+X_iris_scaled_full = scaler_cv.fit_transform(X_iris_full)
+
+# 初始化模型 (这里用SVM作为例子)
+svm_model_cv = SVC(kernel='linear', C=1, random_state=42)
+
+# 定义 KFold
+k = 5
+kf = KFold(n_splits=k, shuffle=True, random_state=42)
+
+# 手动进行 K-Fold 交叉验证 (理解过程)
+fold_accuracies = []
+for fold_idx, (train_index, val_index) in enumerate(kf.split(X_iris_scaled_full)):
+    X_train_fold, X_val_fold = X_iris_scaled_full[train_index], X_iris_scaled_full[val_index]
+    y_train_fold, y_val_fold = y_iris_full[train_index], y_iris_full[val_index]
+    
+    svm_model_cv.fit(X_train_fold, y_train_fold)
+    fold_accuracy = svm_model_cv.score(X_val_fold, y_val_fold)
+    fold_accuracies.append(fold_accuracy)
+    print(f"Fold {fold_idx+1} 验证集准确率: {fold_accuracy:.4f}")
+
+print(f"\nK-Fold ({k}-折) 交叉验证平均准确率 (手动): {np.mean(fold_accuracies):.4f} (+/- {np.std(fold_accuracies):.4f})")
+
+
+# 使用 cross_val_score 简化 K-Fold 交叉验证
+# cross_val_score 内部会克隆模型并在每个fold上重新训练
+# scoring 参数可以选择不同的评估指标，如 'accuracy', 'precision', 'recall', 'f1', 'roc_auc' (分类)
+# 'neg_mean_squared_error', 'r2' (回归)
+# 注意：Scikit-learn的约定是评估指标越大越好，所以MSE等会返回负值
+cv_scores = cross_val_score(svm_model_cv, X_iris_scaled_full, y_iris_full, cv=k, scoring='accuracy')
+
+print(f"\ncross_val_score ({k}-折) 准确率列表: {cv_scores}")
+print(f"cross_val_score 平均准确率: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
+
+```
+
+:::{.callout-note}
+`cross_val_score` 返回的是每次验证折上的得分。通常我们会关心这些得分的均值和标准差，以了解模型性能的稳定性和平均水平。
+:::
+
+#### 9.2.2.2 其他交叉验证策略
+
+*   **留一交叉验证 (Leave-One-Out Cross-Validation, LOOCV)：**
+    $K$ 等于样本数量 $m$。每次迭代中，只留下一个样本作为验证集，其余 $m-1$ 个样本作为训练集。计算成本非常高，但对于小数据集，可以得到近乎无偏的性能估计。
+    Scikit-learn: `LeaveOneOut`
+
+*   **分层 K 折交叉验证 (Stratified K-Fold Cross-Validation)：**
+    在分类问题中，如果数据类别不平衡，普通的K折交叉验证可能会导致某些折中某个类别的样本非常少甚至没有。分层K折交叉验证在划分数据时会保持每个折中类别比例与原始数据集中的类别比例大致相同。这对于类别不平衡的数据集尤为重要。
+    Scikit-learn: `StratifiedKFold`, `cross_val_score` 在分类任务中默认会尝试使用分层划分。
+
+*   **带分组的交叉验证 (Group K-Fold, etc.)：**
+    当数据中存在分组结构时（例如，同一个病人的多次测量数据，这些数据不是独立的），需要确保来自同一组的样本不会同时出现在训练集和验证集中，以避免信息泄露。
+    Scikit-learn: `GroupKFold`, `LeaveOneGroupOut`, `LeavePGroupsOut`
+
+### 9.2.3 偏差 (Bias) 与方差 (Variance)
+
+理解偏差和方差有助于我们诊断模型的问题并选择合适的优化策略。
+假设模型的期望预测为 $E[\hat{f}(x)]$，真实函数为 $f(x)$，则模型的期望误差可以分解：
+$$E[(y - \hat{f}(x))^2] = \underbrace{(E[\hat{f}(x)] - f(x))^2}_{Bias^2} + \underbrace{E[(\hat{f}(x) - E[\hat{f}(x)])^2]}_{Variance} + \underbrace{\sigma^2_{\epsilon}}_{Irreducible\ Error}$$
+
+*   **偏差 (Bias)：**
+    *   描述的是模型预测值的期望与真实值之间的差距。高偏差意味着模型系统性地偏离了真实目标。
+    *   通常由模型过于简单（欠拟合）导致，无法捕捉数据的真实规律。
+    *   **高偏差模型的特点：** 在训练集和测试集上性能都较差。
+
+*   **方差 (Variance)：**
+    *   描述的是模型预测值对于不同训练数据集的敏感程度，即模型预测结果的波动性。高方差意味着模型对训练数据的微小变化非常敏感。
+    *   通常由模型过于复杂（过拟合）导致，学习了训练数据中的噪声。
+    *   **高方差模型的特点：** 在训练集上性能很好，但在测试集上性能显著下降。
+
+*   **不可约误差 (Irreducible Error)：**
+    *   数据本身固有的噪声导致的误差，任何模型都无法消除。
+
+:::{.callout-note appearance="simple"}
+**偏差-方差权衡 (Bias-Variance Trade-off)**
+
+通常情况下，偏差和方差是相互制约的：
+
+*   **简单的模型**（如线性回归）通常具有高偏差和低方差。
+*   **复杂的模型**（如高阶多项式回归、深度神经网络）通常具有低偏差和高方差。
+
+模型优化的目标是在偏差和方差之间找到一个平衡点，使得总误差最小。
+:::
+
+![偏差-方差权衡示意图](https://towardsdatascience.com/wp-content/uploads/2022/06/1_6iqpYUskXGWctfWEfppEg.png){#fig-bias-variance-tradeoff fig-alt="Bias-Variance Tradeoff" width="600"}
+
+*图片来源：[Understanding the Bias-Variance Tradeoff by Seema Singh](https://towardsdatascience.com/understanding-the-bias-variance-tradeoff-165e6942b229)*
+
+### 9.2.4 超参数调优 (Hyperparameter Tuning)
+
+模型的超参数是在训练开始之前设置的参数，它们控制着学习过程的某些方面（例如，SVM 的 `C` 和 `kernel`，决策树的 `max_depth`）。找到最优的超参数组合对于提升模型性能至关重要。
+
+#### 9.2.4.1 网格搜索 (Grid Search)
+
+网格搜索是最简单也是最常用的超参数调优方法。它会尝试所有给定的超参数值的组合。
+
+1.  **定义超参数空间：** 为每个你想要调优的超参数指定一个候选值列表。
+2.  **构建网格：** 所有超参数候选值的笛卡尔积构成一个"网格"。
+3.  **遍历评估：** 对于网格中的每一个超参数组合：
+    *   使用该组合配置模型。
+    *   通过交叉验证（例如K折）在训练数据上评估模型性能。
+4.  **选择最佳参数：** 选择在交叉验证中表现最好的超参数组合。
+5.  **最终模型训练：** 使用找到的最佳超参数组合，在整个训练数据上重新训练模型。
+
+**优点：** 简单，能找到指定范围内的最优组合。
+
+**缺点：** 当超参数数量较多或每个超参数的候选值较多时，计算成本会呈指数级增长（维度灾难）。
+
+```{python}
+#| echo: true
+#| label: code-grid-search-cv
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
+# 使用之前定义的 X_iris_scaled_full, y_iris_full
+
+# 定义要调优的超参数及其候选值
+param_grid_svm = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': [0.001, 0.01, 0.1, 1], # 'rbf' 或 'poly' 核的参数
+    'kernel': ['rbf', 'linear'] # 尝试不同的核函数
+}
+
+# 初始化 GridSearchCV
+# estimator: 要调优的模型
+# param_grid: 超参数网格
+# cv: 交叉验证折数
+# scoring: 评估指标
+# n_jobs: 并行运行的作业数 (-1 表示使用所有可用的处理器)
+grid_search_svm = GridSearchCV(
+    estimator=SVC(random_state=42),
+    param_grid=param_grid_svm,
+    cv=3, # 使用3折交叉验证以加快示例速度，实际可使用5或10
+    scoring='accuracy',
+    verbose=1, # verbose > 0 会输出一些日志信息
+    n_jobs=-1
+)
+
+# 在数据上执行网格搜索
+# 注意：GridSearchCV 会自动在最佳参数组合下用整个训练数据重新训练模型 (refit=True 默认)
+print("开始网格搜索...")
+grid_search_svm.fit(X_iris_scaled_full, y_iris_full) # 在整个可用数据上搜索 (实际中应在训练集上搜索)
+
+# 查看最佳参数和最佳得分
+print(f"\n最佳超参数组合: {grid_search_svm.best_params_}")
+print(f"交叉验证最佳准确率: {grid_search_svm.best_score_:.4f}")
+
+# 获取最佳模型
+best_svm_model = grid_search_svm.best_estimator_
+
+# (可选) 查看所有结果
+# results_df = pd.DataFrame(grid_search_svm.cv_results_)
+# print("\n网格搜索详细结果:\n", results_df[['param_C', 'param_gamma', 'param_kernel', 'mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False).head())
+```
+
+#### 9.2.4.2 随机搜索 (Randomized Search)
+
+当超参数空间很大时，网格搜索可能不可行。随机搜索从指定的参数分布中随机采样固定数量的参数组合。
+
+1.  **定义参数分布：** 为每个超参数指定一个分布（例如，均匀分布、离散列表等）。
+2.  **采样评估：**
+    *   指定采样次数 `n_iter`。
+    *   进行 `n_iter` 次迭代，每次从参数分布中随机选择一组超参数。
+    *   使用该组合配置模型，并通过交叉验证评估性能。
+3.  **选择最佳参数：** 选择表现最好的超参数组合。
+
+**优点：**
+
+*   比网格搜索更高效，尤其是在高维参数空间中。
+*   即使某些参数对性能影响不大，随机搜索也有机会找到好的组合，而网格搜索可能会在这些不重要参数的维度上浪费大量时间。
+*   可以更好地探索参数空间的边缘区域。
+
+**缺点：** 不保证找到全局最优解（但通常能找到足够好的解）。
+
+```{python}
+#| echo: true
+#| label: code-randomized-search-cv
+
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import expon, uniform # 用于定义参数分布
+
+# 定义参数分布
+# 对于连续参数，可以指定一个分布，如 expon (指数分布), uniform (均匀分布)
+# 对于离散参数，可以是一个列表
+param_dist_svm = {
+    'C': expon(scale=10), # 从指数分布中采样，scale是均值
+    'gamma': expon(scale=0.1),
+    'kernel': ['rbf', 'linear', 'poly'],
+    'degree': [2, 3, 4] # poly核的度数，仅当kernel='poly'时相关
+}
+
+# 初始化 RandomizedSearchCV
+# n_iter: 采样的参数组合数量
+random_search_svm = RandomizedSearchCV(
+    estimator=SVC(random_state=42, probability=True), # probability=True 如果后续需要用predict_proba
+    param_distributions=param_dist_svm,
+    n_iter=20, # 尝试20种不同的参数组合 (根据计算资源调整)
+    cv=3,
+    scoring='accuracy',
+    verbose=1,
+    n_jobs=-1,
+    random_state=42 # 为了结果可复现
+)
+
+print("开始随机搜索...")
+random_search_svm.fit(X_iris_scaled_full, y_iris_full)
+
+print(f"\n最佳超参数组合: {random_search_svm.best_params_}")
+print(f"交叉验证最佳准确率: {random_search_svm.best_score_:.4f}")
+
+best_svm_model_random = random_search_svm.best_estimator_
+```
+
+**其他超参数调优方法：**
+
+*   **贝叶斯优化 (Bayesian Optimization)：** 例如使用 `hyperopt`, `scikit-optimize (skopt)` 等库。它会根据先前的评估结果智能地选择下一组要尝试的超参数，通常比网格搜索和随机搜索更高效。
+*   **基于梯度的优化：** 对于某些模型（如神经网络），可以直接优化超参数。
+*   **进化算法 (Evolutionary Algorithms)：** 如遗传算法。
+
+## 9.3 特征工程 (Feature Engineering)
+
+特征工程是从原始数据中提取或创建对模型预测有用的特征的过程。它是机器学习项目中非常关键且耗时的一环，好的特征往往能极大地提升模型性能，甚至比选择复杂的模型更重要。
+
+::: {.callout-important appearance="simple"}
+"Garbage in, garbage out." —— 特征的质量直接决定了模型性能的上限。
+:::
+
+### 9.3.1 特征工程的重要性
+
+*   **提升模型性能：** 合适的特征能帮助模型更好地学习数据中的模式。
+*   **简化模型：** 好的特征可以让简单的模型也能达到很好的效果。
+*   **提高模型可解释性：** 有意义的特征更容易理解模型的决策过程。
+*   **减少计算开销：** 通过特征选择或创建更有效的特征，可以减少模型的训练时间。
+
+### 9.3.2 主要任务
+
+特征工程包含多个方面：
+
+1.  **特征预处理 (Feature Preprocessing)：**
+    *   **数据清洗 (Data Cleaning)：** 处理缺失值、异常值、重复值等。
+    *   **特征缩放 (Feature Scaling)：** 将不同尺度的特征转换到相似的范围，如标准化、归一化。
+2.  **特征创建/构造 (Feature Creation/Construction)：**
+    *   从现有特征组合出新的特征（例如，多项式特征、交互特征）。
+    *   结合领域知识创造有意义的特征。
+3.  **特征转换 (Feature Transformation)：**
+    *   对特征进行非线性变换（如对数变换、Box-Cox变换）以改善其分布或与目标变量的关系。
+    *   处理类别型特征（如独热编码、标签编码）。
+4.  **特征选择 (Feature Selection)：**
+    *   从众多特征中选出与目标变量最相关、冗余度最低的特征子集（已在降维章节讨论）。
+5.  **特征提取 (Feature Extraction)：**
+    *   通过算法将原始特征转换为新的、维度更低的特征空间（如PCA，已在降维章节讨论）。
+
+### 9.3.3 特征预处理
+
+#### 9.3.3.1 处理缺失值 (Missing Values)
+
+真实世界的数据往往存在缺失值。处理缺失值的方法主要有：
+
+*   **删除：**
+    *   **删除样本：** 如果某个样本包含过多缺失值，或者缺失值发生在非常重要的特征上，可以考虑删除整个样本。
+    *   **删除特征：** 如果某个特征大部分值都缺失，或者该特征不重要，可以考虑删除整个特征。
+*   **填充/插补 (Imputation)：**
+    *   **均值/中位数/众数填充：** 用特征的均值（数值型）、中位数（数值型，对异常值更稳健）或众数（类别型或数值型）来填充缺失值。这是最简单的方法。
+    *   **固定值填充：** 用一个特定的值（如0, -1, "Unknown"）填充。
+    *   **模型预测填充：** 将含有缺失值的特征作为目标变量，用其他特征来训练一个模型（如KNN、回归模型）预测缺失值。计算成本较高，但可能更准确。
+    *   **插值法：** 对于时间序列数据，可以使用前一个值、后一个值或插值方法（如线性插值）填充。
+
+Scikit-learn 提供了 `sklearn.impute.SimpleImputer` (用于均值、中位数、众数、固定值填充) 和 `sklearn.impute.KNNImputer` (用KNN预测填充)。
+
+```{python}
+#| echo: true
+#| label: code-missing-values
+
+import numpy as np
+from sklearn.impute import SimpleImputer, KNNImputer
+
+# 示例数据，包含NaN
+X_missing = np.array([[1, 2, np.nan],
+                      [3, np.nan, 5],
+                      [np.nan, 6, 7],
+                      [8, 9, 10]])
+
+# 1. 使用 SimpleImputer 填充均值
+imputer_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
+X_imputed_mean = imputer_mean.fit_transform(X_missing)
+print("均值填充结果:\n", X_imputed_mean)
+
+# 2. 使用 SimpleImputer 填充中位数
+imputer_median = SimpleImputer(missing_values=np.nan, strategy='median')
+X_imputed_median = imputer_median.fit_transform(X_missing)
+print("\n中位数填充结果:\n", X_imputed_median)
+
+# 3. 使用 KNNImputer 填充
+# n_neighbors: 用于插补的邻居数量
+imputer_knn = KNNImputer(n_neighbors=2)
+X_imputed_knn = imputer_knn.fit_transform(X_missing) # 注意：KNNImputer期望输入是数值型
+print("\nKNN填充结果:\n", X_imputed_knn)
+```
+
+#### 9.3.3.2 处理异常值 (Outliers)
+
+异常值是数据集中与其他观测值显著不同的数据点。它们可能是由于测量错误、数据输入错误或真实但罕见的事件造成的。异常值可能会对某些模型的训练（如线性回归、基于距离的模型）产生负面影响。
+
+**检测异常值的方法：**
+
+*   **统计方法：**
+    *   **3σ法则 (3-Sigma Rule)：** 对于近似正态分布的数据，约99.7%的数据点应落在均值加减3倍标准差的范围内。超出此范围的可视为异常值。
+    *   **箱线图 (Box Plot) / IQR法则：** IQR (Interquartile Range) = Q3 - Q1。通常将小于 Q1 - 1.5 * IQR 或大于 Q3 + 1.5 * IQR 的值视为异常值。
+*   **基于模型的检测：** 如孤立森林 (Isolation Forest)、局部异常因子 (Local Outlier Factor, LOF)。
+
+**处理异常值的方法：**
+
+*   **删除：** 如果确定是错误数据，可以删除。
+*   **转换：** 对数据进行变换（如对数变换）可能减轻异常值的影响。
+*   **盖帽/缩尾 (Capping/Winsorizing)：** 将超出某个阈值的异常值替换为该阈值（例如，将所有大于99百分位数的值替换为99百分位数的值）。
+*   **使用对异常值稳健的模型：** 例如，使用MAE代替MSE作为损失函数，或者使用基于树的模型（它们通常对异常值不那么敏感）。
+*   **视为缺失值再进行插补。**
+
+#### 9.3.3.3 特征缩放 (Feature Scaling)
+
+许多机器学习算法（如基于距离的算法KNN、SVM，梯度下降优化的算法如线性回归、逻辑回归、神经网络）的性能会受到输入特征尺度的影响。如果特征具有非常不同的取值范围，尺度较大的特征可能会主导模型的学习过程。特征缩放将所有特征调整到相似的范围。
+
+**常用的特征缩放方法：**
+
+1.  **标准化 (Standardization / Z-score Normalization)：**
+    将特征缩放为均值为0，标准差为1。
+    $$ x' = \frac{x - \mu}{\sigma} $$
+    其中 $\mu$ 是特征的均值，$\sigma$ 是特征的标准差。
+
+    **适用场景：** 当数据近似高斯分布时效果较好，或者当算法对特征的方差敏感时（如PCA）。
+
+    **Scikit-learn:** `sklearn.preprocessing.StandardScaler`
+
+2.  **归一化 (Normalization / Min-Max Scaling)：**
+    将特征缩放至给定的范围，通常是 [0, 1] 或 [-1, 1]。
+    $$ x' = \frac{x - \text{min}(x)}{\text{max}(x) - \text{min}(x)} $$ (对于 [0, 1] 范围)
+
+    **适用场景：** 当数据分布不符合高斯分布，或者希望将特征值限制在特定边界内时（如图像像素值）。对异常值非常敏感。
+
+    **Scikit-learn:** `sklearn.preprocessing.MinMaxScaler`
+
+3.  **鲁棒缩放 (Robust Scaling)：**
+    使用对异常值不敏感的统计量（如中位数和四分位距IQR）进行缩放。
+    $$ x' = \frac{x - \text{median}(x)}{\text{IQR}} $$
+    
+    **适用场景：** 当数据包含较多异常值时，StandardScaler 和 MinMaxScaler 的效果可能会受影响，此时 RobustScaler 是一个更好的选择。
+
+    **Scikit-learn:** `sklearn.preprocessing.RobustScaler`
+
+```{python}
+#| echo: true
+#| label: code-feature-scaling
+
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+import pandas as pd
+
+# 示例数据
+data_scaling = {'Feature1': [10, 20, 30, 40, 500], # 包含一个异常值
+                'Feature2': [0.1, 0.2, 0.3, 0.4, 0.5]}
+df_scaling = pd.DataFrame(data_scaling)
+
+print("原始数据:\n", df_scaling)
+
+# 1. StandardScaler
+scaler_standard = StandardScaler()
+df_standard_scaled = scaler_standard.fit_transform(df_scaling)
+print("\nStandardScaler 结果:\n", df_standard_scaled)
+print(f"均值: {df_standard_scaled.mean(axis=0)}, 标准差: {df_standard_scaled.std(axis=0)}")
+
+
+# 2. MinMaxScaler (默认缩放到 [0, 1])
+scaler_minmax = MinMaxScaler()
+df_minmax_scaled = scaler_minmax.fit_transform(df_scaling)
+print("\nMinMaxScaler 结果:\n", df_minmax_scaled)
+print(f"最小值: {df_minmax_scaled.min(axis=0)}, 最大值: {df_minmax_scaled.max(axis=0)}")
+
+# 3. RobustScaler
+scaler_robust = RobustScaler()
+df_robust_scaled = scaler_robust.fit_transform(df_scaling)
+print("\nRobustScaler 结果 (对异常值更稳健):\n", df_robust_scaled)
+# RobustScaler后的均值和标准差不一定是0和1
+```
+::: {.callout-note appearance="simple"}
+**何时使用特征缩放？**
+
+*   **基于距离的算法**：KNN, K-Means, SVM (带径向基核等) - 这些算法直接计算特征间的距离，需要特征在相同尺度上
+*   **梯度下降优化的算法**：线性回归, 逻辑回归, 神经网络 - 特征尺度不同会导致优化路径震荡，收敛变慢
+*   **PCA** - 主成分分析对特征方差敏感，需要先标准化
+*   **基于树的模型**：决策树、随机森林、梯度提升树等通常对特征缩放不敏感，因为它们是基于规则的分裂而非距离计算
+:::
+
+::: {.callout-important appearance="simple"}
+*   在训练集上 `fit` 或 `fit_transform` 缩放器，然后在验证集和测试集上只使用 `transform`。这是为了防止测试集的信息泄露到训练过程中，保证评估的公正性。
+*   如果使用交叉验证，特征缩放应该在每个交叉验证的折叠内部进行，或者使用 Pipeline 将缩放器和模型串联起来。
+:::
+
+### 9.3.4 特征编码 (Feature Encoding)
+
+机器学习模型通常只能处理数值型数据。类别型特征（如颜色："红"、"蓝"、"绿"；城市："北京"、"上海"）需要转换为数值表示。
+
+#### 9.3.4.1 独热编码 (One-Hot Encoding)
+
+对于名义类别特征（类别之间没有顺序关系），独热编码是一种常用的方法。它为每个类别创建一个新的二元特征（0或1）。
+
+例如，特征 "颜色" 有三个类别：红、蓝、绿。
+
+*   红 -> `[1, 0, 0]`
+*   蓝 -> `[0, 1, 0]`
+*   绿 -> `[0, 0, 1]`
+
+**优点：** 避免了类别间引入不自然的顺序关系。
+
+**缺点：** 如果类别数量非常多（高基数类别特征），会导致特征维度急剧增加，可能引发维度灾难。
+
+**Scikit-learn:** `sklearn.preprocessing.OneHotEncoder`。Pandas 也有 `pd.get_dummies()` 函数可以方便地实现独热编码。
+
+#### 9.3.4.2 标签编码 (Label Encoding)
+
+标签编码将每个类别映射为一个整数（例如，红 -> 0, 蓝 -> 1, 绿 -> 2）。
+
+**优点：** 实现简单，不会增加特征维度。
+
+**缺点：** 对于名义类别特征，引入了人为的顺序关系（例如，模型可能会认为 绿(2) > 蓝(1)），这可能误导某些模型（如线性模型、KNN）。
+
+**适用场景：**
+
+*   对于有序类别特征（例如，学历："小学" -> 0, "中学" -> 1, "大学" ->2 ），标签编码是合适的。
+*   对于基于树的模型（决策树、随机森林），它们可以处理这种整数编码的类别特征，因为它们是基于分裂的，不会假设数值大小有特定含义。
+
+**Scikit-learn:** `sklearn.preprocessing.LabelEncoder`。
+
+```{python}
+#| echo: true
+#| label: code-feature-encoding
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+
+# 示例数据
+data_encoding = {'Color': ['Red', 'Blue', 'Green', 'Blue', 'Red'],
+                 'Size': ['S', 'M', 'L', 'M', 'S']} # Size 是有序类别
+df_encoding = pd.DataFrame(data_encoding)
+print("原始数据:\n", df_encoding)
+
+# 1. Label Encoding for 'Size' (有序类别)
+label_encoder_size = LabelEncoder()
+# 可以先定义顺序，但LabelEncoder默认按字母顺序
+# size_mapping = {'S': 0, 'M': 1, 'L': 2}
+# df_encoding['Size_Encoded'] = df_encoding['Size'].map(size_mapping)
+df_encoding['Size_LabelEncoded'] = label_encoder_size.fit_transform(df_encoding['Size'])
+print("\nLabelEncoder 'Size' (默认按字母L,M,S -> 0,1,2):\n", df_encoding)
+# 查看映射关系
+# print("Size类别映射:", dict(zip(label_encoder_size.classes_, label_encoder_size.transform(label_encoder_size.classes_))))
+
+
+# 2. One-Hot Encoding for 'Color' (名义类别)
+# 使用 Pandas get_dummies
+df_one_hot_color_pd = pd.get_dummies(df_encoding['Color'], prefix='Color')
+df_encoded_pd = pd.concat([df_encoding, df_one_hot_color_pd], axis=1)
+print("\nPandas get_dummies 'Color':\n", df_encoded_pd)
+
+# 使用 Scikit-learn OneHotEncoder
+# OneHotEncoder 需要二维输入，并且通常与 ColumnTransformer 一起使用来处理DataFrame
+# 这里为了简单演示，先对 'Color' 进行 LabelEncoding，然后 OneHotEncode (这不是推荐做法，但能展示)
+label_encoder_color = LabelEncoder()
+color_labels = label_encoder_color.fit_transform(df_encoding['Color']).reshape(-1, 1)
+
+one_hot_encoder_color = OneHotEncoder(sparse_output=False) # sparse_output=False 返回密集数组
+color_one_hot_sklearn = one_hot_encoder_color.fit_transform(color_labels)
+# 获取编码后的特征名
+feature_names_color = one_hot_encoder_color.get_feature_names_out(['Color'])
+df_color_one_hot_sklearn = pd.DataFrame(color_one_hot_sklearn, columns=feature_names_color, index=df_encoding.index)
+
+df_encoded_sklearn = pd.concat([df_encoding.drop(columns=['Color_Blue', 'Color_Green', 'Color_Red'], errors='ignore'), df_color_one_hot_sklearn], axis=1)
+print("\nScikit-learn OneHotEncoder 'Color':\n", df_encoded_sklearn)
+
+```
+**处理高基数类别特征的其他方法：**
+
+*   **特征哈希 (Feature Hashing)：** 将类别特征哈希到一个固定大小的向量中，可以控制输出维度。
+*   **目标编码/均值编码 (Target Encoding / Mean Encoding)：** 用该类别下目标变量的均值（或其他统计量）来编码类别。需要小心处理数据泄露问题（通常在交叉验证的每个折内计算）。
+*   **将不常见的类别合并为一个"Other"类别。**
+
+## 9.4 本章总结
+
+本章我们系统地学习了机器学习流程中至关重要的三个环节：模型评估、模型优化和特征工程。
+
+*   **模型评估**：
+    *   理解了训练集、验证集、测试集的划分和作用。
+    *   掌握了分类模型的评估指标：混淆矩阵、准确率、精确率、召回率、F1分数、ROC曲线和AUC值，并了解了它们的适用场景，特别是在处理类别不平衡问题时。
+    *   掌握了回归模型的评估指标：MAE、MSE、RMSE和R方。
+*   **模型优化**：
+    *   深入理解了过拟合和欠拟合的概念、原因及解决方法。
+    *   学习了交叉验证（特别是K折交叉验证和分层K折）作为更可靠的模型评估和选择工具。
+    *   探讨了偏差与方差的权衡，以及它们如何指导模型优化。
+    *   掌握了超参数调优的基本方法：网格搜索和随机搜索，并了解了更高级的调优策略。
+*   **特征工程**：
+    *   认识到特征工程在提升模型性能方面的核心地位。
+    *   学习了特征预处理的关键技术：处理缺失值（删除、填充）、处理异常值、特征缩放（标准化、归一化、鲁棒缩放）。
+    *   学习了类别型特征的编码方法：独热编码和标签编码，以及它们的优缺点和适用场景。
+    *   特征选择和特征提取作为特征工程的重要组成部分，在降维章节已有涉及。
+
+一个成功的机器学习项目离不开细致的数据准备、有效的特征工程、合理的模型选择、可靠的性能评估以及持续的模型优化。这些技能的熟练运用是成为一名优秀数据科学家的基石。
+
+## 9.5 思考与练习
+
+### 9.5.1 基础练习
+
+1.  **模型评估概念：**
+    *   为什么需要将数据划分为训练集、验证集和测试集？它们各自的作用是什么？
+    *   在类别极不平衡的数据集上（例如，99%的样本属于类别A，1%属于类别B），为什么准确率不是一个好的评估指标？你会推荐使用哪些指标？为什么？
+    *   解释精确率和召回率之间的权衡关系。在哪些场景下你更看重精确率？哪些场景下更看重召回率？
+    *   ROC曲线是如何绘制的？AUC值代表什么？为什么AUC通常被认为是一个比准确率更稳健的分类模型评估指标？
+    *   对于回归问题，RMSE和MAE有什么区别？哪个对异常值更敏感？
+
+2.  **模型优化概念：**
+    *   什么是过拟合？什么是欠拟合？它们各自的典型表现是什么？
+    *   列举至少三种防止过拟合的方法，并简要说明其原理。
+    *   K折交叉验证是如何工作的？它相比简单的训练集/验证集划分有什么优势？
+    *   解释偏差和方差的含义。一个高偏差低方差的模型通常是什么样的？一个低偏差高方差的模型呢？
+    *   网格搜索和随机搜索在超参数调优方面有什么区别？各自的优缺点是什么？
+
+3.  **特征工程概念：**
+    *   为什么说特征工程在机器学习中非常重要？
+    *   列举至少两种处理缺失值的方法，并说明其适用场景。
+    *   特征缩放（如标准化和归一化）的目的是什么？哪些类型的算法通常需要特征缩放？哪些不太需要？
+    *   独热编码和标签编码有什么区别？它们分别适用于什么类型的类别特征？
+
+### 9.5.2 编码与实践 (综合项目型练习)
+
+**项目目标：** 构建一个分类模型来预测泰坦尼克号乘客的生还情况。
+
+**数据集：** 使用经典的泰坦尼克号数据集。你可以从Kaggle下载 (`train.csv`)，或者使用Seaborn库内置的数据集 (`seaborn.load_dataset('titanic')`)。
+
+**任务步骤：**
+
+1.  **数据加载与初步探索 (EDA)：**
+    *   加载数据集。
+    *   查看数据的基本信息 (`.info()`, `.describe()`, `.head()`)。
+    *   识别特征类型（数值型、类别型）。
+    *   进行初步的可视化分析，例如：
+        *   生还与否的比例 (目标变量分布)。
+        *   不同特征（如性别 `Sex`、船舱等级 `Pclass`、年龄 `Age`、登船港口 `Embarked`）与生还率的关系（例如，使用条形图、箱线图）。
+
+2.  **特征工程与数据预处理：**
+    *   **处理缺失值：**
+        *   识别哪些列有缺失值 (例如 `Age`, `Embarked`, `Cabin`)。
+        *   为每个有缺失值的特征选择合适的填充策略（例如，`Age`可以用中位数填充，`Embarked`可以用众数填充，`Cabin`缺失较多，可以考虑创建一个新特征表示是否有船舱信息，或者直接删除该列）。
+    *   **特征创建/转换：**
+        *   从 `Name` 中提取乘客的称谓 (Title, 如 Mr, Miss, Mrs)，并将其转换为数值型或独热编码。
+        *   创建家庭大小特征 (`FamilySize = SibSp + Parch + 1`)。
+        *   将类别型特征（如 `Sex`, `Embarked`, `Title`）转换为数值型表示（使用独热编码或标签编码，注意选择合适的方法）。
+        *   `Age` 和 `Fare` 可以考虑进行分箱 (binning) 处理，将其转换为类别特征，然后再编码。
+    *   **特征选择：**
+        *   删除不必要的特征（如 `PassengerId`, `Name` (原始), `Ticket`, `Cabin` (如果决定删除)）。
+    *   **特征缩放：**
+        *   对数值型特征（如 `Age` (如果未分箱), `Fare`, `FamilySize`）进行标准化或归一化。
+
+3.  **数据划分：**
+    *   将预处理后的数据划分为训练集和测试集（例如，80%训练，20%测试）。确保目标变量 `Survived` 在划分时保持分层。
+
+4.  **模型选择与训练：**
+    *   选择至少两种不同的分类模型进行尝试，例如：
+        *   逻辑回归 (Logistic Regression)
+        *   K近邻 (KNN)
+        *   支持向量机 (SVM)
+        *   决策树 (Decision Tree)
+        *   随机森林 (Random Forest)
+    *   在训练集上训练这些模型。
+
+5.  **模型评估：**
+    *   在**测试集**上评估每个模型的性能。
+    *   计算并比较以下指标：准确率、精确率、召回率、F1分数、AUC值。
+    *   绘制ROC曲线。
+    *   生成并分析混淆矩阵。
+
+6.  **超参数调优：**
+    *   选择你认为表现较好或有潜力提升的模型（例如，随机森林、XGBoost、或SVM）。
+    *   使用网格搜索 (`GridSearchCV`) 或随机搜索 (`RandomizedSearchCV`) 结合交叉验证（在训练集上进行）来调优其重要超参数。
+    *   用找到的最佳超参数重新训练模型，并在测试集上评估其最终性能。
+
+7.  **结果分析与总结：**
+    *   比较不同模型和不同超参数下的性能。
+    *   讨论特征工程步骤对模型性能的可能影响。
+    *   总结你的发现，以及哪些特征似乎对预测生还最重要。
+
+**提示与注意事项：**
+
+*   使用 `sklearn.pipeline.Pipeline` 可以将预处理步骤（如缺失值填充、缩放、编码）和模型训练串联起来，使代码更整洁，并能正确地在交叉验证中应用预处理。
+*   对于类别特征的编码，`ColumnTransformer` 是一个非常有用的工具，可以对DataFrame中的不同列应用不同的转换器。
+*   仔细思考每个特征工程决策的理由。
+*   记录你的实验过程和结果。
+
+### 9.5.3 推荐阅读
+
+1.  **Gereron, A. (2019). *Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow* (2nd ed.). O'Reilly. (Chapters 2, 3, 4, Appendix A)** - 实践性强，包含大量代码示例。
+2.  **Kuhn, M., & Johnson, K. (2013). *Applied Predictive Modeling*. Springer.** - 深入讲解了模型评估、特征工程和许多建模技术。
+3.  **Zheng, A., & Casari, A. (2018). *Feature Engineering for Machine Learning: Principles and Techniques for Data Scientists*. O'Reilly.** - 专门讨论特征工程的优秀书籍。
+4.  **Scikit-learn User Guide:**
+    *   Model evaluation: <https://scikit-learn.org/stable/modules/model_evaluation.html>
+    *   Cross-validation: <https://scikit-learn.org/stable/modules/cross_validation.html>
+    *   Preprocessing data: <https://scikit-learn.org/stable/modules/preprocessing.html>
+    *   Feature selection: <https://scikit-learn.org/stable/modules/feature_selection.html>
+5.  **博客和文章：**
+    *   ["A Gentle Introduction to K-Fold Cross-Validation" by Jason Brownlee.](https://machinelearningmastery.com/k-fold-cross-validation/)
+    *   ["Overcome the Biggest Obstacle in Machine Learning: Overfitting" by Jason Brownlee.](https://towardsdatascience.com/overcome-the-biggest-obstacle-in-machine-learning-overfitting-cca026873970/)
+    *   ["Bias-Variance Trade-Off in Machine Learning – A Fantastic Guide for Beginners" on Analytics Vidhya.](https://www.analyticsvidhya.com/blog/2020/08/bias-and-variance-tradeoff-machine-learning/)
+    *   ["A Comprehensive Guide to Feature Engineering: Definition, Importance, and Example" by Mohamed Habib Jaberi.](https://medium.com/@jaberi.mohamedhabib/a-comprehensive-guide-to-feature-engineering-definition-importance-and-example-ccab74a5f83a)
+
+通过这些练习和阅读，你将能更深入地理解并熟练应用模型评估、优化和特征工程的各项技术，为构建高性能的机器学习系统打下坚实的基础。 

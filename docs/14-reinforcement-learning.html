@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>强化学习基础与应用 – 机器学习：从理论到Python实践</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./15-ml-project-workflow-summary.html" rel="next">
+<link href="./13-deep-learning-advanced.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./14-reinforcement-learning.html">第六部分：强化学习入门</a></li><li class="breadcrumb-item"><a href="./14-reinforcement-learning.html"><span class="chapter-title">强化学习基础与应用</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">机器学习：从理论到Python实践</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">欢迎学习《机器学习：从理论到Python实践》</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">第一部分：机器学习基石与Python生态</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习导论</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Python机器学习环境与核心库</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">第二部分：监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">回归与线性模型</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-classification-logreg-knn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">分类与逻辑回归、KNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-svm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">支持向量机 (SVM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-decision-trees-ensemble-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">决策树与集成学习</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">第三部分：无监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clustering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">聚类分析</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-dimensionality-reduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">降维</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">第四部分：模型评估、优化与特征工程</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-model-evaluation-feature-engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">模型评估、优化与特征工程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">第五部分：深度学习初探</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-deep-learning-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习基础</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-cnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">卷积神经网络 (CNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-rnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">循环神经网络 (RNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-deep-learning-advanced.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习进阶</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">第六部分：强化学习入门</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-reinforcement-learning.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">强化学习基础与应用</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">第七部分：综合项目与展望</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-ml-project-workflow-summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习项目实战流程与总结</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-summary-outlook.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">课程总结与展望</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">附录</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#学习目标" id="toc-学习目标" class="nav-link active" data-scroll-target="#学习目标">学习目标</a></li>
+  <li><a href="#引言" id="toc-引言" class="nav-link" data-scroll-target="#引言">14.1 引言</a></li>
+  <li><a href="#强化学习核心要素" id="toc-强化学习核心要素" class="nav-link" data-scroll-target="#强化学习核心要素">14.2 强化学习核心要素</a></li>
+  <li><a href="#马尔可夫决策过程-markov-decision-processes-mdps" id="toc-马尔可夫决策过程-markov-decision-processes-mdps" class="nav-link" data-scroll-target="#马尔可夫决策过程-markov-decision-processes-mdps">14.3 马尔可夫决策过程 (Markov Decision Processes, MDPs)</a></li>
+  <li><a href="#价值函数与q函数" id="toc-价值函数与q函数" class="nav-link" data-scroll-target="#价值函数与q函数">14.4 价值函数与Q函数</a>
+  <ul class="collapse">
+  <li><a href="#状态价值函数-vpis" id="toc-状态价值函数-vpis" class="nav-link" data-scroll-target="#状态价值函数-vpis">14.4.1 状态价值函数 (<span class="math inline">\(V^\pi(s)\)</span>)</a></li>
+  <li><a href="#动作价值函数-qpisa" id="toc-动作价值函数-qpisa" class="nav-link" data-scroll-target="#动作价值函数-qpisa">14.4.2 动作价值函数 (<span class="math inline">\(Q^\pi(s,a)\)</span>)</a></li>
+  <li><a href="#贝尔曼期望方程-bellman-expectation-equations" id="toc-贝尔曼期望方程-bellman-expectation-equations" class="nav-link" data-scroll-target="#贝尔曼期望方程-bellman-expectation-equations">14.4.3 贝尔曼期望方程 (Bellman Expectation Equations)</a></li>
+  <li><a href="#最优价值函数与贝尔曼最优方程" id="toc-最优价值函数与贝尔曼最优方程" class="nav-link" data-scroll-target="#最优价值函数与贝尔曼最优方程">14.4.4 最优价值函数与贝尔曼最优方程</a></li>
+  </ul></li>
+  <li><a href="#q-learning算法" id="toc-q-learning算法" class="nav-link" data-scroll-target="#q-learning算法">14.5 Q-Learning算法</a>
+  <ul class="collapse">
+  <li><a href="#深度q网络-deep-q-networks-dqn" id="toc-深度q网络-deep-q-networks-dqn" class="nav-link" data-scroll-target="#深度q网络-deep-q-networks-dqn">14.5.1 深度Q网络 (Deep Q-Networks, DQN)</a></li>
+  </ul></li>
+  <li><a href="#策略梯度-policy-gradient-思想简介" id="toc-策略梯度-policy-gradient-思想简介" class="nav-link" data-scroll-target="#策略梯度-policy-gradient-思想简介">14.6 策略梯度 (Policy Gradient) 思想简介</a>
+  <ul class="collapse">
+  <li><a href="#actor-critic-方法与-a2c-advantage-actor-critic" id="toc-actor-critic-方法与-a2c-advantage-actor-critic" class="nav-link" data-scroll-target="#actor-critic-方法与-a2c-advantage-actor-critic">14.6.1 Actor-Critic 方法与 A2C (Advantage Actor-Critic)</a></li>
+  </ul></li>
+  <li><a href="#强化学习应用场景" id="toc-强化学习应用场景" class="nav-link" data-scroll-target="#强化学习应用场景">14.7 强化学习应用场景</a></li>
+  <li><a href="#python-rl库体验" id="toc-python-rl库体验" class="nav-link" data-scroll-target="#python-rl库体验">14.8 Python RL库体验</a>
+  <ul class="collapse">
+  <li><a href="#gymnasium-前身为-openai-gym" id="toc-gymnasium-前身为-openai-gym" class="nav-link" data-scroll-target="#gymnasium-前身为-openai-gym">14.8.1 Gymnasium (前身为 OpenAI Gym)</a></li>
+  <li><a href="#stable-baselines3" id="toc-stable-baselines3" class="nav-link" data-scroll-target="#stable-baselines3">14.8.2 Stable Baselines3</a></li>
+  </ul></li>
+  <li><a href="#本章总结" id="toc-本章总结" class="nav-link" data-scroll-target="#本章总结">14.9 本章总结</a></li>
+  <li><a href="#思考与练习" id="toc-思考与练习" class="nav-link" data-scroll-target="#思考与练习">14.10 思考与练习</a>
+  <ul class="collapse">
+  <li><a href="#概念回顾与思考" id="toc-概念回顾与思考" class="nav-link" data-scroll-target="#概念回顾与思考">14.10.1 概念回顾与思考</a></li>
+  <li><a href="#python实践与探索" id="toc-python实践与探索" class="nav-link" data-scroll-target="#python实践与探索">14.10.2 Python实践与探索</a></li>
+  <li><a href="#深入思考与未来方向" id="toc-深入思考与未来方向" class="nav-link" data-scroll-target="#深入思考与未来方向">14.10.3 深入思考与未来方向</a></li>
+  <li><a href="#推荐阅读与资源" id="toc-推荐阅读与资源" class="nav-link" data-scroll-target="#推荐阅读与资源">14.10.4 推荐阅读与资源</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./14-reinforcement-learning.html">第六部分：强化学习入门</a></li><li class="breadcrumb-item"><a href="./14-reinforcement-learning.html"><span class="chapter-title">强化学习基础与应用</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">强化学习基础与应用</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="学习目标" class="level2">
+<h2 class="anchored" data-anchor-id="学习目标">学习目标</h2>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>学习目标：</strong></p>
+<ul>
+<li>理解强化学习的基本概念，包括智能体 (Agent)、环境 (Environment)、状态 (State)、动作 (Action)、奖励 (Reward) 和策略 (Policy)。</li>
+<li>掌握马尔可夫决策过程 (MDPs) 的核心要素及其在强化学习中的作用。</li>
+<li>理解价值函数（状态价值函数 <span class="math inline">\(V^\pi(s)\)</span> 和动作价值函数 <span class="math inline">\(Q^\pi(s,a)\)</span>）和贝尔曼方程。</li>
+<li>掌握Q-Learning算法的原理、更新规则以及其作为一种典型的基于价值、无模型、异策略学习方法。</li>
+<li>初步了解策略梯度 (Policy Gradient) 方法的基本思想。</li>
+<li>了解强化学习的主要应用领域（如游戏、机器人、推荐系统等）。</li>
+<li>能够使用Python中的强化学习库（如Gymnasium）进行简单的环境交互和实验。</li>
+<li>培养通过试错学习解决序贯决策问题的思维方式。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="引言" class="level2">
+<h2 class="anchored" data-anchor-id="引言">14.1 引言</h2>
+<p>强化学习 (Reinforcement Learning, RL) 是机器学习的一个重要分支，它关注智能体 (Agent) 如何在一个环境 (Environment) 中通过与环境的交互（采取动作并观察结果和奖励）来学习一个最优策略，以<strong>最大化其累积奖励</strong>。与监督学习不同，强化学习通常没有明确的”正确答案”（标签数据）来指导学习，智能体必须通过自身的探索和经验来发现哪些行为能够带来长期回报。与无监督学习也不同，强化学习的目标导向性更强，其核心在于学习如何做决策。</p>
+<p>强化学习的思想来源于心理学中的行为主义理论，即生物通过与环境的互动和得到的奖惩来学习行为模式。近年来，随着计算能力的提升和算法的突破（特别是与深度学习结合形成的深度强化学习 Deep Reinforcement Learning, DRL），强化学习在许多复杂任务中取得了显著成就，例如棋类游戏 (AlphaGo)、视频游戏 (Atari, AlphaStar)、机器人控制、自然语言处理和推荐系统等。</p>
+<p>本章将系统介绍强化学习的基本概念、核心理论（如马尔可夫决策过程、价值函数、Q-Learning）以及初步的策略梯度思想，并通过Python实践来体验强化学习的基本流程。</p>
+</section>
+<section id="强化学习核心要素" class="level2">
+<h2 class="anchored" data-anchor-id="强化学习核心要素">14.2 强化学习核心要素</h2>
+<p>要理解强化学习，首先需要熟悉其基本构成要素。这些要素共同定义了一个强化学习问题框架：</p>
+<ol type="1">
+<li><strong>智能体 (Agent)：</strong>
+<ul>
+<li>学习者和决策者。它可以是任何能够感知环境并采取行动的实体，例如机器人、下棋程序、自动驾驶汽车中的控制系统，甚至是推荐系统中的算法。</li>
+<li>智能体的目标是学习一个最优策略，以最大化其从环境中获得的长期累积奖励。</li>
+</ul></li>
+<li><strong>环境 (Environment)：</strong>
+<ul>
+<li>智能体交互的外部世界。智能体的动作会影响环境，环境则会反馈给智能体新的状态和奖励。</li>
+<li>环境可以是物理世界（如机器人所处的房间），也可以是虚拟的（如棋盘游戏、模拟器）。</li>
+</ul></li>
+<li><strong>状态 (State, <span class="math inline">\(S\)</span>)：</strong>
+<ul>
+<li>对环境在某个特定时刻的描述。状态应该包含所有与未来决策相关的信息。</li>
+<li>例如，在棋类游戏中，状态是棋盘上所有棋子的位置；在机器人导航中，状态可能是机器人的位置和速度。</li>
+<li>状态空间 (State Space) 是所有可能状态的集合。</li>
+</ul></li>
+<li><strong>动作 (Action, <span class="math inline">\(A\)</span>)：</strong>
+<ul>
+<li>智能体可以采取的行动。智能体根据当前状态选择一个动作来与环境交互。</li>
+<li>例如，在棋类游戏中，动作是移动一个棋子；在机器人导航中，动作可能是向前、向左转、向右转。</li>
+<li>动作空间 (Action Space) 是在给定状态下智能体可以采取的所有可能动作的集合。</li>
+</ul></li>
+<li><strong>奖励 (Reward, <span class="math inline">\(R\)</span>)：</strong>
+<ul>
+<li>环境在智能体采取一个动作后反馈给智能体的标量信号，用于评价该动作在特定状态下的即时好坏。</li>
+<li>奖励可以是正的（鼓励某种行为）、负的（惩罚某种行为）或零。</li>
+<li>智能体的目标是最大化长期累积奖励，而不仅仅是即时奖励。</li>
+<li>例如，在游戏中，赢得一局可能是正奖励，输掉一局是负奖励；在机器人导航中，到达目标点是正奖励，发生碰撞是负奖励。</li>
+</ul></li>
+<li><strong>策略 (Policy, <span class="math inline">\(\pi\)</span>)：</strong>
+<ul>
+<li>智能体的行为方式，即从状态到动作的映射。策略定义了智能体在给定状态下应该选择哪个动作。</li>
+<li>策略可以是确定性的 (Deterministic Policy)：对于每个状态，输出一个确定的动作，<span class="math inline">\(\pi(s) = a\)</span>。</li>
+<li>也可以是随机性的 (Stochastic Policy)：对于每个状态，输出一个在该状态下采取各个动作的概率分布，<span class="math inline">\(\pi(a|s) = P(A_t=a | S_t=s)\)</span>。</li>
+<li>强化学习的目标就是找到一个最优策略 <span class="math inline">\(\pi^*\)</span>，使得累积奖励最大化。</li>
+</ul></li>
+<li><strong>价值函数 (Value Function, <span class="math inline">\(V\)</span> 或 <span class="math inline">\(Q\)</span>)：</strong>
+<ul>
+<li>用于评估一个状态或一个状态-动作对的长期价值。</li>
+<li><strong>状态价值函数 (State-Value Function) <span class="math inline">\(V^{\pi}(s)\)</span>：</strong> 表示从状态 <span class="math inline">\(s\)</span> 开始，遵循策略 <span class="math inline">\(\pi\)</span> 所能获得的期望累积奖励。</li>
+<li><strong>状态-动作价值函数 (Action-Value Function) <span class="math inline">\(Q^{\pi}(s, a)\)</span>：</strong> 表示在状态 <span class="math inline">\(s\)</span> 下采取动作 <span class="math inline">\(a\)</span>，然后遵循策略 <span class="math inline">\(\pi\)</span> 所能获得的期望累积奖励。</li>
+<li>价值函数是强化学习中非常核心的概念，它们帮助智能体评估不同选择的优劣，并指导策略的改进。</li>
+</ul></li>
+<li><strong>模型 (Model，可选)：</strong>
+<ul>
+<li>模型是对环境行为的模拟。它能预测环境在给定状态和动作后的下一个状态和奖励是什么。</li>
+<li>即 <span class="math inline">\(P(s', r | s, a)\)</span>，表示在状态 <span class="math inline">\(s\)</span> 采取动作 <span class="math inline">\(a\)</span> 后，转移到状态 <span class="math inline">\(s'\)</span> 并获得奖励 <span class="math inline">\(r\)</span> 的概率。</li>
+<li>如果智能体拥有环境的模型，这类RL方法称为<strong>基于模型的强化学习 (Model-Based RL)</strong>。如果智能体不依赖模型，直接从与环境的交互经验中学习，则称为<strong>无模型的强化学习 (Model-Free RL)</strong>。</li>
+</ul></li>
+</ol>
+<p>这些要素之间的交互过程通常如下： 在时刻 <span class="math inline">\(t\)</span>，智能体观察到环境的当前状态 <span class="math inline">\(S_t\)</span>，根据其策略 <span class="math inline">\(\pi\)</span> 选择一个动作 <span class="math inline">\(A_t\)</span>。环境接收到动作 <span class="math inline">\(A_t\)</span> 后，转移到一个新的状态 <span class="math inline">\(S_{t+1}\)</span>，并反馈给智能体一个即时奖励 <span class="math inline">\(R_{t+1}\)</span>。智能体利用这些信息（状态、动作、奖励）来学习和改进其策略，以便在未来获得更多的累积奖励。</p>
+<div id="fig-rl-loop" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Reinforcement Learning Interaction Loop">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rl-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/14-reinforcement-learning/rl_loop.png" class="img-fluid figure-img" alt="Reinforcement Learning Interaction Loop" width="550">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rl-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.1: 强化学习基本交互回路
+</figcaption>
+</figure>
+</div>
+<p><em>图注：智能体在环境中根据当前状态选择动作，环境反馈新的状态和奖励，智能体据此更新策略。 (图片来源: <a href="https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf">Sutton and Barto, Reinforcement Learning: An Introduction</a>)</em></p>
+</section>
+<section id="马尔可夫决策过程-markov-decision-processes-mdps" class="level2">
+<h2 class="anchored" data-anchor-id="马尔可夫决策过程-markov-decision-processes-mdps">14.3 马尔可夫决策过程 (Markov Decision Processes, MDPs)</h2>
+<p>马尔可夫决策过程 (MDP) 是强化学习问题的数学形式化框架。几乎所有的强化学习问题都可以被建模为一个MDP。一个MDP由以下五个核心元组定义：</p>
+<p><span class="math inline">\((\mathcal{S}, \mathcal{A}, P, R, \gamma)\)</span></p>
+<p>其中：</p>
+<ol type="1">
+<li><strong><span class="math inline">\(\mathcal{S}\)</span> (State Space)：状态空间</strong>
+<ul>
+<li>所有可能的状态的集合。可以是离散的（例如，棋盘格的位置）或连续的（例如，机器人的精确坐标）。</li>
+</ul></li>
+<li><strong><span class="math inline">\(\mathcal{A}\)</span> (Action Space)：动作空间</strong>
+<ul>
+<li>所有可能的动作的集合。可以是离散的（例如，上、下、左、右）或连续的（例如，施加的力的大小）。在某些情况下，动作空间可能依赖于当前状态，表示为 <span class="math inline">\(\mathcal{A}(s)\)</span>。</li>
+</ul></li>
+<li><strong><span class="math inline">\(P\)</span> (Transition Probability Function)：状态转移概率函数</strong>
+<ul>
+<li><span class="math inline">\(P(s' | s, a) = P(S_{t+1}=s' | S_t=s, A_t=a)\)</span>。</li>
+<li>它定义了环境的动态特性：在状态 <span class="math inline">\(s\)</span> 采取动作 <span class="math inline">\(a\)</span> 后，转移到下一个状态 <span class="math inline">\(s'\)</span> 的概率。</li>
+<li>这个函数满足马尔可夫性质 (Markov Property)。</li>
+</ul></li>
+<li><strong><span class="math inline">\(R\)</span> (Reward Function)：奖励函数</strong>
+<ul>
+<li><span class="math inline">\(R(s, a, s')\)</span> 或 <span class="math inline">\(R(s,a)\)</span>。</li>
+<li><span class="math inline">\(R(s, a, s')\)</span>：表示在状态 <span class="math inline">\(s\)</span> 采取动作 <span class="math inline">\(a\)</span> 后转移到状态 <span class="math inline">\(s'\)</span> 所获得的即时奖励。</li>
+<li><span class="math inline">\(R(s,a) = \mathbb{E}[R_{t+1} | S_t=s, A_t=a]\)</span>：表示在状态 <span class="math inline">\(s\)</span> 采取动作 <span class="math inline">\(a\)</span> 后期望获得的即时奖励。</li>
+<li>奖励函数定义了智能体的目标，即它想要最大化的信号。</li>
+</ul></li>
+<li><strong><span class="math inline">\(\gamma\)</span> (Discount Factor)：折扣因子</strong>
+<ul>
+<li><span class="math inline">\(\gamma \in [0, 1]\)</span>。</li>
+<li>折扣因子用于衡量未来奖励相对于当前奖励的重要性。一个较小的 <span class="math inline">\(\gamma\)</span> 值使得智能体更关注即时奖励（“近视”），而一个接近1的 <span class="math inline">\(\gamma\)</span> 值使得智能体更关注长期的累积奖励（“远视”）。</li>
+<li>引入折扣因子的原因：
+<ul>
+<li>避免在无限长的任务中出现无限大的累积奖励。</li>
+<li>未来奖励的不确定性：未来的奖励可能不如眼前的奖励可靠。</li>
+<li>在某些问题中，符合人类或动物对即时回报的偏好。</li>
+</ul></li>
+</ul></li>
+</ol>
+<p><strong>马尔可夫性质 (Markov Property)：</strong></p>
+<p>MDP的核心假设是<strong>马尔可夫性质</strong>，即”未来只依赖于当前，而与过去无关”。更具体地说，给定当前状态 <span class="math inline">\(S_t\)</span> 和当前动作 <span class="math inline">\(A_t\)</span>，下一个状态 <span class="math inline">\(S_{t+1}\)</span> 和奖励 <span class="math inline">\(R_{t+1}\)</span> 的概率分布只取决于 <span class="math inline">\(S_t\)</span> 和 <span class="math inline">\(A_t\)</span>，而与历史状态和动作序列 <span class="math inline">\((S_0, A_0, S_1, A_1, ..., S_{t-1}, A_{t-1})\)</span> 无关。</p>
+<p><span class="math display">\[ P(S_{t+1}, R_{t+1} | S_t, A_t, S_{t-1}, A_{t-1}, ..., S_0, A_0) = P(S_{t+1}, R_{t+1} | S_t, A_t) \]</span></p>
+<p>状态 <span class="math inline">\(S_t\)</span> 必须是马尔可夫的，即它包含了所有相关的历史信息。如果状态不具备马尔可夫性，那么基于当前状态的决策可能不是最优的。在实际应用中，构造一个具有马尔可夫性的状态表示是设计RL智能体的关键挑战之一。</p>
+<p><strong>回报 (Return) 与目标：</strong></p>
+<p>智能体的目标是最大化<strong>期望累积奖励</strong>，也称为<strong>回报 (Return)</strong>。对于一个从时间步 <span class="math inline">\(t\)</span> 开始的<strong>轨迹 (Trajectory)</strong>，即从某个初始状态开始到终止状态结束的一次完整交互序列，回报 <span class="math inline">\(G_t\)</span> 定义为：</p>
+<p><span class="math display">\[ G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + ... = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \]</span></p>
+<p>如果任务是<strong>分幕式 (Episodic)</strong> 的，即有明确的终止状态（例如游戏结束），那么求和是有限的。如果任务是<strong>持续式 (Continuing)</strong> 的，没有终止状态，那么当 <span class="math inline">\(\gamma &lt; 1\)</span> 时，这个无限求和也是收敛的。</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>强化学习的目标：</strong></p>
+<p>强化学习的核心目标是找到一个最优策略 <span class="math inline">\(\pi\)</span>，使得对于所有可能的状态 <span class="math inline">\(s\)</span>（或从某个初始状态分布出发），期望回报 <span class="math inline">\(\mathbb{E}[G_t | S_t=s]\)</span> 达到最大化。这个期望回报代表了智能体在长期运行中能够获得的累积奖励。</p>
+</div>
+</div>
+</div>
+<p>理解了这些核心要素和MDP框架后，我们就可以进一步探讨如何评估策略的好坏（价值函数）以及如何找到最优策略了。</p>
+<div class="callout callout-style-simple callout-warning">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>当马尔可夫性质不满足时怎么办？</strong></p>
+<p>在实际应用中，完全满足马尔可夫性质的状态表示可能难以获得。以下是几种常见处理方法：</p>
+<ol type="1">
+<li><strong>状态重构</strong>：
+<ul>
+<li>将历史信息纳入当前状态表示</li>
+<li>例如：使用最近N个时间步的状态/动作/奖励序列作为”扩展状态”</li>
+<li>在部分可观测问题中，可以使用信念状态(belief state)表示</li>
+</ul></li>
+<li><strong>使用循环结构</strong>：
+<ul>
+<li>采用RNN、LSTM等具有记忆能力的网络架构</li>
+<li>网络隐含层可以自动学习保留历史相关信息</li>
+</ul></li>
+<li><strong>近似处理</strong>：
+<ul>
+<li>假设当前状态近似满足马尔可夫性</li>
+<li>通过增加状态维度来包含更多相关信息</li>
+<li>这种方法虽然不完美但通常能获得不错的效果</li>
+</ul></li>
+<li><strong>部分可观测MDP(POMDP)框架</strong>：
+<ul>
+<li>当环境是部分可观测时，采用专门的POMDP方法</li>
+<li>需要维护对真实状态的置信度分布</li>
+</ul></li>
+<li><strong>注意力机制</strong>：
+<ul>
+<li>使用注意力机制动态关注历史中的关键信息</li>
+<li>如Transformer架构可以处理长程依赖</li>
+</ul></li>
+</ol>
+<p>记住：状态表示的质量直接影响强化学习算法的性能，好的状态表示应该尽可能保留与决策相关的信息。</p>
+</div>
+</div>
+</div>
+</section>
+<section id="价值函数与q函数" class="level2">
+<h2 class="anchored" data-anchor-id="价值函数与q函数">14.4 价值函数与Q函数</h2>
+<p>为了评估一个策略的好坏，或者为了比较不同动作的优劣，我们引入了价值函数的概念。价值函数是当前状态或状态-动作对的未来期望回报的估计。</p>
+<section id="状态价值函数-vpis" class="level3">
+<h3 class="anchored" data-anchor-id="状态价值函数-vpis">14.4.1 状态价值函数 (<span class="math inline">\(V^\pi(s)\)</span>)</h3>
+<p><strong>状态价值函数 (State-Value Function, <span class="math inline">\(V^\pi(s)\)</span>)</strong> 表示在状态 <span class="math inline">\(s\)</span> 下，智能体遵循策略 <span class="math inline">\(\pi\)</span> 所能获得的期望回报。 <span class="math display">\[ V^\pi(s) = \mathbb{E}_\pi [G_t | S_t=s] = \mathbb{E}_\pi \left[ \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \Big| S_t=s \right] \]</span> <span class="math inline">\(V^\pi(s)\)</span> 衡量了处于状态 <span class="math inline">\(s\)</span> 对智能体来说有多”好”（在策略 <span class="math inline">\(\pi\)</span> 下）。</p>
+</section>
+<section id="动作价值函数-qpisa" class="level3">
+<h3 class="anchored" data-anchor-id="动作价值函数-qpisa">14.4.2 动作价值函数 (<span class="math inline">\(Q^\pi(s,a)\)</span>)</h3>
+<p><strong>动作价值函数 (Action-Value Function, <span class="math inline">\(Q^\pi(s,a)\)</span>)</strong>，也称为Q函数，表示在状态 <span class="math inline">\(s\)</span> 下执行动作 <span class="math inline">\(a\)</span>，然后继续遵循策略 <span class="math inline">\(\pi\)</span> 所能获得的期望回报。 <span class="math display">\[ Q^\pi(s,a) = \mathbb{E}_\pi [G_t | S_t=s, A_t=a] = \mathbb{E}_\pi \left[ \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \Big| S_t=s, A_t=a \right] \]</span> <span class="math inline">\(Q^\pi(s,a)\)</span> 衡量了在状态 <span class="math inline">\(s\)</span> 下执行动作 <span class="math inline">\(a\)</span> 有多”好”（在策略 <span class="math inline">\(\pi\)</span> 下）。</p>
+</section>
+<section id="贝尔曼期望方程-bellman-expectation-equations" class="level3">
+<h3 class="anchored" data-anchor-id="贝尔曼期望方程-bellman-expectation-equations">14.4.3 贝尔曼期望方程 (Bellman Expectation Equations)</h3>
+<p>价值函数满足递归关系，即贝尔曼期望方程，它将一个状态（或状态-动作对）的价值与其后继状态的价值联系起来。</p>
+<p>对于 <span class="math inline">\(V^\pi(s)\)</span>: <span class="math display">\[ V^\pi(s) = \sum_{a \in \mathcal{A}(s)} \pi(a|s) \sum_{s' \in \mathcal{S}, r \in \mathcal{R}} P(s', r | s, a) [r + \gamma V^\pi(s')] \]</span> 这个方程表示，状态 <span class="math inline">\(s\)</span> 的价值是所有可能动作的价值的期望，其中每个动作的价值是其导致的即时奖励加上折扣后的下一个状态的价值。</p>
+<p>对于 <span class="math inline">\(Q^\pi(s,a)\)</span>: <span class="math display">\[ Q^\pi(s,a) = \sum_{s' \in \mathcal{S}, r \in \mathcal{R}} P(s', r | s, a) [r + \gamma \sum_{a' \in \mathcal{A}(s')} \pi(a'|s') Q^\pi(s', a')] \]</span> 或者更简洁地写成： <span class="math display">\[ Q^\pi(s,a) = \sum_{s' \in \mathcal{S}, r \in \mathcal{R}} P(s', r | s, a) [r + \gamma V^\pi(s')] \]</span> 因为 <span class="math inline">\(V^\pi(s') = \sum_{a' \in \mathcal{A}(s')} \pi(a'|s') Q^\pi(s', a')\)</span>。</p>
+<p>这些方程是强化学习理论的基石，许多算法都基于求解或近似求解这些方程。</p>
+</section>
+<section id="最优价值函数与贝尔曼最优方程" class="level3">
+<h3 class="anchored" data-anchor-id="最优价值函数与贝尔曼最优方程">14.4.4 最优价值函数与贝尔曼最优方程</h3>
+<p>强化学习的目标是找到一个最优策略 <span class="math inline">\(\pi^*\)</span>，使得它能够获得比其他任何策略都大或相等的期望回报。最优策略共享相同的最优价值函数：</p>
+<ul>
+<li><p><strong>最优状态价值函数 (Optimal State-Value Function) <span class="math inline">\(V^*(s)\)</span>：</strong> <span class="math display">\[ V^*(s) = \max_{\pi} V^\pi(s) \]</span> <span class="math inline">\(V^*(s)\)</span> 是在所有策略中，从状态 <span class="math inline">\(s\)</span> 开始能够获得的最大的期望回报。</p></li>
+<li><p><strong>最优动作价值函数 (Optimal Action-Value Function) <span class="math inline">\(Q^*(s,a)\)</span>：</strong> <span class="math display">\[ Q^*(s,a) = \max_{\pi} Q^\pi(s,a) \]</span> <span class="math inline">\(Q^*(s,a)\)</span> 是在所有策略中，从状态 <span class="math inline">\(s\)</span> 开始执行动作 <span class="math inline">\(a\)</span>，然后遵循最优策略能够获得的最大的期望回报。</p></li>
+</ul>
+<p>最优价值函数满足<strong>贝尔曼最优方程 (Bellman Optimality Equations)</strong>：</p>
+<p>对于 <span class="math inline">\(V^*(s)\)</span>: <span class="math display">\[ V^*(s) = \max_{a \in \mathcal{A}(s)} \sum_{s', r} P(s', r | s, a) [r + \gamma V^*(s')] \]</span> 这表示最优状态价值等于在该状态下选择能带来最大期望回报的动作所得到的价值。</p>
+<p>对于 <span class="math inline">\(Q^*(s,a)\)</span>: <span class="math display">\[ Q^*(s,a) = \sum_{s', r} P(s', r | s, a) [r + \gamma \max_{a' \in \mathcal{A}(s')} Q^*(s', a')] \]</span> 这表示在状态 <span class="math inline">\(s\)</span> 执行动作 <span class="math inline">\(a\)</span> 的最优价值，等于立即奖励加上所有可能的下一个状态 <span class="math inline">\(s'\)</span> 的最优价值的期望（在 <span class="math inline">\(s'\)</span> 选择最优动作 <span class="math inline">\(a'\)</span>）。</p>
+<p>一旦我们知道了最优Q函数 <span class="math inline">\(Q^*(s,a)\)</span>，就可以很容易地得到最优策略 <span class="math inline">\(\pi^*\)</span>：在任何状态 <span class="math inline">\(s\)</span>，选择使得 <span class="math inline">\(Q^*(s,a)\)</span> 最大化的动作 <span class="math inline">\(a\)</span>。 <span class="math display">\[ \pi^*(s) = \arg\max_{a \in \mathcal{A}(s)} Q^*(s,a) \]</span> 这是一个确定性策略。如果存在多个动作使得Q值最大，可以任选一个。</p>
+<p>许多强化学习算法致力于估计这些最优价值函数。</p>
+</section>
+</section>
+<section id="q-learning算法" class="level2">
+<h2 class="anchored" data-anchor-id="q-learning算法">14.5 Q-Learning算法</h2>
+<p>Q-Learning (Watkins, 1989) 是一种非常流行的强化学习算法，它直接学习最优动作价值函数 <span class="math inline">\(Q^*(s,a)\)</span>。</p>
+<p><strong>核心特点：</strong></p>
+<ul>
+<li><strong>无模型 (Model-Free)：</strong> Q-Learning 不需要知道环境的转移概率 <span class="math inline">\(P(s'|s,a)\)</span> 和奖励函数 <span class="math inline">\(R(s,a,s')\)</span>。它直接从与环境交互的经验 <span class="math inline">\((s, a, r, s')\)</span> 中学习。</li>
+<li><strong>异策略 (Off-Policy)：</strong> Q-Learning 学习的是最优策略 <span class="math inline">\(Q^*\)</span>，而其在学习过程中实际执行的策略（行为策略）可以是其他策略（例如，为了探索环境而采用的 <span class="math inline">\(\epsilon\)</span>-greedy 策略）。这意味着它可以在遵循一个探索性策略的同时，评估和改进一个贪婪策略（即最优策略）。</li>
+<li><strong>基于价值 (Value-Based)：</strong> 它通过估计和迭代更新价值函数来学习。</li>
+</ul>
+<p><strong>Q-Learning 更新规则：</strong></p>
+<p>智能体在状态 <span class="math inline">\(S_t\)</span> 执行动作 <span class="math inline">\(A_t\)</span>，观察到奖励 <span class="math inline">\(R_{t+1}\)</span> 和新状态 <span class="math inline">\(S_{t+1}\)</span>。Q-Learning 使用这个转移 <span class="math inline">\((S_t, A_t, R_{t+1}, S_{t+1})\)</span> 来更新 <span class="math inline">\(Q(S_t, A_t)\)</span>： <span class="math display">\[ Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \left[ R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t) \right] \]</span> 其中：</p>
+<ul>
+<li><span class="math inline">\(\alpha\)</span> 是学习率 (Learning Rate, <span class="math inline">\(0 &lt; \alpha \le 1\)</span>)，控制每次更新的步长。</li>
+<li><span class="math inline">\(\gamma\)</span> 是折扣因子。</li>
+<li><span class="math inline">\(R_{t+1} + \gamma \max_a Q(S_{t+1}, a)\)</span> 是Q值的”目标值” (Target Q-value)，也称为TD目标 (Temporal Difference Target)。它基于当前奖励和下一状态的最大预期未来Q值。</li>
+<li><span class="math inline">\(Q(S_t, A_t)\)</span> 是当前的Q值估计。</li>
+<li><span class="math inline">\(\delta_t = R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t)\)</span> 称为时序差分误差 (Temporal Difference Error, TD Error)。Q-Learning 试图通过调整 <span class="math inline">\(Q(S_t, A_t)\)</span> 来减小这个误差。</li>
+</ul>
+<p><strong>探索与利用 (Exploration vs.&nbsp;Exploitation)：</strong></p>
+<p>为了确保算法能够发现最优策略（即访问所有相关的状态-动作对），智能体需要在”利用”已知的好动作和”探索”未知的动作之间进行权衡。常用的策略是 <strong><span class="math inline">\(\epsilon\)</span>-greedy</strong>：</p>
+<ul>
+<li>以 <span class="math inline">\(1-\epsilon\)</span> 的概率选择当前估计的最优动作（利用）：<span class="math inline">\(a = \arg\max_{a'} Q(S_t, a')\)</span>。</li>
+<li>以 <span class="math inline">\(\epsilon\)</span> 的概率随机选择一个动作（探索）。 通常 <span class="math inline">\(\epsilon\)</span> 会随着训练的进行而逐渐减小（例如从1逐渐衰减到0.01或0.1），使得早期偏向探索，后期偏向利用。</li>
+</ul>
+<p><strong>Q-Learning 算法伪代码 (表格型)：</strong></p>
+<ol type="1">
+<li>初始化Q表：对于所有 <span class="math inline">\(s \in \mathcal{S}, a \in \mathcal{A}\)</span>，将 <span class="math inline">\(Q(s,a)\)</span> 初始化为一个任意值（例如0），对于终态 <span class="math inline">\(s_f\)</span> (如果存在)， <span class="math inline">\(Q(s_f, a) = 0\)</span> for all <span class="math inline">\(a\)</span>。</li>
+<li>设置学习率 <span class="math inline">\(\alpha\)</span> 和折扣因子 <span class="math inline">\(\gamma\)</span>。</li>
+<li>设置探索率 <span class="math inline">\(\epsilon\)</span> 及其衰减策略。</li>
+<li>对于每个训练回合 (episode)：
+<ol type="a">
+<li>初始化状态 <span class="math inline">\(S\)</span> (环境的初始状态)。</li>
+<li>只要 <span class="math inline">\(S\)</span> 不是终止状态：
+<ol type="i">
+<li>根据当前Q表和 <span class="math inline">\(\epsilon\)</span>-greedy 策略在状态 <span class="math inline">\(S\)</span> 选择动作 <span class="math inline">\(A\)</span>。</li>
+<li>执行动作 <span class="math inline">\(A\)</span>，观察奖励 <span class="math inline">\(R\)</span> 和新状态 <span class="math inline">\(S'\)</span>。</li>
+<li>更新Q值：<span class="math inline">\(Q(S, A) \leftarrow Q(S, A) + \alpha [R + \gamma \max_{a'} Q(S', a') - Q(S, A)]\)</span>。</li>
+<li><span class="math inline">\(S \leftarrow S'\)</span>。</li>
+</ol></li>
+</ol></li>
+</ol>
+<div id="fig-q-table-example" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Q-Table for a 3x3 grid world, showing states and example Q-values for the center state S5.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-q-table-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/14-reinforcement-learning/q_table_example.svg" class="img-fluid figure-img" style="width:60.0%" alt="Q-Table for a 3x3 grid world, showing states and example Q-values for the center state S5.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-q-table-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.2: Q-Table Example for a 3x3 Grid World
+</figcaption>
+</figure>
+</div>
+<section id="深度q网络-deep-q-networks-dqn" class="level3">
+<h3 class="anchored" data-anchor-id="深度q网络-deep-q-networks-dqn">14.5.1 深度Q网络 (Deep Q-Networks, DQN)</h3>
+<p>表格型Q-Learning在状态空间和动作空间较小的情况下非常有效。然而，当状态空间非常大（例如，来自图像像素的输入）甚至是连续的时候，使用表格来存储所有状态-动作对的Q值变得不可行。</p>
+<p><strong>深度Q网络 (DQN)</strong> (Mnih et al., 2013, 2015) 将深度学习与Q-Learning结合，使用深度神经网络来近似最优动作价值函数 <span class="math inline">\(Q^*(s,a)\)</span>。这个网络通常被称为Q网络，其参数为 <span class="math inline">\(\theta\)</span>，记作 <span class="math inline">\(Q(s,a;\theta)\)</span>。</p>
+<ul>
+<li><strong>输入：</strong> Q网络通常接收状态 <span class="math inline">\(s\)</span> 作为输入。</li>
+<li><strong>输出：</strong> 对于离散动作空间，网络通常输出一个向量，向量的每个元素对应一个动作的Q值。即，对于给定的状态 <span class="math inline">\(s\)</span>，网络输出所有可能动作 <span class="math inline">\(a\)</span> 的 <span class="math inline">\(Q(s,a;\theta)\)</span>。</li>
+</ul>
+<p><strong>关键技术：</strong></p>
+<p>DQN的成功依赖于几个关键技术来稳定训练过程：</p>
+<ol type="1">
+<li><strong>经验回放 (Experience Replay)：</strong>
+<ul>
+<li>智能体与环境交互产生的经验 <span class="math inline">\((s_t, a_t, r_{t+1}, s_{t+1})\)</span> 被存储在一个回放缓冲区（Replay Buffer）中。</li>
+<li>在训练时，不是直接使用最近的经验，而是从缓冲区中随机采样一个小批量 (mini-batch) 的经验来更新Q网络。</li>
+<li><strong>优点：</strong>
+<ul>
+<li>打破了经验之间的时间相关性，使得样本更接近独立同分布，这对于神经网络训练更友好。</li>
+<li>提高了数据利用率，一个经验可以被多次用于训练。</li>
+</ul></li>
+</ul></li>
+<li><strong>目标网络 (Target Network)：</strong>
+<ul>
+<li>在计算TD目标 <span class="math inline">\(R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a'; \theta)\)</span> 时，如果使用与当前正在更新的Q网络相同的参数 <span class="math inline">\(\theta\)</span> 来计算 <span class="math inline">\(\max_{a'} Q(S_{t+1}, a'; \theta)\)</span>，会导致目标值与Q网络本身高度相关，可能引起训练不稳定（例如，目标值追逐当前Q值）。</li>
+<li>为了解决这个问题，DQN使用一个独立的目标网络 <span class="math inline">\(Q(s,a;\theta^-)\)</span> 来计算TD目标。目标网络的参数 <span class="math inline">\(\theta^-\)</span> 定期从主Q网络的参数 <span class="math inline">\(\theta\)</span> 复制而来（例如，每隔C步），但在两次复制之间保持固定。</li>
+<li>TD目标变为：<span class="math inline">\(y_t = R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a'; \theta^-)\)</span>。</li>
+<li>损失函数（例如均方误差）：<span class="math inline">\(L(\theta) = \mathbb{E}_{(s,a,r,s') \sim D} \left[ (y_t - Q(s,a;\theta))^2 \right]\)</span>，其中 <span class="math inline">\(D\)</span> 是回放缓冲区。</li>
+</ul></li>
+</ol>
+<p><strong>DQN算法概要：</strong></p>
+<ol type="1">
+<li>初始化回放缓冲区 <span class="math inline">\(D\)</span>。</li>
+<li>初始化主Q网络 <span class="math inline">\(Q(s,a;\theta)\)</span> 和目标Q网络 <span class="math inline">\(Q(s,a;\theta^-)\)</span> (通常 <span class="math inline">\(\theta^- = \theta\)</span>)。</li>
+<li>对于每个训练回合：
+<ol type="a">
+<li>初始化状态 <span class="math inline">\(S\)</span>。</li>
+<li>只要 <span class="math inline">\(S\)</span> 不是终止状态：
+<ol type="i">
+<li>根据 <span class="math inline">\(\epsilon\)</span>-greedy 策略（基于主Q网络 <span class="math inline">\(Q(s,a;\theta)\)</span>）选择动作 <span class="math inline">\(A\)</span>。</li>
+<li>执行动作 <span class="math inline">\(A\)</span>，观察 <span class="math inline">\(R, S'\)</span>。</li>
+<li>将经验 <span class="math inline">\((S,A,R,S')\)</span> 存入 <span class="math inline">\(D\)</span>。</li>
+<li>从 <span class="math inline">\(D\)</span> 中随机采样一个小批量的经验 <span class="math inline">\((S_j, A_j, R_j, S'_j)\)</span>。</li>
+<li>对于每个采样经验 <span class="math inline">\(j\)</span>：
+<ul>
+<li>如果 <span class="math inline">\(S'_j\)</span> 是终止状态，则 <span class="math inline">\(y_j = R_j\)</span>。</li>
+<li>否则，<span class="math inline">\(y_j = R_j + \gamma \max_{a'} Q(S'_j, a'; \theta^-)\)</span>。</li>
+</ul></li>
+<li>使用梯度下降更新主Q网络的参数 <span class="math inline">\(\theta\)</span>，最小化损失 <span class="math inline">\((y_j - Q(S_j, A_j; \theta))^2\)</span>。</li>
+<li>每隔C步，更新目标网络参数：<span class="math inline">\(\theta^- \leftarrow \theta\)</span>。</li>
+<li><span class="math inline">\(S \leftarrow S'\)</span>。</li>
+</ol></li>
+</ol></li>
+</ol>
+<p>DQN的提出是深度强化学习的一个里程碑，它成功地应用于解决具有高维输入的Atari游戏等复杂问题。后续有许多改进版本，如Double DQN, Dueling DQN, Prioritized Experience Replay等。</p>
+</section>
+</section>
+<section id="策略梯度-policy-gradient-思想简介" class="level2">
+<h2 class="anchored" data-anchor-id="策略梯度-policy-gradient-思想简介">14.6 策略梯度 (Policy Gradient) 思想简介</h2>
+<p>除了基于价值的方法（如Q-Learning、DQN）通过学习价值函数间接得到策略外，另一大类强化学习方法是<strong>策略梯度 (Policy Gradient, PG)</strong> 方法。</p>
+<p><strong>核心思想：</strong></p>
+<p>策略梯度方法直接参数化策略 <span class="math inline">\(\pi_\theta(a|s) = P(A_t=a | S_t=s, \theta)\)</span>，其中 <span class="math inline">\(\theta\)</span> 是策略网络的参数（例如神经网络的权重）。它们的目标是找到最优的参数 <span class="math inline">\(\theta^*\)</span>，使得某个性能指标 <span class="math inline">\(J(\theta)\)</span>（通常是期望累积回报）最大化。</p>
+<p>这些方法通过计算性能指标 <span class="math inline">\(J(\theta)\)</span> 关于参数 <span class="math inline">\(\theta\)</span> 的梯度 <span class="math inline">\(\nabla_\theta J(\theta)\)</span>，然后使用梯度上升来更新参数： <span class="math display">\[ \theta_{k+1} = \theta_k + \alpha \nabla_\theta J(\theta_k) \]</span> 其中 <span class="math inline">\(\alpha\)</span> 是学习率。</p>
+<p><strong>策略梯度定理：</strong></p>
+<p>策略梯度定理给出了 <span class="math inline">\(J(\theta)\)</span> 梯度的一个通用表达式，对于任意可微策略 <span class="math inline">\(\pi_\theta\)</span>，其梯度可以表示为： <span class="math display">\[ \nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(A_t|S_t) \Psi_t \right] \]</span> 其中：</p>
+<ul>
+<li><span class="math inline">\(\tau\)</span> 表示一个完整的轨迹 <span class="math inline">\((S_0, A_0, R_1, ..., S_{T-1}, A_{T-1}, R_T)\)</span>。</li>
+<li><span class="math inline">\(\nabla_\theta \log \pi_\theta(A_t|S_t)\)</span> 称为<strong>得分函数 (score function)</strong>。它指出了如何调整参数 <span class="math inline">\(\theta\)</span> 以增加或减少在状态 <span class="math inline">\(S_t\)</span> 选择动作 <span class="math inline">\(A_t\)</span> 的对数概率。</li>
+<li><span class="math inline">\(\Psi_t\)</span> 是一个权重项，用于衡量动作 <span class="math inline">\(A_t\)</span> 的好坏。不同的策略梯度算法使用不同的 <span class="math inline">\(\Psi_t\)</span>：
+<ul>
+<li><span class="math inline">\(\Psi_t = G_t = \sum_{k=t}^{T-1} \gamma^{k-t} R_{k+1}\)</span>: 该轨迹中从 <span class="math inline">\(t\)</span> 时刻开始的累积回报 (REINFORCE算法)。</li>
+<li><span class="math inline">\(\Psi_t = Q^{\pi_\theta}(S_t, A_t)\)</span>: 状态-动作价值函数。</li>
+<li><span class="math inline">\(\Psi_t = A^{\pi_\theta}(S_t, A_t) = Q^{\pi_\theta}(S_t, A_t) - V^{\pi_\theta}(S_t)\)</span>: 优势函数 (Advantage Function)。</li>
+</ul></li>
+</ul>
+<p><strong>REINFORCE算法 (蒙特卡洛策略梯度)：</strong></p>
+<p>REINFORCE (Williams, 1992) 是一个基础的蒙特卡洛策略梯度算法，它使用 <span class="math inline">\(G_t\)</span> 作为 <span class="math inline">\(\Psi_t\)</span>。</p>
+<ol type="1">
+<li>使用当前策略 <span class="math inline">\(\pi_\theta\)</span> 与环境交互，收集一个完整的回合 (episode) 数据：<span class="math inline">\((S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_T)\)</span>。</li>
+<li>对于回合中的每个时间步 <span class="math inline">\(t=0, ..., T-1\)</span>，计算回报 <span class="math inline">\(G_t = \sum_{k=t}^{T-1} \gamma^{k-t} R_{k+1}\)</span>。</li>
+<li>更新策略参数：<span class="math inline">\(\theta \leftarrow \theta + \alpha \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(A_t|S_t) G_t\)</span>。 (通常对一个批次的轨迹进行平均)</li>
+</ol>
+<p><strong>优势：</strong></p>
+<ul>
+<li>通常有更好的收敛性质（相比于某些复杂的基于价值的方法，更容易找到局部最优）。</li>
+<li>可以直接学习随机策略，这在某些情况下是必要的（例如，当环境部分可观测，或者为了探索）。</li>
+<li>更容易处理连续动作空间（可以直接输出连续动作的参数，如高斯分布的均值和标准差）。</li>
+</ul>
+<p><strong>挑战：</strong></p>
+<ul>
+<li><strong>高方差梯度估计：</strong> 使用蒙特卡洛方法估计回报 <span class="math inline">\(G_t\)</span> 会导致梯度估计的方差很高，使得训练不稳定且收敛慢。</li>
+<li><strong>样本效率低：</strong> 通常需要完整的交互序列（蒙特卡洛方法），并且每个样本只用一次，更新效率可能较低。</li>
+</ul>
+<section id="actor-critic-方法与-a2c-advantage-actor-critic" class="level3">
+<h3 class="anchored" data-anchor-id="actor-critic-方法与-a2c-advantage-actor-critic">14.6.1 Actor-Critic 方法与 A2C (Advantage Actor-Critic)</h3>
+<p>为了解决REINFORCE等基本策略梯度方法中梯度估计方差过高的问题，<strong>Actor-Critic</strong> 方法被提出来。Actor-Critic方法结合了策略梯度和价值函数学习的优点。</p>
+<p><strong>基本结构：</strong></p>
+<p>Actor-Critic方法包含两个主要部分（通常是两个神经网络）：</p>
+<ol type="1">
+<li><strong>Actor (行动者)：</strong> 负责选择动作。它是一个参数化的策略 <span class="math inline">\(\pi_\theta(a|s)\)</span>，根据当前状态输出动作（或动作的概率分布）。Actor使用策略梯度进行更新。</li>
+<li><strong>Critic (评论家)：</strong> 负责评估Actor所选动作的好坏。它学习一个价值函数，例如状态价值函数 <span class="math inline">\(V_\phi(s)\)</span> (参数为 <span class="math inline">\(\phi\)</span>) 或动作价值函数 <span class="math inline">\(Q_\phi(s,a)\)</span>。Critic的输出用于指导Actor的更新。</li>
+</ol>
+<p><strong>优势函数 (Advantage Function)：</strong></p>
+<p>Actor-Critic方法通常使用<strong>优势函数 <span class="math inline">\(A(s,a)\)</span></strong> 来评估动作 <span class="math inline">\(A_t\)</span> 相对于在状态 <span class="math inline">\(S_t\)</span> 下的平均动作有多好： <span class="math display">\[ A^{\pi_\theta}(S_t, A_t) = Q^{\pi_\theta}(S_t, A_t) - V^{\pi_\theta}(S_t) \]</span> 使用优势函数可以显著降低梯度估计的方差。<span class="math inline">\(V^{\pi_\theta}(S_t)\)</span> 作为基线 (baseline)，减去它可以减少回报的波动，同时保持梯度的期望不变。</p>
+<p>由于 <span class="math inline">\(Q^{\pi_\theta}(S_t, A_t) = \mathbb{E}[R_{t+1} + \gamma V^{\pi_\theta}(S_{t+1}) | S_t, A_t]\)</span>，所以优势函数可以估计为： <span class="math display">\[ A_t \approx (R_{t+1} + \gamma V_\phi(S_{t+1})) - V_\phi(S_t) \]</span> 这个括号里的项 <span class="math inline">\((R_{t+1} + \gamma V_\phi(S_{t+1}))\)</span> 是TD目标，而 <span class="math inline">\((R_{t+1} + \gamma V_\phi(S_{t+1}) - V_\phi(S_t))\)</span> 就是TD误差 <span class="math inline">\(\delta_t\)</span>。因此，优势函数可以用TD误差来近似。</p>
+<p><strong>Actor-Critic 更新：</strong></p>
+<ul>
+<li><strong>Actor更新 (策略更新)：</strong> <span class="math display">\[ \nabla_\theta J(\theta) \approx \mathbb{E} [ \nabla_\theta \log \pi_\theta(A_t|S_t) A_t ] \]</span> <span class="math display">\[ \theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(A_t|S_t) \delta_t \]</span></li>
+<li><strong>Critic更新 (价值函数更新)：</strong> Critic通常使用时序差分学习 (TD Learning) 来更新其参数 <span class="math inline">\(\phi\)</span>，最小化价值估计的误差，例如均方TD误差： <span class="math display">\[ \phi \leftarrow \phi - \alpha_\phi \frac{\partial}{\partial \phi} (R_{t+1} + \gamma V_\phi(S_{t+1}) - V_\phi(S_t))^2 \]</span> 即： <span class="math display">\[ \phi \leftarrow \phi + \alpha_\phi (R_{t+1} + \gamma V_\phi(S_{t+1}) - V_\phi(S_t)) \nabla_\phi V_\phi(S_t) \]</span></li>
+</ul>
+<p><strong>A2C (Advantage Actor-Critic)：</strong></p>
+<p>A2C是一种同步的、确定性的Actor-Critic变体。它通常使用多个并行的环境实例来收集经验，然后一次性更新Actor和Critic。</p>
+<ul>
+<li>Actor输出动作概率。</li>
+<li>Critic输出状态价值 <span class="math inline">\(V(s)\)</span>。</li>
+<li>使用 <span class="math inline">\(A_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)\)</span> 作为优势估计。</li>
+</ul>
+<p>A3C (Asynchronous Advantage Actor-Critic) 是其异步版本，多个worker独立地与环境交互并异步更新全局参数，但A2C由于其简单性和稳定性在实践中也很常用，特别是在单机多核环境下。</p>
+</section>
+</section>
+<section id="强化学习应用场景" class="level2">
+<h2 class="anchored" data-anchor-id="强化学习应用场景">14.7 强化学习应用场景</h2>
+<p>强化学习在众多领域都取得了令人瞩目的成果，展现了其巨大的应用潜力：</p>
+<ol type="1">
+<li><strong>游戏 (Games)：</strong>
+<ul>
+<li><strong>棋盘游戏：</strong> DeepMind的AlphaGo击败围棋世界冠军，AlphaZero从零开始学习并超越AlphaGo，并能通用于多种棋类。</li>
+<li><strong>视频游戏：</strong> OpenAI Five在Dota 2中击败职业玩家，DeepMind的智能体在Atari游戏中达到超人水平，AlphaStar在星际争霸II中达到大师级别。</li>
+</ul></li>
+<li><strong>机器人技术 (Robotics)：</strong>
+<ul>
+<li><strong>运动控制：</strong> 训练机器人学习行走、跑步、抓取等复杂动作。</li>
+<li><strong>导航与路径规划：</strong> 使机器人在未知环境中自主导航。</li>
+<li><strong>操作与装配：</strong> 训练机械臂完成精细的操作任务。</li>
+</ul></li>
+<li><strong>推荐系统 (Recommender Systems)：</strong>
+<ul>
+<li>将推荐过程建模为序贯决策问题，根据用户历史行为和反馈，动态调整推荐策略以最大化长期用户参与度或满意度。</li>
+</ul></li>
+<li><strong>自动驾驶 (Autonomous Driving)：</strong>
+<ul>
+<li>用于决策制定，如变道、超车、路口通行等。</li>
+</ul></li>
+<li><strong>自然语言处理 (NLP)：</strong>
+<ul>
+<li>对话系统：优化对话策略以提升用户满意度。</li>
+<li>文本生成：RLHF (Reinforcement Learning from Human Feedback) 已成功用于改进大型语言模型（如ChatGPT）的输出质量。</li>
+</ul></li>
+<li><strong>医疗健康 (Healthcare)：</strong>
+<ul>
+<li>动态治疗方案：为患者制定个性化的长期治疗策略。</li>
+<li>药物研发：辅助发现新的分子结构。</li>
+</ul></li>
+<li><strong>金融 (Finance)：</strong>
+<ul>
+<li><strong>交易策略：</strong> 开发自动交易系统，在金融市场中进行买卖决策。</li>
+<li><strong>投资组合管理：</strong> 动态调整资产配置。</li>
+</ul></li>
+<li><strong>资源管理与调度：</strong>
+<ul>
+<li>数据中心能源优化、交通信号灯控制、网络路由优化等。</li>
+</ul></li>
+</ol>
+</section>
+<section id="python-rl库体验" class="level2">
+<h2 class="anchored" data-anchor-id="python-rl库体验">14.8 Python RL库体验</h2>
+<section id="gymnasium-前身为-openai-gym" class="level3">
+<h3 class="anchored" data-anchor-id="gymnasium-前身为-openai-gym">14.8.1 Gymnasium (前身为 OpenAI Gym)</h3>
+<p>Gymnasium 是一个用于开发和比较强化学习算法的工具包。它提供了一系列标准化的测试环境，使得研究者可以方便地在相同的基准上评估他们的算法。</p>
+<p><strong>核心API：</strong></p>
+<ul>
+<li><code>env = gym.make(environment_name, **kwargs)</code>: 创建一个环境实例。</li>
+<li><code>observation, info = env.reset(seed=None, options=None)</code>: 重置环境到初始状态，返回初始观测值和一些辅助信息。</li>
+<li><code>observation, reward, terminated, truncated, info = env.step(action)</code>: 在环境中执行一个动作。
+<ul>
+<li><code>observation</code>: 环境的新状态。</li>
+<li><code>reward</code>: 执行动作后获得的奖励。</li>
+<li><code>terminated</code>: 一个布尔值，表示回合是否因为达到某个终止条件而结束（例如，在CartPole中杆子倒下）。</li>
+<li><code>truncated</code>: 一个布尔值，表示回合是否因为达到时间限制或其他非自然终止条件而结束。</li>
+<li><code>info</code>: 包含调试信息的字典。</li>
+</ul></li>
+<li><code>env.render()</code>: 可视化环境（如果支持）。</li>
+<li><code>env.close()</code>: 关闭环境并释放资源。</li>
+<li><code>env.action_space</code>: 描述动作空间的类型和范围。</li>
+<li><code>env.observation_space</code>: 描述观测空间的类型和范围。</li>
+</ul>
+<p><strong>简单示例 (CartPole环境随机游走)：</strong></p>
+<p>CartPole（车杆）是一个经典RL问题：目标是通过左右移动小车来保持杆子竖直不倒。</p>
+<div id="code-gymnasium-cartpole" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gymnasium <span class="im">as</span> gym</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 创建环境，render_mode="human" 会弹出一个窗口显示动画</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 如果不需要可视化，可以使用 render_mode="rgb_array"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    env <span class="op">=</span> gym.make(<span class="st">"CartPole-v1"</span>, render_mode<span class="op">=</span><span class="st">"human"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 重置环境到初始状态</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Initial Observation:"</span>, observation)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    total_reward <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> episode <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>): <span class="co"># 玩3个回合</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"--- Episode </span><span class="sc">{</span>episode<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> ---"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        terminated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        truncated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        episode_reward <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> step_idx <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">200</span>): <span class="co"># 每个回合最多运行200步</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> env.render_mode <span class="op">==</span> <span class="st">"human"</span>:</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                env.render() <span class="co"># 渲染当前帧</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 随机选择一个动作 (0: 向左推, 1: 向右推)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            action <span class="op">=</span> env.action_space.sample()</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 执行动作</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            observation, reward, terminated, truncated, info <span class="op">=</span> env.step(action)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            episode_reward <span class="op">+=</span> reward</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> terminated <span class="kw">or</span> truncated:</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Episode finished after </span><span class="sc">{</span>step_idx<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> steps. Episode reward: </span><span class="sc">{</span>episode_reward<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                total_reward <span class="op">+=</span> episode_reward</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> env.render_mode <span class="op">==</span> <span class="st">"human"</span>:</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                    time.sleep(<span class="fl">0.5</span>) <span class="co"># 等待看结果</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> env.render_mode <span class="op">==</span> <span class="st">"human"</span>:</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                 time.sleep(<span class="fl">0.02</span>) <span class="co"># 减慢动画速度</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Total reward over </span><span class="sc">{</span>episode<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> episodes: </span><span class="sc">{</span>total_reward<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"An error occurred with Gymnasium: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Skipping Gymnasium example rendering if no display is available or other issues."</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">'env'</span> <span class="kw">in</span> <span class="bu">locals</span>() <span class="kw">and</span> <span class="bu">hasattr</span>(env, <span class="st">'close'</span>):</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        env.close() <span class="co"># 关闭环境</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="stable-baselines3" class="level3">
+<h3 class="anchored" data-anchor-id="stable-baselines3">14.8.2 Stable Baselines3</h3>
+<p>Stable Baselines3 (SB3) 是一个实现了多种流行强化学习算法的PyTorch库。它基于Gymnasium，并提供了易于使用、经过良好测试和文档化的RL算法实现，如A2C, DDPG, DQN, PPO, SAC, TD3等。</p>
+<p><strong>主要优点：</strong></p>
+<ul>
+<li><strong>高质量实现：</strong> 代码可靠，结果可复现。</li>
+<li><strong>易用性：</strong> 几行代码就可以训练一个RL智能体。</li>
+<li><strong>良好文档和教程：</strong> 方便上手和学习。</li>
+<li><strong>支持自定义：</strong> 可以自定义网络结构、环境等。</li>
+</ul>
+<p><strong>使用Stable Baselines3训练A2C模型 (CartPole示例):</strong></p>
+<p>下面是一个使用Stable Baselines3中的A2C算法来训练CartPole环境的简单示例。</p>
+<div id="code-sb3-a2c-cartpole" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gymnasium <span class="im">as</span> gym</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> stable_baselines3 <span class="im">import</span> A2C</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># from stable_baselines3.common.env_util import make_vec_env # Not strictly needed for simple cases</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> stable_baselines3.common.evaluation <span class="im">import</span> evaluate_policy</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time <span class="co"># for sleep in visualization</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. 创建环境</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    env_id <span class="op">=</span> <span class="st">"CartPole-v1"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    env <span class="op">=</span> gym.make(env_id)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. 创建A2C模型</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># "MlpPolicy" 表示使用多层感知机作为Actor和Critic的网络结构</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> A2C(<span class="st">"MlpPolicy"</span>, env, verbose<span class="op">=</span><span class="dv">0</span>) <span class="co"># verbose=0 to reduce output during generation</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. 训练模型</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Training A2C model on </span><span class="sc">{</span>env_id<span class="sc">}</span><span class="ss">..."</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 这里的timesteps可以根据需要调整，越多通常效果越好，但耗时越长</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    model.learn(total_timesteps<span class="op">=</span><span class="dv">30000</span>) <span class="co"># Increased timesteps for better learning</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Training finished."</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. 保存模型 (可选)</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    model_path <span class="op">=</span> <span class="st">"a2c_cartpole_model"</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    model.save(model_path)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Model saved to </span><span class="sc">{</span>model_path<span class="sc">}</span><span class="ss">.zip"</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 5. 评估训练好的模型</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 为了评估，最好使用与训练时不同的环境实例，或者重新创建</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    eval_env_for_eval <span class="op">=</span> gym.make(env_id)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    mean_reward, std_reward <span class="op">=</span> evaluate_policy(model, eval_env_for_eval, n_eval_episodes<span class="op">=</span><span class="dv">10</span>, deterministic<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Evaluation: Mean reward: </span><span class="sc">{</span>mean_reward<span class="sc">:.2f}</span><span class="ss"> +/- </span><span class="sc">{</span>std_reward<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    eval_env_for_eval.close()</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 6. 使用训练好的模型进行推理并可视化 (可选)</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Running trained model for visualization..."</span>)</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 如果需要可视化，需要创建带有 render_mode="human" 的环境</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    vis_env <span class="op">=</span> gym.make(env_id, render_mode<span class="op">=</span><span class="st">"human"</span>)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    obs, info <span class="op">=</span> vis_env.reset()</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> episode <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>): <span class="co"># 可视化3个回合</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        obs, info <span class="op">=</span> vis_env.reset()</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        terminated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>        truncated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>        episode_r <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Visualization Episode </span><span class="sc">{</span>episode<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">250</span>): <span class="co"># 增加步数限制</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>            action, _states <span class="op">=</span> model.predict(obs, deterministic<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>            obs, reward, terminated, truncated, info <span class="op">=</span> vis_env.step(action)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>            episode_r <span class="op">+=</span> reward</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> vis_env.render_mode <span class="op">==</span> <span class="st">"human"</span>:</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>                vis_env.render()</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>                time.sleep(<span class="fl">0.01</span>)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> terminated <span class="kw">or</span> truncated:</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Visualization Episode finished. Reward: </span><span class="sc">{</span>episode_r<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    vis_env.close()</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 清理保存的模型文件 (仅为示例)</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> os.path.exists(model_path <span class="op">+</span> <span class="st">".zip"</span>):</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        os.remove(model_path <span class="op">+</span> <span class="st">".zip"</span>)</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ImportError</span>:</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Stable Baselines3 or PyTorch not installed. Skipping A2C example."</span>)</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"An error occurred with Stable Baselines3 A2C example: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"This might be due to display issues if render_mode='human' is used in a headless environment, or other dependencies."</span>)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 确保所有环境都被关闭</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">'env'</span> <span class="kw">in</span> <span class="bu">locals</span>() <span class="kw">and</span> <span class="bu">hasattr</span>(env, <span class="st">'close'</span>):</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        env.close()</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">'eval_env_for_eval'</span> <span class="kw">in</span> <span class="bu">locals</span>() <span class="kw">and</span> <span class="bu">hasattr</span>(eval_env_for_eval, <span class="st">'close'</span>):</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        eval_env_for_eval.close()</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">'vis_env'</span> <span class="kw">in</span> <span class="bu">locals</span>() <span class="kw">and</span> <span class="bu">hasattr</span>(vis_env, <span class="st">'close'</span>):</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>        vis_env.close()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>这个例子展示了使用Stable Baselines3训练一个A2C智能体的基本流程。你可以尝试在其他Gymnasium环境上使用SB3提供的不同算法。</p>
+</section>
+</section>
+<section id="本章总结" class="level2">
+<h2 class="anchored" data-anchor-id="本章总结">14.9 本章总结</h2>
+<p>本章我们深入探讨了强化学习 (RL) 的基本原理和核心概念。我们了解到：</p>
+<ul>
+<li>强化学习是关于智能体如何在与环境的交互中通过试错来学习最优决策策略，以最大化累积奖励。</li>
+<li><strong>马尔可夫决策过程 (MDP)</strong> 为强化学习问题提供了形式化的数学框架，其核心要素包括状态、动作、转移概率、奖励函数和折扣因子。</li>
+<li><strong>价值函数</strong> (<span class="math inline">\(V^\pi(s)\)</span> 和 <span class="math inline">\(Q^\pi(s,a)\)</span>) 用于评估策略的好坏，贝尔曼方程描述了它们之间的递归关系。</li>
+<li><strong>Q-Learning</strong> 是一种经典的无模型、异策略的算法，它通过迭代更新Q值来学习最优动作价值函数。当状态空间过大时，可以使用<strong>深度Q网络 (DQN)</strong>，通过神经网络近似Q函数，并结合经验回放和目标网络等技术稳定训练。</li>
+<li><strong>策略梯度方法</strong> 直接优化参数化的策略。<strong>REINFORCE</strong>是其基础实现。为了降低梯度估计的方差，发展出了<strong>Actor-Critic</strong>方法，如<strong>A2C</strong>，它同时学习策略（Actor）和价值函数（Critic）。</li>
+<li>强化学习在游戏、机器人、推荐系统等众多领域都有广泛的应用。</li>
+<li><strong>Gymnasium</strong> 和 <strong>Stable Baselines3</strong> 等Python库为RL研究和实践提供了便利的工具和高质量的算法实现。</li>
+</ul>
+<p>强化学习是一个充满活力且快速发展的领域。虽然本章只介绍了基础知识，但它为你进一步探索更高级的RL算法（如PPO, SAC等深度强化学习方法）和应用奠定了坚实的基础。</p>
+</section>
+<section id="思考与练习" class="level2">
+<h2 class="anchored" data-anchor-id="思考与练习">14.10 思考与练习</h2>
+<section id="概念回顾与思考" class="level3">
+<h3 class="anchored" data-anchor-id="概念回顾与思考">14.10.1 概念回顾与思考</h3>
+<ol type="1">
+<li><strong>基本概念：</strong>
+<ul>
+<li>用你自己的话描述智能体、环境、状态、动作、奖励和策略在强化学习中的含义和相互关系。</li>
+<li>什么是马尔可夫性质？为什么它对于MDP很重要？</li>
+<li>折扣因子 <span class="math inline">\(\gamma\)</span> 的作用是什么？如果 <span class="math inline">\(\gamma=0\)</span> 或 <span class="math inline">\(\gamma=1\)</span> 会发生什么？</li>
+</ul></li>
+<li><strong>价值函数与Q-Learning/DQN：</strong>
+<ul>
+<li>状态价值函数 <span class="math inline">\(V^\pi(s)\)</span> 和动作价值函数 <span class="math inline">\(Q^\pi(s,a)\)</span> 有什么区别和联系？</li>
+<li>解释Q-Learning更新规则中各个组成部分（学习率、目标Q值、TD误差）的意义。</li>
+<li>Q-Learning为什么被称为”异策略 (Off-Policy)“算法？</li>
+<li>DQN中的经验回放和目标网络分别解决了什么问题？</li>
+<li>在强化学习中，“探索 (Exploration)”与”利用 (Exploitation)“的权衡是什么意思？<span class="math inline">\(\epsilon\)</span>-greedy策略是如何实现这种权衡的？</li>
+</ul></li>
+<li><strong>策略梯度与Actor-Critic/A2C：</strong>
+<ul>
+<li>策略梯度方法与基于价值的方法（如Q-Learning）的主要区别是什么？</li>
+<li>REINFORCE算法是如何估计策略梯度的？它为什么被称为蒙特卡洛方法？它有什么主要的缺点？</li>
+<li>Actor-Critic方法是如何尝试解决REINFORCE的缺点的？Actor和Critic各自的角色是什么？</li>
+<li>A2C中的”优势 (Advantage)“指的是什么？为什么使用优势函数可能比直接使用回报更好？</li>
+</ul></li>
+<li><strong>应用与挑战：</strong>
+<ul>
+<li>列举至少三个你认为强化学习有巨大潜力的应用场景，并说明原因。</li>
+<li>讨论强化学习在实际应用中可能面临的一些挑战（例如，奖励设计、样本效率、安全性、可解释性等）。</li>
+</ul></li>
+</ol>
+</section>
+<section id="python实践与探索" class="level3">
+<h3 class="anchored" data-anchor-id="python实践与探索">14.10.2 Python实践与探索</h3>
+<ol type="1">
+<li><strong>Gymnasium环境探索：</strong>
+<ul>
+<li>运行本章提供的CartPole环境随机游走示例代码。尝试修改随机策略，例如，如果小车向左倾斜，则有更大概率向左推，观察效果。</li>
+<li>选择另一个Gymnasium中的经典控制环境（如 “MountainCar-v0”, “Acrobot-v1”）或离散环境（如 “FrozenLake-v1”，注意它默认是”slippery”的，即动作结果有随机性）。阅读其文档，了解其状态空间、动作空间和奖励机制。尝试使用随机策略与之交互。</li>
+</ul></li>
+<li><strong>(挑战) 实现简单表格型Q-Learning：</strong>
+<ul>
+<li>尝试为 “FrozenLake-v1” (可以设置 <code>is_slippery=False</code> 以简化问题，或者挑战 <code>is_slippery=True</code>) 实现一个表格型Q-Learning算法。</li>
+<li>你需要：
+<ul>
+<li>初始化一个Q表 (状态数 x 动作数)。</li>
+<li>实现 <span class="math inline">\(\epsilon\)</span>-greedy 策略选择动作，并让 <span class="math inline">\(\epsilon\)</span> 随时间衰减。</li>
+<li>在每个训练回合中，根据Q-Learning更新规则更新Q表。</li>
+<li>观察训练后Q表的变化以及智能体能否学会找到目标，并记录学习过程中的平均回报。</li>
+</ul></li>
+</ul></li>
+<li><strong>Stable Baselines3 算法尝试：</strong>
+<ul>
+<li>运行本章提供的A2C在CartPole上的示例。尝试增加 <code>total_timesteps</code>，观察模型性能是否有提升。</li>
+<li>在 <code>stable_baselines3</code> 中选择另一个算法（例如 DQN 用于离散动作空间，或 PPO 用于连续或离散动作空间）。查阅其文档，尝试用它来解决 “CartPole-v1” 或 “MountainCar-v0” (需要注意MountainCar的奖励设计可能比较tricky)。</li>
+<li>比较不同算法在相同任务上的学习速度和最终性能。</li>
+</ul></li>
+</ol>
+</section>
+<section id="深入思考与未来方向" class="level3">
+<h3 class="anchored" data-anchor-id="深入思考与未来方向">14.10.3 深入思考与未来方向</h3>
+<ol type="1">
+<li><strong>深度强化学习的挑战：</strong> DQN和A2C等方法虽然强大，但在更复杂的环境中仍面临许多挑战（如样本效率、探索难题、泛化能力等）。了解一下当前DRL研究中更高级的算法，如Rainbow DQN, PPO (Proximal Policy Optimization), SAC (Soft Actor-Critic) 等，它们试图解决哪些问题？</li>
+<li><strong>奖励设计 (Reward Shaping)：</strong> 奖励函数的设计对RL算法的性能至关重要。如果奖励非常稀疏（例如，只有在最终成功时才有奖励），智能体可能很难学习。你认为应该如何设计有效的奖励函数？了解一下”内在激励 (Intrinsic Motivation)“和”好奇心驱动探索 (Curiosity-driven Exploration)“的概念。</li>
+<li><strong>模型与无模型 (Model-Based vs.&nbsp;Model-Free)：</strong> 本章主要讨论了无模型方法。了解一下基于模型的强化学习方法的基本思想是什么？它们与无模型方法相比各有什么优缺点？(例如， Dyna-Q)</li>
+<li><strong>强化学习的伦理问题：</strong> 随着RL在自动驾驶、推荐系统、金融交易等领域的应用，可能会引发哪些伦理方面的担忧？如何确保RL系统的安全性和公平性？</li>
+<li><strong>当前RL研究热点：</strong> 简单了解一下当前强化学习的一些研究前沿，例如离线强化学习 (Offline RL)、多智能体强化学习 (Multi-Agent RL)、模仿学习 (Imitation Learning)、从人类反馈中学习强化学习 (RLHF) 等，它们各自试图解决什么样的问题？</li>
+</ol>
+</section>
+<section id="推荐阅读与资源" class="level3">
+<h3 class="anchored" data-anchor-id="推荐阅读与资源">14.10.4 推荐阅读与资源</h3>
+<ol type="1">
+<li><strong>Sutton, R. S., &amp; Barto, A. G. (2018). <a href="https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf"><em>Reinforcement Learning: An Introduction</em> (2nd ed.)</a>. MIT Press.</strong> (强化学习领域的经典教材，必读)</li>
+<li><strong>周志华. (2016). <em>机器学习</em>. 清华大学出版社.</strong> (第16章 强化学习)</li>
+<li><strong>David Silver’s Reinforcement Learning Course (UCL)：</strong> <a href="https://www.davidsilver.uk/teaching/">https://www.davidsilver.uk/teaching/</a> (包含讲义和视频链接，非常经典的RL课程)</li>
+<li><strong>Gymnasium官方文档：</strong> <a href="https://gymnasium.farama.org/">https://gymnasium.farama.org/</a></li>
+<li><strong>Stable Baselines3官方文档：</strong> <a href="https://stable-baselines3.readthedocs.io/">https://stable-baselines3.readthedocs.io/</a></li>
+<li><strong>Lilian Weng’s Blog - “Policy Gradient Algorithms”:</strong> <a href="https://lilianweng.github.io/posts/2018-04-08-policy-gradient/">https://lilianweng.github.io/posts/2018-04-08-policy-gradient/</a> (对策略梯度有很好的总结)</li>
+<li><strong>《动手学强化学习》- 张伟楠等:</strong> <a href="https://hrl.boyuai.com/">https://hrl.boyuai.com/</a> (一本很好的中文RL入门和实践书籍)</li>
+<li><strong>Mnih, V., et al.&nbsp;(2015). “Human-level control through deep reinforcement learning.” Nature.</strong> (DQN原始论文)</li>
+<li><strong>Mnih, V., et al.&nbsp;(2016). “Asynchronous methods for deep reinforcement learning.” ICML.</strong> (A3C原始论文，A2C是其同步版本)</li>
+</ol>
+<hr>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./13-deep-learning-advanced.html" class="pagination-link" aria-label="深度学习进阶">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">深度学习进阶</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./15-ml-project-workflow-summary.html" class="pagination-link" aria-label="机器学习项目实战流程与总结">
+        <span class="nav-page-text"><span class="chapter-title">机器学习项目实战流程与总结</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>支持向量机 (SVM) – 机器学习：从理论到Python实践</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./06-decision-trees-ensemble-learning.html" rel="next">
+<link href="./04-classification-logreg-knn.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-regression.html">第二部分：监督学习</a></li><li class="breadcrumb-item"><a href="./05-svm.html"><span class="chapter-title">支持向量机 (SVM)</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">机器学习：从理论到Python实践</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">欢迎学习《机器学习：从理论到Python实践》</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">第一部分：机器学习基石与Python生态</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习导论</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Python机器学习环境与核心库</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">第二部分：监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">回归与线性模型</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-classification-logreg-knn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">分类与逻辑回归、KNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-svm.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">支持向量机 (SVM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-decision-trees-ensemble-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">决策树与集成学习</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">第三部分：无监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clustering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">聚类分析</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-dimensionality-reduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">降维</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">第四部分：模型评估、优化与特征工程</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-model-evaluation-feature-engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">模型评估、优化与特征工程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">第五部分：深度学习初探</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-deep-learning-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习基础</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-cnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">卷积神经网络 (CNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-rnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">循环神经网络 (RNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-deep-learning-advanced.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习进阶</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">第六部分：强化学习入门</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-reinforcement-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">强化学习基础与应用</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">第七部分：综合项目与展望</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-ml-project-workflow-summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习项目实战流程与总结</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-summary-outlook.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">课程总结与展望</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">附录</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#学习目标" id="toc-学习目标" class="nav-link active" data-scroll-target="#学习目标">学习目标</a></li>
+  <li><a href="#svm-的直观理解寻找最大间隔" id="toc-svm-的直观理解寻找最大间隔" class="nav-link" data-scroll-target="#svm-的直观理解寻找最大间隔">5.1 SVM 的直观理解：寻找最大间隔</a></li>
+  <li><a href="#线性svm分类" id="toc-线性svm分类" class="nav-link" data-scroll-target="#线性svm分类">5.2 线性SVM分类</a>
+  <ul class="collapse">
+  <li><a href="#硬间隔分类-hard-margin-classification" id="toc-硬间隔分类-hard-margin-classification" class="nav-link" data-scroll-target="#硬间隔分类-hard-margin-classification">5.2.1 硬间隔分类 (Hard Margin Classification)</a></li>
+  <li><a href="#软间隔分类-soft-margin-classification" id="toc-软间隔分类-soft-margin-classification" class="nav-link" data-scroll-target="#软间隔分类-soft-margin-classification">5.2.2 软间隔分类 (Soft Margin Classification)</a></li>
+  </ul></li>
+  <li><a href="#非线性svm分类核技巧" id="toc-非线性svm分类核技巧" class="nav-link" data-scroll-target="#非线性svm分类核技巧">5.3 非线性SVM分类：核技巧</a>
+  <ul class="collapse">
+  <li><a href="#核技巧-the-kernel-trick" id="toc-核技巧-the-kernel-trick" class="nav-link" data-scroll-target="#核技巧-the-kernel-trick">5.3.1 核技巧 (The Kernel Trick)</a></li>
+  <li><a href="#常用核函数" id="toc-常用核函数" class="nav-link" data-scroll-target="#常用核函数">5.3.2 常用核函数</a></li>
+  <li><a href="#gamma-参数的影响-rbf核" id="toc-gamma-参数的影响-rbf核" class="nav-link" data-scroll-target="#gamma-参数的影响-rbf核">5.3.3 <code>gamma</code> 参数的影响 (RBF核)</a></li>
+  </ul></li>
+  <li><a href="#svm-的优缺点" id="toc-svm-的优缺点" class="nav-link" data-scroll-target="#svm-的优缺点">5.4 SVM 的优缺点</a></li>
+  <li><a href="#使用-scikit-learn-实现-svm" id="toc-使用-scikit-learn-实现-svm" class="nav-link" data-scroll-target="#使用-scikit-learn-实现-svm">5.5 使用 Scikit-learn 实现 SVM</a>
+  <ul class="collapse">
+  <li><a href="#线性svm示例-鸢尾花数据集两类" id="toc-线性svm示例-鸢尾花数据集两类" class="nav-link" data-scroll-target="#线性svm示例-鸢尾花数据集两类">5.5.1 线性SVM示例 (鸢尾花数据集，两类)</a></li>
+  <li><a href="#非线性svm示例-rbf核月亮数据集" id="toc-非线性svm示例-rbf核月亮数据集" class="nav-link" data-scroll-target="#非线性svm示例-rbf核月亮数据集">5.5.2 非线性SVM示例 (RBF核，月亮数据集)</a></li>
+  <li><a href="#使用gridsearchcv进行参数调优" id="toc-使用gridsearchcv进行参数调优" class="nav-link" data-scroll-target="#使用gridsearchcv进行参数调优">5.5.3 使用GridSearchCV进行参数调优</a></li>
+  </ul></li>
+  <li><a href="#本章小结" id="toc-本章小结" class="nav-link" data-scroll-target="#本章小结">5.6 本章小结</a></li>
+  <li><a href="#思考与练习" id="toc-思考与练习" class="nav-link" data-scroll-target="#思考与练习">5.7 思考与练习</a>
+  <ul class="collapse">
+  <li><a href="#基础练习" id="toc-基础练习" class="nav-link" data-scroll-target="#基础练习">5.7.1 基础练习</a></li>
+  <li><a href="#编码与实践" id="toc-编码与实践" class="nav-link" data-scroll-target="#编码与实践">5.7.2 编码与实践</a></li>
+  <li><a href="#推荐阅读" id="toc-推荐阅读" class="nav-link" data-scroll-target="#推荐阅读">5.7.3 推荐阅读</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-regression.html">第二部分：监督学习</a></li><li class="breadcrumb-item"><a href="./05-svm.html"><span class="chapter-title">支持向量机 (SVM)</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">支持向量机 (SVM)</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="学习目标" class="level2">
+<h2 class="anchored" data-anchor-id="学习目标">学习目标</h2>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>学习目标：</strong></p>
+<ul>
+<li>理解支持向量机 (SVM) 的核心思想：最大化分类间隔。</li>
+<li>区分线性可分SVM和线性不可分SVM。</li>
+<li>理解支持向量 (Support Vectors) 的概念及其在决定决策边界中的作用。</li>
+<li>掌握核技巧 (Kernel Trick) 的概念，特别是多项式核和高斯径向基函数 (RBF) 核的原理和应用。</li>
+<li>理解软间隔 (Soft Margin) 的概念以及正则化参数C的作用。</li>
+<li>能够使用Scikit-learn实现和评估SVM分类器，并进行基本的参数调整。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="svm-的直观理解寻找最大间隔" class="level2">
+<h2 class="anchored" data-anchor-id="svm-的直观理解寻找最大间隔">5.1 SVM 的直观理解：寻找最大间隔</h2>
+<p>支持向量机 (Support Vector Machine, SVM) 是一种功能强大且用途广泛的监督学习模型，能够执行线性或非线性分类、回归，甚至是异常值检测任务。然而，它最常用于分类问题。</p>
+<p>SVM的核心思想是找到一个能够将不同类别的样本点分得尽可能开的<strong>决策边界 (Decision Boundary)</strong>。这个”尽可能开”是通过<strong>最大化两个类别最近的样本点之间的间隔 (Margin)</strong> 来实现的。</p>
+<p>想象一下，在二维空间中有两类点，我们想要画一条直线将它们分开。通常会有很多条直线可以做到这一点，但哪一条是最好的呢？SVM认为，最好的那条直线是离两边最近的那些点最远的那条，也就是间隔最大的那条。</p>
+<p><img src="./images/05-svm/svm_max_margin_linear.svg" class="img-fluid"> <em>(图 5.1: SVM决策边界与最大间隔示意图。黑色实线是决策边界，虚线是间隔边界，位于间隔边界上的点是支持向量。)</em></p>
+<p>在这个图中：</p>
+<ul>
+<li>黑色实线是SVM找到的<strong>决策边界</strong>（在二维中是直线，高维中是超平面）。</li>
+<li>两条虚线平行于决策边界，穿过距离决策边界最近的来自不同类别的样本点。这两条虚线之间的区域就是<strong>间隔 (Margin)</strong>。</li>
+<li>SVM的目标是<strong>最大化这个间隔的宽度</strong>。</li>
+<li>那些位于虚线边界上的点被称为<strong>支持向量 (Support Vectors)</strong>。它们是”支撑”起这个最大间隔的样本点。如果移动这些支持向量，决策边界和间隔通常会改变。而非支持向量的移动（只要不越过间隔边界）则不会影响决策边界。</li>
+</ul>
+<p>这种最大化间隔的策略使得SVM具有良好的泛化能力，因为它对数据中的噪声不那么敏感（只要噪声点不是支持向量）。</p>
+</section>
+<section id="线性svm分类" class="level2">
+<h2 class="anchored" data-anchor-id="线性svm分类">5.2 线性SVM分类</h2>
+<section id="硬间隔分类-hard-margin-classification" class="level3">
+<h3 class="anchored" data-anchor-id="硬间隔分类-hard-margin-classification">5.2.1 硬间隔分类 (Hard Margin Classification)</h3>
+<p>如果数据是<strong>严格线性可分 (strictly linearly separable)</strong> 的，即我们可以找到一个超平面将所有样本完美地分开，并且没有任何样本点位于间隔内部或错误的一侧，那么我们可以使用硬间隔分类。</p>
+<p>决策函数可以表示为： <span class="math display">\[ f(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b \]</span> 其中 <span class="math inline">\(\mathbf{w}\)</span> 是权重向量（法向量），<span class="math inline">\(b\)</span> 是偏置项（截距）。</p>
+<p>预测规则为：</p>
+<ul>
+<li>如果 <span class="math inline">\(\mathbf{w}^T \mathbf{x} + b \ge 0\)</span>，则预测类别为 +1。</li>
+<li>如果 <span class="math inline">\(\mathbf{w}^T \mathbf{x} + b &lt; 0\)</span>，则预测类别为 -1。</li>
+</ul>
+<p>为了实现最大间隔，SVM的目标是最小化 <span class="math inline">\(||\mathbf{w}||^2\)</span> （等价于最小化 <span class="math inline">\(||\mathbf{w}||\)</span>），同时满足约束条件： <span class="math display">\[ y^{(i)} (\mathbf{w}^T \mathbf{x}^{(i)} + b) \ge 1 \quad \text{for all } i=1, ..., m \]</span> 这里 <span class="math inline">\(y^{(i)}\)</span> 是第 <span class="math inline">\(i\)</span> 个样本的类别标签（取值为+1或-1）。这个约束确保所有样本点都正确分类并且位于间隔边界之外或之上。</p>
+<p><strong>硬间隔分类的问题：</strong></p>
+<ol type="1">
+<li><strong>仅适用于线性可分数据：</strong> 如果数据不是线性可分的，就找不到这样的硬间隔。</li>
+<li><strong>对异常值非常敏感：</strong> 如下图所示，一个异常点就可能导致决策边界发生巨大变化，使得间隔变得非常小，从而影响模型的泛化能力。</li>
+</ol>
+<p><img src="./images/05-svm/svm_hard_margin_outlier_sensitivity.svg" class="img-fluid"> <em>(图 5.2: 硬间隔SVM对异常值的敏感性。左图：无异常点时的最大间隔。右图：加入一个异常点后，硬间隔SVM被迫选择一个间隔很小的决策边界。)</em></p>
+</section>
+<section id="软间隔分类-soft-margin-classification" class="level3">
+<h3 class="anchored" data-anchor-id="软间隔分类-soft-margin-classification">5.2.2 软间隔分类 (Soft Margin Classification)</h3>
+<p>为了解决硬间隔分类的问题，并使其能够处理线性不可分的数据和异常值，引入了<strong>软间隔分类</strong>。</p>
+<p>软间隔分类允许一些样本点<strong>违反间隔 (margin violation)</strong>，即它们可以位于间隔内部，甚至在错误的一侧。但是，它会对这些违反间隔的样本点施加一定的惩罚。</p>
+<p>这是通过在优化目标中引入一个<strong>正则化参数 <code>C</code></strong> (通常称为惩罚参数) 和<strong>松弛变量 (slack variables) <code>ξ</code> (xi)</strong> 来实现的。</p>
+<p>优化目标变为：最小化 <span class="math display">\[ \frac{1}{2} ||\mathbf{w}||^2 + C \sum_{i=1}^{m} \xi^{(i)} \]</span> 同时满足约束条件： <span class="math display">\[ y^{(i)} (\mathbf{w}^T \mathbf{x}^{(i)} + b) \ge 1 - \xi^{(i)} \quad \text{and} \quad \xi^{(i)} \ge 0 \quad \text{for all } i=1, ..., m \]</span></p>
+<ul>
+<li><span class="math inline">\(\xi^{(i)}\)</span> 是第 <span class="math inline">\(i\)</span> 个样本的松弛变量，表示该样本违反间隔的程度。
+<ul>
+<li>如果 <span class="math inline">\(\xi^{(i)} = 0\)</span>，则样本被正确分类且在间隔之外或之上。</li>
+<li>如果 <span class="math inline">\(0 &lt; \xi^{(i)} \le 1\)</span>，则样本被正确分类但位于间隔内部。</li>
+<li>如果 <span class="math inline">\(\xi^{(i)} &gt; 1\)</span>，则样本被错误分类。</li>
+</ul></li>
+<li>参数 <code>C</code> 控制了<strong>间隔宽度</strong>和<strong>间隔违例数量</strong>之间的权衡：
+<ul>
+<li><strong>较小的 <code>C</code> 值：</strong> 导致更宽的间隔，但允许更多的间隔违例。模型对个别数据点的错误分类容忍度更高，倾向于更简单的决策边界（可能导致欠拟合，高偏差）。</li>
+<li><strong>较大的 <code>C</code> 值：</strong> 试图最小化间隔违例的数量，导致间隔更窄。模型对错误分类的容忍度较低，可能导致更复杂的决策边界，更容易受到噪声影响（可能导致过拟合，高方差）。</li>
+</ul></li>
+</ul>
+<p><img src="./images/05-svm/svm_soft_margin_C_effect.svg" class="img-fluid"> <em>(图 5.3: 软间隔SVM中不同C值的影响。左图：C值较小 (C=0.1)，间隔较宽，容忍一些间隔违例。右图：C值较大 (C=100)，间隔较窄，试图正确分类更多点，对间隔违例的惩罚更大。)</em></p>
+<p>在Scikit-learn中，<code>SVC</code> 类的 <code>C</code> 参数就是这个正则化参数。默认值通常是 <code>C=1.0</code>。</p>
+</section>
+</section>
+<section id="非线性svm分类核技巧" class="level2">
+<h2 class="anchored" data-anchor-id="非线性svm分类核技巧">5.3 非线性SVM分类：核技巧</h2>
+<p>线性SVM在许多情况下都表现良好，但很多真实世界的数据集并不是线性可分的。</p>
+<p>一种处理非线性数据的方法是<strong>添加多项式特征</strong>。例如，对于一个一维特征 <span class="math inline">\(x_1\)</span>，我们可以添加一个新特征 <span class="math inline">\(x_2 = (x_1)^2\)</span>。这样，原本在一维空间中线性不可分的数据，在新的二维空间 <span class="math inline">\((x_1, x_2)\)</span> 中可能就变得线性可分了。</p>
+<p><img src="./images/05-svm/svm_polynomial_feature_transform.svg" class="img-fluid"> <em>(图 5.4: 使用多项式特征处理非线性数据。左图：一维非线性数据。右图：通过添加平方项x₁²，数据在二维特征空间(x₁, x₁²)中变得线性可分。)</em></p>
+<p>然而，显式地添加高阶多项式特征（或其他复杂特征转换）有几个问题：</p>
+<ul>
+<li><strong>计算成本高：</strong> 如果原始特征数量很多，或者多项式的阶数很高，转换后的特征数量会急剧增加（组合爆炸），导致训练非常缓慢。</li>
+<li><strong>难以选择合适的转换：</strong> 不知道哪种特征转换最有效。</li>
+</ul>
+<section id="核技巧-the-kernel-trick" class="level3">
+<h3 class="anchored" data-anchor-id="核技巧-the-kernel-trick">5.3.1 核技巧 (The Kernel Trick)</h3>
+<p><strong>核技巧</strong>是SVM中一个非常优雅的数学方法，它允许我们在高维特征空间中进行计算，而无需显式地计算数据点在该高维空间中的坐标。换句话说，它可以在不实际创建新特征的情况下，得到与在高维空间中训练线性SVM相同的效果。</p>
+<p>这是因为SVM算法（在其对偶形式中）的计算实际上只依赖于样本点之间的<strong>内积 (dot product)</strong>。</p>
+<p>一个<strong>核函数 (Kernel Function)</strong> <span class="math inline">\(K(\mathbf{a}, \mathbf{b})\)</span> 计算的是原始特征空间中两个样本点 <span class="math inline">\(\mathbf{a}\)</span> 和 <span class="math inline">\(\mathbf{b}\)</span> 经过某个非线性映射 <span class="math inline">\(\phi(\cdot)\)</span> 到高维特征空间后的内积： <span class="math display">\[ K(\mathbf{a}, \mathbf{b}) = \phi(\mathbf{a})^T \phi(\mathbf{b}) \]</span></p>
+<p>我们不需要知道映射函数 <span class="math inline">\(\phi(\cdot)\)</span> 的具体形式，也不需要计算 <span class="math inline">\(\phi(\mathbf{a})\)</span> 和 <span class="math inline">\(\phi(\mathbf{b})\)</span>，只需要能够计算核函数 <span class="math inline">\(K(\mathbf{a}, \mathbf{b})\)</span> 的值即可。</p>
+</section>
+<section id="常用核函数" class="level3">
+<h3 class="anchored" data-anchor-id="常用核函数">5.3.2 常用核函数</h3>
+<ol type="1">
+<li><p><strong>线性核 (Linear Kernel):</strong> <span class="math display">\[ K(\mathbf{a}, \mathbf{b}) = \mathbf{a}^T \mathbf{b} \]</span> 这实际上就是标准的线性SVM，没有进行空间映射。 在Scikit-learn中，设置 <code>kernel="linear"</code>。</p></li>
+<li><p><strong>多项式核 (Polynomial Kernel):</strong> <span class="math display">\[ K(\mathbf{a}, \mathbf{b}) = (\gamma \mathbf{a}^T \mathbf{b} + r)^d \]</span></p>
+<ul>
+<li><code>d</code> 是多项式的阶数 (degree)。</li>
+<li><code>γ</code> (gamma) 是一个缩放参数。</li>
+<li><code>r</code> (coef0) 是一个常数项系数。 如果 <code>d</code> 较大，可以拟合非常复杂的决策边界，但也容易过拟合。 在Scikit-learn中，设置 <code>kernel="poly"</code>，并调整 <code>degree</code>，<code>gamma</code>，<code>coef0</code> 参数。</li>
+</ul></li>
+<li><p><strong>高斯径向基函数核 (Gaussian RBF Kernel):</strong> <span class="math display">\[ K(\mathbf{a}, \mathbf{b}) = \exp(-\gamma ||\mathbf{a} - \mathbf{b}||^2) \]</span></p>
+<ul>
+<li><code>γ</code> (gamma) 是一个重要的参数。它定义了单个训练样本的影响范围：
+<ul>
+<li><strong>较小的 <code>γ</code> 值：</strong> 意味着影响范围大，决策边界更平滑，可能导致欠拟合。</li>
+<li><strong>较大的 <code>γ</code> 值：</strong> 意味着影响范围小，每个点的影响更局部化，决策边界更不规则，对数据点更敏感，可能导致过拟合。 RBF核非常灵活，可以创建复杂的非线性决策边界。它实际上是将样本映射到一个无限维的空间。 在Scikit-learn中，设置 <code>kernel="rbf"</code>，并调整 <code>gamma</code> (和 <code>C</code>) 参数。这是 <code>SVC</code> 类的默认核。</li>
+</ul></li>
+</ul></li>
+<li><p><strong>Sigmoid 核 (Sigmoid Kernel):</strong> <span class="math display">\[ K(\mathbf{a}, \mathbf{b}) = \tanh(\gamma \mathbf{a}^T \mathbf{b} + r) \]</span> 其行为类似于两层的感知机神经网络。 在Scikit-learn中，设置 <code>kernel="sigmoid"</code>。</p></li>
+</ol>
+<p><img src="./images/05-svm/svm_kernel_examples.svg" class="img-fluid"> <em>(图 5.5: 使用不同核函数的SVM决策边界。左：线性核。中：多项式核 (degree=3)。右：RBF核。可以看出，多项式核和RBF核可以处理非线性可分的数据。)</em></p>
+<p><strong>选择核函数和调整参数：</strong></p>
+<ul>
+<li><strong>经验法则：</strong> 通常先尝试线性核。如果数据非常复杂，或者线性核表现不佳，再尝试RBF核，它通常是一个很好的默认选择。多项式核在某些特定情况下可能表现好，但如果阶数过高，训练会很慢且容易过拟合。</li>
+<li><strong>交叉验证和网格搜索：</strong> 是选择核函数类型和调整其超参数（如 <code>C</code>，<code>gamma</code>，<code>degree</code>）的最佳方法。</li>
+</ul>
+</section>
+<section id="gamma-参数的影响-rbf核" class="level3">
+<h3 class="anchored" data-anchor-id="gamma-参数的影响-rbf核">5.3.3 <code>gamma</code> 参数的影响 (RBF核)</h3>
+<p>对于RBF核 <span class="math inline">\(K(\mathbf{a}, \mathbf{b}) = \exp(-\gamma ||\mathbf{a} - \mathbf{b}||^2)\)</span>，<code>gamma</code> (<span class="math inline">\(\gamma\)</span>) 参数控制了单个训练样本的影响范围。</p>
+<ul>
+<li><strong>小的 <code>gamma</code> 值：</strong> 高斯曲线更宽，单个样本的影响范围更大，决策边界更平滑。如果 <code>gamma</code> 太小，模型可能过于简单，导致欠拟合。</li>
+<li><strong>大的 <code>gamma</code> 值：</strong> 高斯曲线更窄，单个样本的影响范围更小，决策边界更不规则，会紧密地围绕数据点。如果 <code>gamma</code> 太大，模型可能过于复杂，对训练数据中的噪声敏感，导致过拟合。</li>
+</ul>
+<p><img src="./images/05-svm/svm_rbf_gamma_effect.svg" class="img-fluid"> <em>(图 5.6: RBF核中不同gamma值的影响。左：gamma=0.1，边界较平滑。右：gamma=10，边界非常不规则，紧密围绕数据点，可能过拟合。)</em></p>
+</section>
+</section>
+<section id="svm-的优缺点" class="level2">
+<h2 class="anchored" data-anchor-id="svm-的优缺点">5.4 SVM 的优缺点</h2>
+<p><strong>优点：</strong></p>
+<ul>
+<li><strong>在高维空间中非常有效：</strong> 即使特征维度高于样本数量，SVM仍然有效。</li>
+<li><strong>内存效率高：</strong> 因为它只使用训练点的一个子集（支持向量）来进行决策。</li>
+<li><strong>通用性强：</strong> 可以通过不同的核函数选择来适应不同的数据和问题，处理线性和非线性问题。</li>
+<li><strong>鲁棒性：</strong> 由于最大化间隔，对异常值（非支持向量）不敏感（尤其是在软间隔和合适C值的情况下）。</li>
+<li><strong>理论基础坚实：</strong> 基于统计学习理论中的VC维(Vapnik-Chervonenkis dimension)理论[Vapnik, 1995]，具有严格的数学推导和泛化误差上界保证。该理论为SVM的泛化性能提供了理论保障。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><strong>对参数选择敏感：</strong> 核函数的选择及其超参数（如<code>C</code>和<code>gamma</code>）对性能影响很大，通常需要仔细调优。</li>
+<li><strong>训练时间长：</strong> 对于非常大的数据集，训练时间可能会很长，因为核函数的计算复杂度可能较高（例如，与样本数量成平方关系）。</li>
+<li><strong>可解释性较差：</strong> 特别是使用非线性核时，模型的决策边界不像线性模型或决策树那样直观易懂。</li>
+<li><strong>对特征缩放敏感：</strong> 与KNN类似，由于涉及到距离计算（隐式地通过核函数），建议在使用SVM之前对特征进行缩放。</li>
+<li><strong>不直接提供概率估计：</strong> Scikit-learn中的SVM可以通过Platt scaling等方法进行校准以输出概率，但这会增加计算成本。</li>
+</ul>
+</section>
+<section id="使用-scikit-learn-实现-svm" class="level2">
+<h2 class="anchored" data-anchor-id="使用-scikit-learn-实现-svm">5.5 使用 Scikit-learn 实现 SVM</h2>
+<p>我们将使用Scikit-learn库中的 <code>SVC</code> (Support Vector Classifier) 类来实现SVM。</p>
+<div id="fd0f3d57" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 导入必要的库</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split, GridSearchCV, cross_val_score</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> SVC</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, confusion_matrix, classification_report</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> make_moons, load_iris <span class="co"># 使用月亮数据和鸢尾花数据</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> ListedColormap</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 设置绘图风格</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>sns.set_palette(<span class="st">"viridis"</span>) <span class="co"># 换个色盘</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 辅助函数：绘制决策边界 (与之前章节类似，稍作调整)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_svm_decision_boundary(X, y, model, scaler, title, ax, plot_support_vectors<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> scaler:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        X_plot <span class="op">=</span> scaler.transform(X) <span class="co"># 如果传入原始X，用scaler转换</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        X_plot <span class="op">=</span> X <span class="co"># 如果传入的是已经缩放的X</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    x_min, x_max <span class="op">=</span> X[:, <span class="dv">0</span>].<span class="bu">min</span>() <span class="op">-</span> <span class="fl">0.5</span>, X[:, <span class="dv">0</span>].<span class="bu">max</span>() <span class="op">+</span> <span class="fl">0.5</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    y_min, y_max <span class="op">=</span> X[:, <span class="dv">1</span>].<span class="bu">min</span>() <span class="op">-</span> <span class="fl">0.5</span>, X[:, <span class="dv">1</span>].<span class="bu">max</span>() <span class="op">+</span> <span class="fl">0.5</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    xx, yy <span class="op">=</span> np.meshgrid(np.arange(x_min, x_max, <span class="fl">0.02</span>),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                         np.arange(y_min, y_max, <span class="fl">0.02</span>))</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    mesh_data_to_predict <span class="op">=</span> np.c_[xx.ravel(), yy.ravel()]</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> scaler:</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        mesh_data_to_predict <span class="op">=</span> scaler.transform(mesh_data_to_predict)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> model.predict(mesh_data_to_predict)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> Z.reshape(xx.shape)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    cmap_light <span class="op">=</span> ListedColormap([<span class="st">'#FFBDAD'</span>, <span class="st">'#AAAAFF'</span>])</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    cmap_bold_svm <span class="op">=</span> ListedColormap([<span class="st">'#FF0000'</span>, <span class="st">'#0000FF'</span>, <span class="st">'#00FF00'</span>]) <span class="co"># 增加一个颜色以支持鸢尾花数据集的三分类</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    ax.contourf(xx, yy, Z, cmap<span class="op">=</span>cmap_light, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 绘制原始（未缩放的）数据点</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    ax.scatter(X[:, <span class="dv">0</span>], X[:, <span class="dv">1</span>], c<span class="op">=</span>y, cmap<span class="op">=</span>cmap_bold_svm, edgecolor<span class="op">=</span><span class="st">'k'</span>, s<span class="op">=</span><span class="dv">35</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> plot_support_vectors <span class="kw">and</span> <span class="bu">hasattr</span>(model, <span class="st">'support_vectors_'</span>) <span class="kw">and</span> <span class="bu">hasattr</span>(model, <span class="st">'support_'</span>): <span class="co"># Ensure model.support_ exists</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>        <span class="co"># model.support_ 包含了支持向量在传递给 fit 方法的训练数据中的索引。</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 函数参数 X 是已经转换回原始尺度的训练数据。</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 因此，X[model.support_] 直接给出了原始尺度下的支持向量点。</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        support_vector_points_on_plot <span class="op">=</span> X[model.support_]</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        ax.scatter(support_vector_points_on_plot[:, <span class="dv">0</span>], support_vector_points_on_plot[:, <span class="dv">1</span>], s<span class="op">=</span><span class="dv">100</span>, </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                   facecolors<span class="op">=</span><span class="st">'none'</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, marker<span class="op">=</span><span class="st">'o'</span>, </span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>                   linewidth<span class="op">=</span><span class="dv">1</span>, label<span class="op">=</span><span class="st">'Support Vectors'</span>, zorder<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">hasattr</span>(model, <span class="st">'dual_coef_'</span>): <span class="co"># 打印支持向量的数量</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>            ax.text(<span class="fl">0.98</span>, <span class="fl">0.02</span>, <span class="ss">f'SV count: </span><span class="sc">{</span><span class="bu">len</span>(model.support_vectors_)<span class="sc">}</span><span class="ss">'</span>, transform<span class="op">=</span>ax.transAxes, ha<span class="op">=</span><span class="st">'right'</span>, va<span class="op">=</span><span class="st">'bottom'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(xx.<span class="bu">min</span>(), xx.<span class="bu">max</span>())</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(yy.<span class="bu">min</span>(), yy.<span class="bu">max</span>())</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">'Feature 1 (original scale)'</span>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">'Feature 2 (original scale)'</span>)</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> plot_support_vectors <span class="kw">and</span> <span class="bu">hasattr</span>(model, <span class="st">'support_vectors_'</span>):</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>        ax.legend(loc<span class="op">=</span><span class="st">'upper right'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="线性svm示例-鸢尾花数据集两类" class="level3">
+<h3 class="anchored" data-anchor-id="线性svm示例-鸢尾花数据集两类">5.5.1 线性SVM示例 (鸢尾花数据集，两类)</h3>
+<p>为了简单起见，我们先用鸢尾花数据集的前两个特征，并且只区分两个类别（例如，setosa vs versicolor）。</p>
+<div id="2468e08a" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载鸢尾花数据</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>iris <span class="op">=</span> load_iris()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>X_iris_all <span class="op">=</span> iris.data</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>y_iris_all <span class="op">=</span> iris.target</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 只取前两个特征，并只选择类别0和类别1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>X_iris_linear <span class="op">=</span> X_iris_all[(y_iris_all<span class="op">==</span><span class="dv">0</span>) <span class="op">|</span> (y_iris_all<span class="op">==</span><span class="dv">1</span>), :<span class="dv">2</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>y_iris_linear <span class="op">=</span> y_iris_all[(y_iris_all<span class="op">==</span><span class="dv">0</span>) <span class="op">|</span> (y_iris_all<span class="op">==</span><span class="dv">1</span>)]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 特征缩放</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>scaler_iris_linear <span class="op">=</span> StandardScaler()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>X_iris_linear_scaled <span class="op">=</span> scaler_iris_linear.fit_transform(X_iris_linear)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 划分训练集和测试集</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>X_train_lin, X_test_lin, y_train_lin, y_test_lin <span class="op">=</span> train_test_split(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    X_iris_linear_scaled, y_iris_linear, test_size<span class="op">=</span><span class="fl">0.3</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_iris_linear</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 创建线性SVM模型</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>linear_svm_clf <span class="op">=</span> SVC(kernel<span class="op">=</span><span class="st">"linear"</span>, C<span class="op">=</span><span class="fl">1.0</span>) <span class="co"># C=1.0 是一个常用的默认值</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>linear_svm_clf.fit(X_train_lin, y_train_lin)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 预测与评估</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>y_pred_lin_svm <span class="op">=</span> linear_svm_clf.predict(X_test_lin)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>accuracy_lin_svm <span class="op">=</span> accuracy_score(y_test_lin, y_pred_lin_svm)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"线性SVM (鸢尾花两类，前两特征):"</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"准确率: </span><span class="sc">{</span>accuracy_lin_svm<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">混淆矩阵:"</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(confusion_matrix(y_test_lin, y_pred_lin_svm))</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">分类报告:"</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(classification_report(y_test_lin, y_pred_lin_svm))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># 绘制决策边界 (在原始未缩放数据上绘制，但在内部使用缩放数据进行预测)</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 为了在原始尺度上绘制，需要将scaler和原始数据传入</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>plot_svm_decision_boundary(scaler_iris_linear.inverse_transform(X_train_lin), y_train_lin,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>                           linear_svm_clf, scaler_iris_linear, </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>                           <span class="st">'Linear SVM Decision Boundary (Iris, 2 classes, 2 features - Train Set)'</span>, ax)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>线性SVM (鸢尾花两类，前两特征):
+准确率: 1.0000
+
+混淆矩阵:
+[[15  0]
+ [ 0 15]]
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00        15
+           1       1.00      1.00      1.00        15
+
+    accuracy                           1.00        30
+   macro avg       1.00      1.00      1.00        30
+weighted avg       1.00      1.00      1.00        30
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-svm_files/figure-html/cell-9-output-2.png" width="655" height="516" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="非线性svm示例-rbf核月亮数据集" class="level3">
+<h3 class="anchored" data-anchor-id="非线性svm示例-rbf核月亮数据集">5.5.2 非线性SVM示例 (RBF核，月亮数据集)</h3>
+<p>月亮数据集是一个经典的非线性二分类数据集。</p>
+<div id="a35b66a1" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 生成月亮数据</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>X_moons_svm, y_moons_svm <span class="op">=</span> make_moons(n_samples<span class="op">=</span><span class="dv">200</span>, noise<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 特征缩放</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>scaler_moons <span class="op">=</span> StandardScaler()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>X_moons_svm_scaled <span class="op">=</span> scaler_moons.fit_transform(X_moons_svm)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 划分训练集和测试集</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>X_train_rbf, X_test_rbf, y_train_rbf, y_test_rbf <span class="op">=</span> train_test_split(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    X_moons_svm_scaled, y_moons_svm, test_size<span class="op">=</span><span class="fl">0.3</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_moons_svm</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 创建RBF核SVM模型</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># C 和 gamma 是重要的超参数，通常需要调优</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>rbf_svm_clf <span class="op">=</span> SVC(kernel<span class="op">=</span><span class="st">"rbf"</span>, C<span class="op">=</span><span class="fl">1.0</span>, gamma<span class="op">=</span><span class="fl">0.5</span>) <span class="co"># gamma可以设为'scale'或'auto'或具体数值</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>rbf_svm_clf.fit(X_train_rbf, y_train_rbf)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 预测与评估</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>y_pred_rbf_svm <span class="op">=</span> rbf_svm_clf.predict(X_test_rbf)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>accuracy_rbf_svm <span class="op">=</span> accuracy_score(y_test_rbf, y_pred_rbf_svm)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">非线性SVM (RBF核，月亮数据集):"</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"参数: C=</span><span class="sc">{</span>rbf_svm_clf<span class="sc">.</span>C<span class="sc">}</span><span class="ss">, gamma=</span><span class="sc">{</span>rbf_svm_clf<span class="sc">.</span>gamma<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"准确率: </span><span class="sc">{</span>accuracy_rbf_svm<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">混淆矩阵:"</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(confusion_matrix(y_test_rbf, y_pred_rbf_svm))</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">分类报告:"</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(classification_report(y_test_rbf, y_pred_rbf_svm))</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 绘制决策边界</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>plot_svm_decision_boundary(scaler_moons.inverse_transform(X_train_rbf), y_train_rbf, </span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                           rbf_svm_clf, scaler_moons, </span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>                           <span class="st">'RBF Kernel SVM (Moons Dataset - Train Set)'</span>, ax)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+非线性SVM (RBF核，月亮数据集):
+参数: C=1.0, gamma=0.5
+准确率: 0.9500
+
+混淆矩阵:
+[[28  2]
+ [ 1 29]]
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0       0.97      0.93      0.95        30
+           1       0.94      0.97      0.95        30
+
+    accuracy                           0.95        60
+   macro avg       0.95      0.95      0.95        60
+weighted avg       0.95      0.95      0.95        60
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-svm_files/figure-html/cell-10-output-2.png" width="663" height="516" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="使用gridsearchcv进行参数调优" class="level3">
+<h3 class="anchored" data-anchor-id="使用gridsearchcv进行参数调优">5.5.3 使用GridSearchCV进行参数调优</h3>
+<p>SVM的性能高度依赖于超参数 <code>C</code> 和 <code>gamma</code> (对于RBF核) 或 <code>degree</code> (对于多项式核)。我们可以使用 <code>GridSearchCV</code> 来寻找最佳参数组合。</p>
+<div id="c71b43f6" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用完整的鸢尾花数据集 (4个特征，3个类别) 进行多分类SVM调优</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>X_iris_full_scaled <span class="op">=</span> StandardScaler().fit_transform(X_iris_all)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>y_iris_full <span class="op">=</span> y_iris_all</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>X_train_full, X_test_full, y_train_full, y_test_full <span class="op">=</span> train_test_split(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    X_iris_full_scaled, y_iris_full, test_size<span class="op">=</span><span class="fl">0.3</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_iris_full</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 定义参数网格</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>param_grid_svm <span class="op">=</span> {</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'C'</span>: [<span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>],</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'gamma'</span>: [<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="st">'scale'</span>, <span class="st">'auto'</span>],</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'kernel'</span>: [<span class="st">'rbf'</span>, <span class="st">'poly'</span>] <span class="co"># 可以尝试不同的核</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 多项式核可能还需要degree参数，可以分开搜索或构建更复杂的网格</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># param_grid_poly = {</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     'C': [0.1, 1, 10],</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#     'degree': [2, 3, 4],</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#     'gamma': ['scale', 'auto'],</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#     'kernel': ['poly']</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">开始使用GridSearchCV为SVM调优 (鸢尾花完整数据集)..."</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>svm_grid_search <span class="op">=</span> GridSearchCV(SVC(random_state<span class="op">=</span><span class="dv">42</span>), param_grid_svm, cv<span class="op">=</span><span class="dv">5</span>, scoring<span class="op">=</span><span class="st">'accuracy'</span>, verbose<span class="op">=</span><span class="dv">1</span>, n_jobs<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>svm_grid_search.fit(X_train_full, y_train_full)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">最佳参数组合:"</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(svm_grid_search.best_params_)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"最佳交叉验证准确率: </span><span class="sc">{</span>svm_grid_search<span class="sc">.</span>best_score_<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用最佳参数评估模型</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>best_svm_clf <span class="op">=</span> svm_grid_search.best_estimator_</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>y_pred_best_svm <span class="op">=</span> best_svm_clf.predict(X_test_full)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>accuracy_best_svm <span class="op">=</span> accuracy_score(y_test_full, y_pred_best_svm)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">最佳SVM模型在测试集上的性能:"</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"准确率: </span><span class="sc">{</span>accuracy_best_svm<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">混淆矩阵:"</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(confusion_matrix(y_test_full, y_pred_best_svm))</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">分类报告:"</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(classification_report(y_test_full, y_pred_best_svm))</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="co"># 如果最佳模型是RBF或Poly核，并且我们用了前两个特征，可以尝试可视化</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 由于这里使用了全部4个特征，直接绘制2D决策边界不合适</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="co"># 但我们可以展示GridSearchCV找到的最佳参数</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">GridSearchCV找到的最佳SVM模型: </span><span class="sc">{</span>best_svm_clf<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+开始使用GridSearchCV为SVM调优 (鸢尾花完整数据集)...
+Fitting 5 folds for each of 48 candidates, totalling 240 fits
+
+最佳参数组合:
+{'C': 1, 'gamma': 0.1, 'kernel': 'rbf'}
+最佳交叉验证准确率: 0.9810
+
+最佳SVM模型在测试集上的性能:
+准确率: 0.9111
+
+混淆矩阵:
+[[15  0  0]
+ [ 0 14  1]
+ [ 0  3 12]]
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00        15
+           1       0.82      0.93      0.88        15
+           2       0.92      0.80      0.86        15
+
+    accuracy                           0.91        45
+   macro avg       0.92      0.91      0.91        45
+weighted avg       0.92      0.91      0.91        45
+
+
+GridSearchCV找到的最佳SVM模型: SVC(C=1, gamma=0.1, random_state=42)</code></pre>
+</div>
+</div>
+<p>这段代码会尝试 <code>param_grid_svm</code> 中定义的所有参数组合，并通过5折交叉验证找到在训练集上表现最好的组合。然后用这个最佳模型在测试集上进行评估。</p>
+</section>
+</section>
+<section id="本章小结" class="level2">
+<h2 class="anchored" data-anchor-id="本章小结">5.6 本章小结</h2>
+<p>本章深入探讨了支持向量机 (SVM)，一种强大而灵活的分类算法。核心内容包括：</p>
+<ol type="1">
+<li><strong>最大间隔思想：</strong> SVM旨在找到一个能将不同类别以最大可能间隔分开的决策超平面，这赋予了它良好的泛化能力。</li>
+<li><strong>支持向量：</strong> 那些位于或穿过间隔边界的样本点，它们是决定决策边界的关键。</li>
+<li><strong>线性SVM：</strong> 包括严格要求数据线性可分的<strong>硬间隔</strong>分类，以及通过引入松弛变量和正则化参数 <code>C</code> 来处理轻微不可分数据和异常值的<strong>软间隔</strong>分类。参数 <code>C</code> 控制了间隔宽度和间隔违例之间的平衡。</li>
+<li><strong>非线性SVM与核技巧：</strong> 通过<strong>核函数</strong>（如多项式核、RBF核），SVM可以在高维特征空间中有效地找到非线性决策边界，而无需显式地进行特征转换，避免了计算复杂性。RBF核的 <code>gamma</code> 参数控制了单个样本的影响范围。</li>
+<li><strong>参数调优：</strong> SVM的性能对核函数选择及其超参数（如<code>C</code>, <code>gamma</code>, <code>degree</code>）非常敏感，通常需要使用交叉验证和网格搜索等方法进行调优。</li>
+</ol>
+<p>通过Scikit-learn的实践，我们学习了如何实现线性和非线性SVM，如何进行特征缩放，以及如何利用GridSearchCV寻找最优模型参数。SVM虽然训练时间可能较长且可解释性不如某些模型，但其在许多分类任务中（尤其是高维数据和复杂边界问题）表现出色。</p>
+</section>
+<section id="思考与练习" class="level2">
+<h2 class="anchored" data-anchor-id="思考与练习">5.7 思考与练习</h2>
+<section id="基础练习" class="level3">
+<h3 class="anchored" data-anchor-id="基础练习">5.7.1 基础练习</h3>
+<ol type="1">
+<li><strong>核心概念：</strong>
+<ul>
+<li>什么是”最大间隔”？为什么SVM试图最大化它？</li>
+<li>什么是”支持向量”？它们在SVM中扮演什么角色？</li>
+<li>硬间隔SVM和软间隔SVM的主要区别是什么？软间隔中的参数<code>C</code>起什么作用？</li>
+<li>解释核技巧的基本思想。为什么它在处理非线性数据时很有用？</li>
+</ul></li>
+<li><strong>参数理解：</strong>
+<ul>
+<li>对于RBF核SVM，参数<code>gamma</code>如何影响决策边界的形状？<code>gamma</code>过大或过小分别可能导致什么问题？</li>
+<li>参数<code>C</code>和<code>gamma</code>之间是否存在某种交互影响？（例如，当<code>C</code>很大时，<code>gamma</code>的调整是否更敏感？）</li>
+</ul></li>
+<li><strong>算法对比：</strong>
+<ul>
+<li>比较SVM与逻辑回归。它们在处理线性和非线性问题、对异常值的敏感性、计算复杂度等方面有何不同？</li>
+<li>比较SVM与KNN。两者都对特征缩放敏感吗？它们在”训练”阶段做什么？</li>
+</ul></li>
+</ol>
+</section>
+<section id="编码与实践" class="level3">
+<h3 class="anchored" data-anchor-id="编码与实践">5.7.2 编码与实践</h3>
+<ol type="1">
+<li><strong>数据集选择与预处理：</strong>
+<ul>
+<li>选择一个你熟悉的其他分类数据集（例如，Scikit-learn内置的 <code>load_breast_cancer()</code> 或 <code>load_digits()</code>）。</li>
+<li>对数据进行适当的预处理，包括特征缩放和训练集/测试集划分。</li>
+</ul></li>
+<li><strong>线性SVM实践：</strong>
+<ul>
+<li>在该数据集上训练一个线性SVM (<code>kernel='linear'</code>)。</li>
+<li>尝试不同的<code>C</code>值（例如，0.01, 0.1, 1, 10, 100），观察其对模型性能（如准确率、支持向量数量）的影响。可以通过交叉验证来评估。</li>
+</ul></li>
+<li><strong>RBF核SVM实践：</strong>
+<ul>
+<li>在该数据集上训练一个使用RBF核的SVM。</li>
+<li>使用<code>GridSearchCV</code>同时调整<code>C</code>和<code>gamma</code>参数，找到最优组合。</li>
+<li>分析找到的最佳参数，并评估最终模型在测试集上的性能（准确率、混淆矩阵、分类报告）。</li>
+</ul></li>
+<li><strong>多项式核SVM实践（可选）：</strong>
+<ul>
+<li>尝试使用多项式核 (<code>kernel='poly'</code>)，并调整<code>degree</code>、<code>C</code>、<code>gamma</code>和<code>coef0</code>。</li>
+<li>比较其性能与RBF核SVM的性能。</li>
+</ul></li>
+<li><strong>可视化（如果数据集特征较少）：</strong>
+<ul>
+<li>如果你的数据集只有两个特征（或者你选择了两个主要特征），尝试可视化不同参数（如不同的<code>C</code>和<code>gamma</code>值，或不同核函数）下的决策边界。</li>
+</ul></li>
+</ol>
+</section>
+<section id="推荐阅读" class="level3">
+<h3 class="anchored" data-anchor-id="推荐阅读">5.7.3 推荐阅读</h3>
+<ul>
+<li><strong>《An Introduction to Statistical Learning (with Applications in R or Python)》 - Chapter 9: Support Vector Machines:</strong> (ISLR/ISLP) 提供了对SVM清晰且深入的讲解。(<a href="https://www.statlearning.com/" class="uri">https://www.statlearning.com/</a>)</li>
+<li><strong>Scikit-learn官方文档 - Support Vector Machines:</strong> (<a href="https://scikit-learn.org/stable/modules/svm.html" class="uri">https://scikit-learn.org/stable/modules/svm.html</a>) 包含了详细的API说明和用户指南。</li>
+<li><strong>StatQuest with Josh Starmer - Support Vector Machines (Parts 1-4):</strong> (YouTube频道) 用非常直观的方式解释了SVM的各个方面，包括间隔、核技巧等。</li>
+<li><strong>CS229 (Andrew Ng) - Support Vector Machines:</strong> (<a href="https://see.stanford.edu/materials/aimlcs229/cs229-notes3.pdf" class="uri">https://see.stanford.edu/materials/aimlcs229/cs229-notes3.pdf</a>) 更偏数学理论的SVM笔记。</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./04-classification-logreg-knn.html" class="pagination-link" aria-label="分类与逻辑回归、KNN">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">分类与逻辑回归、KNN</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./06-decision-trees-ensemble-learning.html" class="pagination-link" aria-label="决策树与集成学习">
+        <span class="nav-page-text"><span class="chapter-title">决策树与集成学习</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

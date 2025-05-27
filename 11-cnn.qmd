@@ -1,0 +1,515 @@
+---
+title: "卷积神经网络 (CNN)"
+jupyter: python3
+cache: true
+---
+
+## 学习目标
+
+::: {.callout-note appearance="simple"}
+**学习目标：**
+
+*   理解卷积神经网络 (CNN) 的基本原理及其在计算机视觉等领域的应用。
+*   掌握CNN的核心组成部分：卷积层、池化层和全连接层。
+*   理解卷积操作中的关键概念：滤波器（核心）、步长、填充、特征图。
+*   了解不同类型的池化操作（如最大池化、平均池化）及其作用。
+*   能够描述一个典型的CNN架构。
+*   能够使用Keras构建、编译、训练和评估一个简单的CNN模型进行图像分类。
+*   了解CNN相比传统全连接网络在处理图像数据时的主要优势（如参数共享、平移不变性）。
+*   对一些经典的CNN架构（如LeNet-5, AlexNet, VGG, ResNet）有初步的认识。
+:::
+
+## 11.1 CNN 简介
+
+在前面的章节中，我们学习了全连接神经网络 (Dense Neural Networks 或 Multilayer Perceptrons, MLP)。虽然MLP在很多任务上表现良好，但它们在处理高维数据，特别是像图像这样的数据时，会遇到一些挑战：
+
+1.  **参数过多：** 对于一个28x28像素的灰度图像，如果输入层直接连接到一个包含100个神经元的隐藏层，那么仅这一层就需要 `28*28*100 = 78,400` 个权重。对于更大的彩色图像，参数数量会急剧增加，导致模型难以训练且容易过拟合。
+2.  **空间结构丢失：** MLP将输入图像展平 (flatten) 为一维向量，这会丢失像素之间的空间局部性信息。例如，图像中相邻的像素通常是相关的，但展平操作会破坏这种关系。
+
+**卷积神经网络 (Convolutional Neural Network, CNN 或 ConvNet)** 是一类特殊的深度神经网络，其设计灵感来源于生物视觉皮层的结构。CNN能够有效地处理具有网格状拓扑结构的数据（例如，图像可以看作是2D像素网格，时间序列数据可以看作是1D网格）。
+
+CNN通过引入**卷积层 (Convolutional Layer)** 和**池化层 (Pooling Layer)** 来解决上述问题，它们能够：
+
+*   **利用局部连接 (Local Connectivity) 和参数共享 (Parameter Sharing)** 来显著减少模型参数数量。
+*   **提取空间层级特征 (Spatial Hierarchy of Features)**，从低级的边缘、角点到高级的物体部件和完整物体。
+*   **具有一定程度的平移不变性 (Translation Invariance)**，即物体在图像中的位置发生轻微变化时，CNN仍能识别它。
+
+
+![从神经网络视角看CNN (Y.LeCun,Y.Bengio,andG.Hinton,“Deeplearning”)](images/11-cnn/cnn-perspective.webp){#fig-cnn-perspective fig-alt="CNN与全连接网络对比示意图" width="80%"}
+
+由于这些特性，CNN在**计算机视觉 (Computer Vision)** 领域取得了巨大的成功，例如：
+
+*   图像分类 (Image Classification)
+*   物体检测 (Object Detection)
+*   图像分割 (Image Segmentation)
+*   人脸识别 (Face Recognition)
+*   图像生成 (Image Generation)
+
+此外，CNN也被成功应用于自然语言处理 (NLP) 中的文本分类、语音识别等任务。
+
+## 11.2 CNN 的核心组成部分
+
+一个典型的CNN通常由以下几种类型的层堆叠而成：
+
+1.  **卷积层 (Convolutional Layer)**
+2.  **激活函数 (Activation Function)** (通常是ReLU)
+3.  **池化层 (Pooling Layer)**
+4.  **全连接层 (Fully Connected Layer)**
+
+下面我们将详细介绍这些核心组件。
+
+### 11.2.1 卷积层 (Convolutional Layer)
+
+卷积层是CNN的核心。它通过在输入数据上滑动一个或多个**滤波器 (Filter)** (也称为**核心/卷积核, Kernel**) 来进行卷积操作，从而生成**特征图 (Feature Map)**。
+
+![卷积操作示意图 (来源: Wikimedia Commons)](images/11-cnn/2D_Convolution_Animation.gif){#fig-cnn-convolution fig-alt="Convolution Operation" width="400"}
+
+
+**主要概念：**
+
+*   **输入 (Input)：** 通常是图像数据，可以有多个通道 (例如，灰度图像有1个通道，RGB彩色图像有3个通道)。输入数据的维度通常是 `(height, width, channels)`。
+*   **滤波器/核心 (Filter/Kernel)：**
+    *   一个小型的、学习到的权重矩阵。滤波器的深度必须与输入数据的深度（通道数）相同。例如，如果输入是RGB图像（3通道），则滤波器也必须是3通道的。
+    *   滤波器的大小 (kernel size) 是一个超参数，例如 `3x3`、`5x5`。
+    *   一个卷积层通常包含多个滤波器，每个滤波器学习检测输入数据中的不同特征（如边缘、角点、纹理等）。
+*   **卷积操作 (Convolution Operation)：**
+    *   滤波器在输入数据的空间维度上滑动。
+    *   在每个位置，计算滤波器权重与对应输入数据区域的点积 (element-wise multiplication and sum)。
+    *   这个点积的结果（加上一个偏置项）构成了输出特征图中的一个像素值。
+*   **特征图/激活图 (Feature Map/Activation Map)：**
+    *   每个滤波器对输入数据进行卷积后生成的2D数组。
+    *   特征图的深度等于该卷积层中滤波器的数量。
+    *   特征图代表了输入数据中特定特征（由滤波器学习得到）的空间分布。
+
+*   **步长 (Stride)：**
+    *   滤波器在输入数据上滑动的步长（像素数）。
+    *   默认步长通常是1。步长越大，输出特征图的空间维度越小。
+    *   例如，步长为 `(1, 1)` 表示在高度和宽度方向上每次移动1个像素。
+
+*   **填充 (Padding)：**
+    *   在输入数据的边缘周围添加额外的像素（通常是0）。
+    *   **目的：**
+        1.  **保持空间维度：** 如果不使用填充，每次卷积操作后，特征图的空间维度会缩小。填充可以帮助维持特征图的大小，从而构建更深的网络。
+        2.  **处理边缘信息：** 填充使得滤波器可以更好地处理输入数据的边缘像素。
+    *   **常用填充类型：**
+        *   **Valid Padding (无填充)：** 不使用填充。输出特征图的尺寸会缩小。
+        *   **Same Padding (相同填充)：** 添加适量的零填充，使得输出特征图的空间维度与输入特征图的空间维度相同（假设步长为1）。
+
+**卷积层输出尺寸计算：**
+
+假设输入特征图的尺寸为 $W \times H \times D$（宽度、高度、深度/通道数），卷积层有 $K$ 个滤波器，每个滤波器的大小为 $F \times F$，步长为 $S$，填充为 $P$。
+则输出特征图的尺寸为 $W_{out} \times H_{out} \times K$，其中：
+
+$$ W_{out} = \frac{W - F + 2P}{S} + 1 $$
+$$ H_{out} = \frac{H - F + 2P}{S} + 1 $$
+
+(注意：如果 $(W - F + 2P)$ 或 $(H - F + 2P)$ 不能被 $S$ 整除，则需要根据具体框架的实现方式进行处理，通常是向下取整或向上取整，或者不允许这样的参数组合。)
+
+**参数共享 (Parameter Sharing)：**
+
+这是CNN的一个关键特性。在一个特征图的计算中，卷积核内的所有权重是共享的。这意味着，一个滤波器在输入数据的不同位置检测相同的特征。这大大减少了模型的参数数量，并使得模型对特征的平移具有一定的不变性。
+
+例如，如果一个滤波器学会了检测水平边缘，那么它会在输入图像的任何位置检测到水平边缘，而不需要为每个位置单独学习一个检测器。
+
+### 11.2.2 激活函数
+
+与全连接网络类似，卷积层的输出通常也会经过一个非线性激活函数，最常用的是 **ReLU (Rectified Linear Unit)**。
+
+$$ \text{ReLU}(x) = \max(0, x) $$
+
+ReLU的引入使得CNN能够学习更复杂的非线性模式。
+
+### 11.2.3 池化层 (Pooling Layer)
+
+池化层（也称为下采样层）通常在连续的卷积层之后插入，其主要作用是：
+
+1.  **降低特征图的空间维度 (宽度和高度)**：减少后续层的计算量和参数数量。
+2.  **使特征表示具有更强的平移不变性**：使得模型对特征在输入图像中的微小位置变化不那么敏感。
+3.  **减少过拟合**：通过降维和信息聚合，一定程度上抑制过拟合。
+
+池化操作是在每个特征图上独立进行的，并且不涉及可学习的参数。
+
+**常见的池化类型：**
+
+*   **最大池化 (Max Pooling)：**
+    *   在一个局部区域（池化窗口，例如 `2x2`）内，取该区域的最大值作为输出。
+    *   这是最常用的池化方法，因为它能有效地保留最显著的特征。
+
+    ![最大池化操作 (来源: Wikimedia Commons)](images/11-cnn/Max_pooling.png){#fig-cnn-maxpool fig-alt="Max Pooling Operation" width="300"}
+
+*   **平均池化 (Average Pooling)：**
+    *   在一个局部区域内，取该区域所有值的平均值作为输出。
+    *   它平滑了特征表示。
+
+池化层也有**池化窗口大小 (pool size)** 和 **步长 (stride)** 这两个超参数。通常，池化窗口大小为 `2x2`，步长为 `2`，这会将特征图的宽度和高度减半。
+
+### 11.2.4 全连接层 (Fully Connected Layer)
+
+在经过几轮卷积和池化操作后，CNN通常会使用一个或多个全连接层（与我们在前面章节学习的MLP中的Dense层相同）来进行最终的分类或回归任务。
+
+在将卷积/池化层的输出送入全连接层之前，通常需要将其**展平 (Flatten)** 为一维向量。
+
+*   **展平层 (Flatten Layer)：** 将多维的特征图（例如，`height x width x channels`）转换为一维向量，以便作为全连接层的输入。
+*   **全连接层 (Dense Layer)：** 负责根据从卷积和池化层提取的特征进行高级推理。
+*   **输出层：** 最后一层全连接层，其神经元数量和激活函数取决于具体的任务（例如，对于K类分类问题，通常使用K个神经元和Softmax激活函数）。
+
+## 11.3 典型CNN架构 (LeNet-5 示例)
+
+LeNet-5 是 Yann LeCun 等人在1998年提出的早期卷积神经网络之一，主要用于手写数字识别。它奠定了现代CNN架构的基础。
+
+一个简化的LeNet-5架构可以描述为：
+
+1.  **输入层：** 例如 `32x32x1` 的灰度图像。
+2.  **C1: 卷积层：** 6个 `5x5` 滤波器，步长1。输出 `28x28x6`。
+3.  **S2: 池化层 (下采样)：** 平均池化，`2x2` 窗口，步长2。输出 `14x14x6`。
+4.  **C3: 卷积层：** 16个 `5x5` 滤波器，步长1。输出 `10x10x16`。
+5.  **S4: 池化层 (下采样)：** 平均池化，`2x2` 窗口，步长2。输出 `5x5x16`。
+6.  **C5: 卷积层 (实为全连接)：** 120个 `5x5` 滤波器 (如果输入是 `5x5`，则这等效于全连接)。输出 `1x1x120`。
+7.  **F6: 全连接层：** 84个神经元。
+8.  **输出层：** 10个神经元 (对应10个数字类别)，通常使用Softmax。
+
+![LeNet-5 架构 (来源: Yann LeCun's original paper)](images/11-cnn/lenet-5.webp){#fig-cnn-lenet5 fig-alt="LeNet-5 Architecture" width="600"}
+
+::: {.callout-note appearance="simple"}
+**现代CNN架构的发展：**
+
+虽然现代CNN架构（如ResNet、Inception等）通常比LeNet-5更深更复杂，但核心思想仍然保持一致：
+
+*   使用ReLU等现代激活函数替代传统的Sigmoid/Tanh
+*   普遍采用最大池化(Max Pooling)而非平均池化
+*   引入更复杂的模块设计，如：
+    - 残差连接(Residual Connections)
+    - Inception模块
+    - 注意力机制
+    - 深度可分离卷积等
+
+但基本架构模式仍遵循：
+1. 通过卷积层提取局部特征
+2. 通过池化层进行下采样
+3. 最后使用全连接层进行分类
+:::
+
+## 11.4 使用Keras构建简单CNN (MNIST示例)
+
+我们将构建一个简单的CNN来对MNIST手写数字数据集进行分类。
+
+### 11.4.1 数据准备
+
+```{python}
+#| echo: true
+#| label: code-cnn-mnist-data-prep
+#| warning: false
+
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
+
+# 加载MNIST数据集
+(X_train_full, y_train_full), (X_test, y_test) = mnist.load_data()
+
+# 数据预处理
+# 1. 归一化像素值到 [0, 1]
+X_train_full = X_train_full.astype('float32') / 255.0
+X_test = X_test.astype('float32') / 255.0
+
+# 2. 增加通道维度 (MNIST是灰度图，通道数为1)
+# CNN的Conv2D层期望输入的形状是 (batch_size, height, width, channels)
+X_train_full = np.expand_dims(X_train_full, -1)
+X_test = np.expand_dims(X_test, -1)
+
+# 3. 对标签进行One-Hot编码
+y_train_full = to_categorical(y_train_full, num_classes=10)
+y_test_cat = to_categorical(y_test, num_classes=10) # 保存原始测试标签用于后续分析
+
+# 4. 划分训练集和验证集
+X_train, X_val = X_train_full[:-5000], X_train_full[-5000:]
+y_train, y_val = y_train_full[:-5000], y_train_full[-5000:]
+
+
+print(f"X_train shape: {X_train.shape}") # (55000, 28, 28, 1)
+print(f"y_train shape: {y_train.shape}") # (55000, 10)
+print(f"X_val shape: {X_val.shape}")     # (5000, 28, 28, 1)
+print(f"y_val shape: {y_val.shape}")     # (5000, 10)
+print(f"X_test shape: {X_test.shape}")   # (10000, 28, 28, 1)
+print(f"y_test_cat shape: {y_test_cat.shape}") # (10000, 10)
+
+# 可视化一些样本
+plt.figure(figsize=(10,5))
+for i in range(10):
+    plt.subplot(2, 5, i + 1)
+    plt.imshow(X_train[i].reshape(28, 28), cmap='gray')
+    plt.title(f"Label: {np.argmax(y_train[i])}")
+    plt.axis('off')
+# plt.savefig("images/11-cnn/mnist_samples.svg")
+plt.show()
+```
+
+### 11.4.2 模型定义
+
+我们将构建一个包含两个卷积层、两个池化层和一个全连接输出层的简单CNN。
+
+```{python}
+#| echo: true
+#| label: code-cnn-mnist-model-define
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+
+# 设置随机种子
+np.random.seed(42)
+tf.random.set_seed(42)
+
+model = Sequential([
+    # 第一个卷积块
+    Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same', input_shape=(28, 28, 1)),
+    MaxPooling2D(pool_size=(2, 2)),
+
+    # 第二个卷积块
+    Conv2D(filters=64, kernel_size=(3, 3), activation='relu', padding='same'),
+    MaxPooling2D(pool_size=(2, 2)),
+
+    # 展平并连接到全连接层
+    Flatten(),
+    Dense(units=100, activation='relu'),
+    Dropout(0.5), # 添加Dropout层防止过拟合
+    Dense(units=10, activation='softmax') # 输出层，10个类别
+])
+
+model.summary()
+```
+
+**解释：**
+
+*   `Conv2D`: 2D卷积层。
+    *   `filters`: 滤波器的数量（即输出特征图的深度）。
+    *   `kernel_size`: 滤波器的大小 (e.g., `(3,3)` or `3`)。
+    *   `activation`: 激活函数。
+    *   `padding='same'`: 使得输出特征图的空间尺寸与输入相同（假设步长为1）。
+    *   `input_shape`: 只在第一层需要，对于28x28x1的MNIST图像，它是 `(28, 28, 1)`。
+*   `MaxPooling2D`: 2D最大池化层。
+    *   `pool_size`: 池化窗口的大小 (e.g., `(2,2)` or `2`)。
+*   `Flatten`: 将多维张量展平为一维向量。
+*   `Dense`: 全连接层。
+*   `Dropout`: Dropout层，以一定的概率随机丢弃神经元，用于正则化，防止过拟合。
+
+### 11.4.3 模型编译
+
+```{python}
+#| echo: true
+#| label: code-cnn-mnist-model-compile
+
+model.compile(
+    loss='categorical_crossentropy', # 多分类交叉熵
+    optimizer='adam',
+    metrics=['accuracy']
+)
+```
+
+### 11.4.4 模型训练
+
+```{python}
+#| echo: true
+#| eval: true
+#| label: code-cnn-mnist-model-train
+#| warning: false
+#| results: 'hold'
+
+# 训练模型
+history = model.fit(
+    X_train, y_train,
+    epochs=20, # 为了快速演示，只训练20轮
+    batch_size=128,
+    validation_data=(X_val, y_val),
+    verbose=0
+)
+
+# 绘制学习曲线
+import pandas as pd
+pd.DataFrame(history.history).plot(figsize=(8, 5))
+plt.grid(True)
+plt.gca().set_ylim(0, 1.1) # 调整y轴范围以更好地显示准确率
+plt.title("CNN Model Training History (MNIST)")
+plt.xlabel("Epoch")
+# plt.savefig("images/11-cnn/mnist_cnn_training_history.svg")
+plt.show()
+```
+
+### 11.4.5 模型评估
+
+```{python}
+#| echo: true
+#| eval: true
+#| label: code-cnn-mnist-model-evaluate
+
+loss, accuracy = model.evaluate(X_test, y_test_cat, verbose=0)
+print(f"\n测试集损失 (Test Loss): {loss:.4f}")
+print(f"测试集准确率 (Test Accuracy): {accuracy:.4f}")
+
+# 进行预测
+y_pred_proba = model.predict(X_test, verbose=0)
+y_pred_classes = np.argmax(y_pred_proba, axis=1)
+
+# 显示一些预测错误的样本
+# (需要原始的y_test标签，而不是one-hot编码的y_test_cat)
+# 我们在数据准备阶段没有保存原始y_test，这里重新加载一下仅用于此处的错误分析
+(_, y_test_orig) = mnist.load_data()[1]
+
+misclassified_indices = np.where(y_pred_classes != y_test_orig)[0]
+plt.figure(figsize=(12,8))
+for i, idx in enumerate(misclassified_indices[:15]): # 显示前15个错误分类
+    if i >= 15: break
+    plt.subplot(3, 5, i + 1)
+    plt.imshow(X_test[idx].reshape(28, 28), cmap='gray')
+    plt.title(f"True: {y_test_orig[idx]}, Pred: {y_pred_classes[idx]}")
+    plt.axis('off')
+# plt.savefig("images/11-cnn/mnist_misclassified.svg")
+plt.tight_layout()
+plt.show()
+
+```
+
+## 11.5 CNN的优势
+
+相比于传统的前馈神经网络（如MLP），CNN在处理图像等网格状数据时具有显著优势：
+
+1.  **参数共享 (Parameter Sharing)：**
+    *   卷积核在整个输入图像上滑动，其权重在所有位置共享。这意味着模型学习到的特征（如边缘、角点）可以在图像的任何位置被检测到，而无需为每个位置单独学习检测器。
+    *   这极大地减少了模型中的参数数量，使得模型更易于训练，降低了过拟合的风险，并且减少了内存需求。
+
+2.  **局部连接 (Local Connectivity)：**
+    *   卷积层的每个神经元只与输入数据的一个局部区域（感受野，receptive field）相连接。
+    *   这利用了图像数据中像素之间的局部相关性（相邻像素通常更相关）。
+
+3.  **平移不变性/等变性 (Translation Invariance/Equivariance)：**
+    *   由于参数共享和池化操作，CNN对输入图像中的目标位置变化具有一定的鲁棒性。
+    *   **等变性 (Equivariance)：** 如果输入发生平移，特征图中的激活也会相应平移。
+    *   **不变性 (Invariance)：** 池化操作使得即使特征的位置发生微小变化，输出仍然保持不变或变化很小，从而使模型对目标的精确位置不那么敏感。
+
+4.  **层次化特征学习 (Hierarchical Feature Learning)：**
+    *   CNN的多个层级结构能够自动学习从低级到高级的特征表示。
+    *   例如，在图像识别中：
+        *   浅层卷积层可能学习检测简单的边缘、角点和颜色块。
+        *   中层卷积层可能将这些低级特征组合成更复杂的模式，如纹理、物体的局部部件（如眼睛、鼻子）。
+        *   深层卷积层可能将这些部件组合成完整的物体概念。
+
+## 11.6 知名CNN架构简介 (选读)
+
+自AlexNet在2012年ImageNet竞赛中取得突破以来，研究人员提出了许多更深、更有效的CNN架构。了解这些经典架构有助于理解CNN领域的发展和设计思想。
+
+*   **LeNet-5 (1998):**
+    *   Yann LeCun等人提出，用于手写数字识别，是CNN的早期成功应用。
+    *   奠定了"卷积层-池化层-全连接层"的基本结构。
+
+*   **AlexNet (2012):**
+    *   Alex Krizhevsky, Ilya Sutskever, Geoffrey Hinton 提出。
+    *   在ImageNet大规模视觉识别挑战赛 (ILSVRC) 中取得冠军，大幅超越传统方法，引爆了深度学习在计算机视觉领域的热潮。
+    *   主要贡献：使用了ReLU激活函数、Dropout、数据增强、多GPU训练。网络比LeNet更深更宽。
+
+*   **VGGNet (VGG-16, VGG-19) (2014):**
+    *   牛津大学视觉几何组 (Visual Geometry Group) 提出。
+    *   特点是结构非常简洁和统一：只使用 `3x3` 的小卷积核和 `2x2` 的最大池化层，通过堆叠更多的小卷积核来增加网络深度和感受野。
+    *   证明了网络深度是提升性能的关键因素之一。
+
+*   **GoogLeNet / Inception (2014):**
+    *   谷歌团队提出，ILSVRC 2014冠军。
+    *   引入了 **Inception模块**，该模块并行使用不同大小的卷积核（如 `1x1`, `3x3`, `5x5`）和池化操作，然后将它们的输出拼接起来。
+    *   目标是在增加网络深度和宽度的同时，保持计算效率。`1x1` 卷积被用来降维和升维。
+
+*   **ResNet (Residual Networks) (2015):**
+    *   微软研究院何恺明等人提出，ILSVRC 2015冠军。
+    *   通过引入 **残差学习 (Residual Learning)** 和 **快捷连接 (Shortcut Connections / Skip Connections)** 成功训练了非常深的网络（例如152层，甚至超过1000层），解决了深度网络中的梯度消失和训练退化问题。
+    *   残差块允许网络学习恒等映射，使得增加网络深度更容易。
+
+这些架构（及其变种）通常作为预训练模型在新任务上进行迁移学习的基础。
+
+## 11.7 本章总结
+
+本章我们深入探讨了卷积神经网络 (CNN)：
+
+*   **核心动机：** 解决了全连接网络在处理图像等高维数据时参数过多和空间结构丢失的问题。
+*   **关键组件：**
+    *   **卷积层：** 通过滤波器（核心）进行特征提取，利用参数共享和局部连接。关键概念包括滤波器大小、步长、填充。
+    *   **激活函数：** 通常使用ReLU引入非线性。
+    *   **池化层：**（如最大池化）用于降低空间维度，增强平移不变性。
+    *   **全连接层：** 通常在网络末端用于分类或回归。
+*   **典型架构：** 我们了解了LeNet-5这样的早期架构，并看到了如何堆叠这些组件。
+*   **Keras实践：** 我们使用Keras在MNIST数据集上构建、训练并评估了一个简单的CNN。
+*   **CNN优势：** 参数共享、局部连接、平移不变性、层次化特征学习。
+*   **知名架构：** 简要介绍了AlexNet, VGG, GoogLeNet, ResNet等里程碑式的CNN模型。
+
+CNN是深度学习在计算机视觉领域取得巨大成功的基石。理解其工作原理和构建方法对于处理图像及类似网格结构的数据至关重要。下一章，我们将探讨另一种重要的神经网络架构——循环神经网络 (RNN)，它特别擅长处理序列数据。
+
+## 11.8 思考与练习
+
+### 11.8.1 基础概念回顾
+
+1.  **CNN的动机与优势：**
+    *   全连接网络在处理图像数据时面临哪些主要挑战？CNN是如何尝试解决这些挑战的？
+    *   解释参数共享和局部连接在CNN中的含义及其带来的好处。
+    *   什么是平移不变性？CNN如何实现一定程度的平移不变性？
+2.  **卷积层：**
+    *   描述卷积操作的过程。滤波器（核心）的作用是什么？
+    *   解释步长 (stride) 和填充 (padding) 的概念。为什么需要填充？"Same" padding 和 "Valid" padding 有什么区别？
+    *   如果一个输入图像的尺寸是 `32x32x3`，使用16个 `5x5` 的滤波器，步长为1，无填充 (valid padding)，那么卷积层输出的特征图尺寸是多少？这一层有多少可学习的参数（不包括偏置）？
+3.  **池化层：**
+    *   池化层的主要作用是什么？
+    *   最大池化和平均池化有什么区别？哪种更常用，为什么？
+    *   池化层有可学习的参数吗？
+4.  **CNN架构：**
+    *   一个典型的CNN通常包含哪些类型的层？它们通常是如何排列的？
+    *   为什么在CNN的末端通常会使用全连接层？Flatten层的作用是什么？
+
+### 11.8.2 Keras实践与探索 (MNIST/CIFAR-10)
+
+**项目目标：** 进一步实践CNN的构建、训练和评估，探索不同参数和结构对模型性能的影响。
+
+**任务步骤：**
+
+1.  **MNIST实验扩展：**
+    *   **调整CNN结构：** 在本章的MNIST示例代码基础上，尝试以下修改，并观察对验证集准确率和训练时间的影响：
+        *   改变卷积层中滤波器的数量（例如，增加到64、128，或减少到16）。
+        *   改变滤波器的大小（例如，使用 `5x5` 代替 `3x3`）。
+        *   增加或减少卷积/池化块的数量。
+        *   在全连接层之前或之间添加更多的Dropout层，或调整Dropout率。
+    *   **不使用填充：** 修改卷积层，使其使用 `padding='valid'`，观察输出特征图尺寸的变化以及对模型性能的影响。你需要如何调整网络结构以使其正常工作？
+    *   **比较池化类型：** 将 `MaxPooling2D` 替换为 `AveragePooling2D`，比较结果。
+
+2.  **挑战CIFAR-10数据集：**
+    *   CIFAR-10 是一个更具挑战性的彩色图像分类数据集（32x32x3像素，10个类别：飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船、卡车）。
+    *   **加载数据：** 使用 `tensorflow.keras.datasets.cifar10.load_data()` 加载数据。
+    *   **数据预处理：**
+        *   像素值归一化到 `[0, 1]`。
+        *   标签进行One-Hot编码。
+        *   注意CIFAR-10的输入形状是 `(32, 32, 3)`。
+    *   **构建CNN模型：** 设计一个CNN模型来对CIFAR-10进行分类。你可能需要一个比MNIST示例更深或更宽的网络。考虑以下结构：
+        *   至少包含2-3个卷积块（卷积层 + ReLU + 池化层）。
+        *   逐渐增加卷积层中的滤波器数量（例如，32 -> 64 -> 128）。
+        *   在全连接层中使用Dropout。
+    *   **训练与评估：** 训练你的模型，并在测试集上评估其准确率。绘制学习曲线。CIFAR-10的基线准确率（随机猜测）是10%。一个简单的CNN通常可以达到60-75%的准确率，更复杂的可以更高。
+    *   **(可选) 数据增强：** 尝试使用Keras的 `ImageDataGenerator` 或 `tf.keras.layers.RandomFlip`, `RandomRotation` 等层进行数据增强，观察是否能提升模型性能。
+
+### 11.8.3 深入思考与挑战
+
+1.  **感受野 (Receptive Field)：**
+    *   什么是神经元的感受野？
+    *   在一个多层CNN中，深层神经元的感受野与浅层神经元的感受野相比有何不同？为什么这种层次化的感受野对于学习复杂特征很重要？
+2.  **`1x1` 卷积：**
+    *   `1x1` 卷积核有什么作用？它看起来似乎只是对每个像素点做了一个线性变换，但在CNN中它有哪些实际用途？（提示：考虑通道间的交互、降维/升维）
+3.  **迁移学习 (Transfer Learning) 简介：**
+    *   什么是迁移学习？为什么它在计算机视觉中非常流行？
+    *   想象一下，你如何使用一个在ImageNet大型数据集上预训练好的CNN模型（如VGG16或ResNet50，Keras中有提供）来帮助你解决一个新的、但数据量较小的图像分类任务？（提示：考虑冻结部分层、替换顶层分类器）
+4.  **(选做) CNN可视化：**
+    *   研究如何可视化CNN学习到的特征。例如，如何查看卷积层滤波器学习到的模式？如何可视化特定输入图像在不同层产生的激活图 (feature maps)？（Keras和TensorFlow提供了一些工具和技术，或者可以查阅相关教程。）
+
+### 11.8.4 推荐阅读
+
+1.  **Chollet, F. (2021). *Deep Learning with Python* (2nd ed.). Manning Publications. (Chapter 8: Introduction to deep learning for computer vision)** - 提供了关于CNN的优秀实践和Keras示例。
+2.  **Goodfellow, I., Bengio, Y., & Courville, A. (2016). *Deep Learning*. MIT Press. (Chapter 9: Convolutional Networks)** - 对CNN理论的深入讲解。
+3.  **Nielsen, M. A. (2015). *Neural Networks and Deep Learning*. Determination Press. (Chapter 6: Convolutional Neural Networks)** - 对CNN概念的清晰解释。
+4.  **Stanford CS231n: Convolutional Neural Networks for Visual Recognition:** 课程笔记和材料是非常好的学习资源。 [https://cs231n.github.io/](https://cs231n.github.io/)
+5.  **Distill.pub:** 一个致力于清晰解释机器学习研究的在线期刊，有很多关于CNN可视化和理解的优秀文章。 [https://distill.pub/](https://distill.pub/)
+
+--- 

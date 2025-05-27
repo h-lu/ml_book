@@ -1,0 +1,725 @@
+---
+title: "聚类分析"
+jupyter: python3
+---
+
+## 学习目标
+
+::: {.callout-note appearance="simple"}
+**学习目标：**
+
+*   理解无监督学习的基本概念及其与监督学习的区别。
+*   掌握聚类分析的核心思想、目标和主要应用场景。
+*   了解不同类型聚类算法的特点（划分式、层次式、基于密度等）。
+*   熟悉常用的聚类性能评估指标，如轮廓系数、Calinski-Harabasz指数和Davies-Bouldin指数。
+*   深入理解决划分式聚类算法 K-Means 的原理、步骤、K值选择方法（肘部法则、轮廓系数）及其优缺点。
+*   能够使用 Scikit-learn 实现 K-Means 聚类并解释结果。
+*   理解层次聚类的基本原理（凝聚型和分裂型）、不同连接准则（如 Ward、Complete、Average）以及树状图的解读。
+*   能够使用 Scikit-learn 实现层次聚类并可视化树状图。
+*   掌握基于密度的聚类算法 DBSCAN 的核心概念（核心点、边界点、噪声点、eps、MinPts）、工作流程及其优缺点。
+*   能够使用 Scikit-learn 实现 DBSCAN 聚类。
+*   （可选）对其他聚类算法如均值漂移、谱聚类、高斯混合模型有一个初步的认识。
+:::
+
+## 7.1 无监督学习简介
+
+在前面的章节中，我们主要探讨了**监督学习 (Supervised Learning)**，其核心特征是训练数据包含明确的输入特征 (X) 和对应的输出标签 (y)。模型的目标是学习从输入到输出的映射关系，以便对新的、未见过的数据进行预测（分类或回归）。
+
+与监督学习相对的是**无监督学习 (Unsupervised Learning)**。在无监督学习中，我们处理的数据集只包含输入特征 (X)，而没有预先定义的输出标签 (y)。算法的任务是直接从数据本身发现隐藏的结构、模式、关系或表示。
+
+**无监督学习的主要任务包括：**
+
+*   **聚类 (Clustering)：** 将数据点划分为若干个组（簇），使得同一组内的数据点相似度较高，而不同组间的数据点相似度较低。
+*   **降维 (Dimensionality Reduction)：** 在保留数据主要信息的前提下，减少特征的数量。这有助于数据可视化、提高后续学习算法的效率、去除噪声等。
+*   **关联规则学习 (Association Rule Learning)：** 发现数据项之间的有趣关系，例如购物篮分析中的"购买A的顾客也倾向于购买B"。
+*   **异常检测 (Anomaly Detection)：** 识别出与数据集中大部分数据显著不同的数据点。
+*   **生成模型 (Generative Models)：** 学习数据的潜在概率分布，并能够生成新的、与原始数据相似的数据样本。
+
+本章我们将重点关注无监督学习中的一个核心任务——**聚类分析**。
+
+## 7.2 聚类分析概述
+
+### 7.2.1 什么是聚类？
+
+**聚类 (Clustering)** 是一种将物理或抽象对象的集合分成由类似的对象组成的多个类的过程。由聚类所生成的簇是一组数据对象的集合，这些对象与同一个簇中的对象彼此相似，而与其他簇中的对象相异。
+
+::: {.callout-tip appearance="simple"}
+**聚类的核心思想：** "物以类聚，人以群分"。
+:::
+
+### 7.2.2 聚类的目标与应用场景
+
+**聚类的主要目标：**
+
+*   **数据理解与探索：** 通过将数据分组，帮助我们发现数据中固有的结构和模式，从而更好地理解数据的特性。
+*   **数据预处理：** 聚类结果可以作为后续其他机器学习任务（如分类、回归）的输入特征。
+*   **数据压缩/摘要：** 用簇的代表点（如质心）来表示整个簇，从而减少数据量。
+*   **异常检测：** 不属于任何簇或属于非常小的簇的数据点可能是异常点。
+
+**常见的应用场景：**
+
+*   **客户细分 (Customer Segmentation)：** 根据客户的购买行为、人口统计学特征等将其划分为不同的群体，以便进行精准营销。
+*   **图像分割 (Image Segmentation)：** 将图像中的像素根据颜色、纹理等特征聚类，从而将图像分割成不同的区域或对象。
+*   **文档聚类 (Document Clustering)：** 将大量文档根据其主题或内容进行分组，方便信息检索和组织。
+*   **生物信息学：** 例如基因表达数据聚类，识别具有相似表达模式的基因。
+*   **社交网络分析：** 发现社区结构。
+*   **推荐系统：** 基于用户或物品的聚类进行推荐。
+
+### 7.2.3 不同类型的聚类算法简介
+
+聚类算法种类繁多，可以根据其组织簇的方式大致分为以下几类：
+
+1.  **划分式聚类 (Partitioning Methods)：**
+    *   **思想：** 试图将包含 $N$ 个对象的数据集构建成 $K$ 个划分（簇），其中每个划分代表一个簇，且 $K \le N$。它通常试图最小化某个目标函数，如簇内平方和。
+    *   **特点：** 需要预先指定簇的数量 $K$。对于给定的 $K$，算法首先创建一个初始划分，然后采用迭代重定位技术，尝试通过在簇之间移动对象来改进划分。
+    *   **代表算法：** K-Means, K-Medoids (PAM), CLARANS。
+
+2.  **层次式聚类 (Hierarchical Methods)：**
+    *   **思想：** 对给定的数据对象集合进行层次的分解，创建簇的层次结构（树状图，Dendrogram）。
+    *   **特点：** 不需要预先指定簇的数量 $K$。用户可以在不同层次上切割树状图以获得不同数量的簇。
+    *   主要分为两种类型：
+        *   **凝聚型 (Agglomerative / Bottom-up)：** 从每个对象作为一个单独的簇开始，迭代地合并最接近的簇，直到所有对象都在一个簇中，或者满足某个终止条件。
+        *   **分裂型 (Divisive / Top-down)：** 从所有对象都在一个簇开始，迭代地将一个簇分裂成更小的簇，直到每个对象自成一簇，或者满足某个终止条件。
+    *   **代表算法：** AGNES (Agglomerative Nesting), DIANA (Divisive Analysis)。
+
+3.  **基于密度的聚类 (Density-Based Methods)：**
+    *   **思想：** 只要一个区域中对象的密度（对象的数目）超过某个阈值，就把它加到与之相近的簇中。这类算法能够发现任意形状的簇，并且能有效处理噪声数据。
+    *   **特点：** 不需要预先指定簇的数量。可以发现非球形的簇。
+    *   **代表算法：** DBSCAN, OPTICS, DENCLUE。
+
+4.  **基于模型的聚类 (Model-Based Methods)：**
+    *   **思想：** 为每个簇假定一个模型，找到数据最好地拟合模型的方式。一个典型的例子是高斯混合模型 (Gaussian Mixture Models, GMM)，其中假定数据是由若干个高斯分布混合生成的。
+    *   **代表算法：** GMM (EM算法), SOM (Self-Organizing Maps)。
+
+5.  **基于网格的聚类 (Grid-Based Methods)：**
+    *   **思想：** 将对象空间量化为有限数目的单元，形成一个网格结构。所有的聚类操作都在这个网格结构（即量化的空间）上进行。
+    *   **特点：** 处理速度快，其处理时间独立于数据对象的数目，只依赖于量化空间中每一维的单元数目。
+    *   **代表算法：** STING, CLIQUE, WaveCluster。
+
+### 7.2.4 聚类效果的评估指标
+
+由于聚类是无监督学习，我们没有真实的类别标签来进行直接比较（除非是在研究或评估算法性能时使用已知标签的数据集）。因此，聚类评估指标主要分为两类：
+
+1.  **外部指标 (External Measures)：** 当存在真实的类别标签（ground truth）时使用。它们通过比较聚类结果与真实类别的一致性来评估聚类质量。
+    *   **兰德指数 (Rand Index, RI) 及其调整版本 (Adjusted Rand Index, ARI)**
+    *   **互信息 (Mutual Information, MI) 及其归一化版本 (Normalized Mutual Information, NMI) 和调整版本 (Adjusted Mutual Information, AMI)**
+    *   **Fowlkes-Mallows 指数 (FMI)**
+    *   **同质性 (Homogeneity)、完整性 (Completeness)、V-measure**
+
+2.  **内部指标 (Internal Measures)：** 当没有真实的类别标签时使用。它们仅基于数据集本身和聚类结果的统计特性来评估聚类质量，通常衡量簇内的紧密程度和簇间的分离程度。
+    *   **轮廓系数 (Silhouette Coefficient)：**
+        *   衡量一个样本与其所属簇的相似程度，以及与其他簇的分离程度。
+        *   取值范围在 [-1, 1] 之间。值越接近1，表示样本被合理地分配到了它所属的簇，并且与相邻簇区分得很好。值接近0表示样本可能在两个簇的边界上。值接近-1表示样本可能被错误地分配到了当前簇。
+        *   对所有样本的轮廓系数求平均，可以作为聚类整体质量的度量。
+    *   **Calinski-Harabasz 指数 (Variance Ratio Criterion)：**
+        *   通过簇间散度与簇内散度之比来衡量。指数值越大，表示簇内越紧密，簇间越分散，聚类效果越好。
+    *   **Davies-Bouldin 指数 (DBI)：**
+        *   计算任意两个簇的簇内离散度之和与这两个簇中心点距离的比值，并取所有这些比值中的最大值。DBI越小，表示簇内样本越相似，簇间样本差异越大，聚类效果越好。
+
+:::{.callout-note}
+## 实践建议
+
+当缺乏外部标签时，可以借助以下内部评估指标来指导聚类分析：
+
+- 选择最优簇数量（如通过肘部法则、轮廓系数等）
+- 比较不同聚类算法的效果
+- 评估聚类结果的合理性
+:::
+
+## 7.3 K-Means 聚类
+
+K-Means 是最著名和最简单的划分式聚类算法之一，由 J. MacQueen 于 1967 年提出。
+
+### 7.3.1 K-Means 算法原理与步骤
+
+K-Means 算法的目标是将 $N$ 个数据点划分到预先指定的 $K$ 个簇中，使得每个数据点都属于离它最近的均值（簇中心，也称为质心）所对应的簇。其优化的目标函数是最小化所有簇的**簇内平方和 (Within-Cluster Sum of Squares, WCSS)**，也称为惯性 (Inertia)。
+
+$$ \text{WCSS} = \sum_{j=1}^{K} \sum_{\mathbf{x}_i \in C_j} || \mathbf{x}_i - \mathbf{\mu}_j ||^2 $$
+
+其中，$C_j$ 是第 $j$ 个簇，$\mathbf{\mu}_j$ 是簇 $C_j$ 的质心（均值）。
+
+**K-Means 算法步骤：**
+
+1.  **初始化 (Initialization)：**
+    *   随机选择 $K$ 个数据点作为初始的簇质心 $\{\mathbf{\mu}_1^{(0)}, \mathbf{\mu}_2^{(0)}, ..., \mathbf{\mu}_K^{(0)}\}$。
+    *   或者采用其他更智能的初始化策略，如 K-Means++（Scikit-learn默认使用）。
+
+2.  **迭代优化：** 重复以下两个步骤直到收敛（例如，簇分配不再改变，或质心变化很小，或达到最大迭代次数）：
+    a.  **分配步骤 (Assignment Step / E-step for Expectation)：**
+        对于每个数据点 $\mathbf{x}_i$，计算它到所有 $K$ 个质心 $\mathbf{\mu}_j^{(t)}$ 的距离（通常是欧氏距离），并将其分配给距离最近的质心所对应的簇 $C_j^{(t)}$。
+        $$ C_j^{(t)} = \{ \mathbf{x}_i : ||\mathbf{x}_i - \mathbf{\mu}_j^{(t)}||^2 \le ||\mathbf{x}_i - \mathbf{\mu}_l^{(t)}||^2 \quad \forall l=1,...,K \} $$
+
+    b.  **更新步骤 (Update Step / M-step for Maximization)：**
+        对于每个簇 $C_j^{(t)}$，重新计算其质心 $\mathbf{\mu}_j^{(t+1)}$ 为该簇内所有数据点的均值。
+        $$ \mathbf{\mu}_j^{(t+1)} = \frac{1}{|C_j^{(t)}|} \sum_{\mathbf{x}_i \in C_j^{(t)}} \mathbf{x}_i $$
+
+:::{.callout-note}
+## 收敛性说明
+
+K-Means 算法具有以下收敛特性：
+
+- **保证收敛**：算法会在有限步数内收敛到局部最优解
+- **局部最优问题**：可能无法达到全局最优解，结果对初始质心选择敏感
+- **解决方案**：通常采用多次运行策略（不同随机初始质心），选择WCSS最小的结果
+:::
+
+### 7.3.2 K值的选择
+
+K-Means 算法需要预先指定簇的数量 $K$。如何选择一个合适的 $K$ 值是一个重要的问题。常用的方法有：
+
+1.  **肘部法则 (Elbow Method)：**
+    *   **思想：** 计算不同 $K$ 值对应的WCSS（或Inertia）。随着 $K$ 的增加，WCSS会逐渐减小（因为簇越多，每个簇内的点离质心就越近）。当 $K$ 达到某个值后，WCSS的下降速度会急剧减缓，形成一个类似手肘的拐点。这个拐点通常被认为是较优的 $K$ 值。
+    *   **缺点：** "肘部"有时不明显，主观性较强。
+
+2.  **轮廓系数法 (Silhouette Analysis)：**
+    *   **思想：** 对于不同的 $K$ 值，计算所有样本的平均轮廓系数。选择使得平均轮廓系数最大的 $K$ 值。
+    *   **优点：** 考虑了簇的紧密性和分离性，通常比肘部法则更可靠。
+
+3.  **Calinski-Harabasz 指数或 Davies-Bouldin 指数：**
+    *   与轮廓系数类似，可以尝试不同的 $K$ 值，选择使得Calinski-Harabasz指数最大或Davies-Bouldin指数最小的 $K$ 值。
+
+4.  **业务知识和领域经验：** 有时，根据具体应用场景的先验知识或业务需求，可以直接确定一个有意义的 $K$ 值。
+
+### 7.3.3 K-Means 的优缺点
+
+**优点：**
+
+*   **简单高效：** 算法原理简单，易于实现，计算复杂度相对较低（对于大数据集仍然具有良好的可伸缩性，尤其是结合一些优化如MiniBatch K-Means）。
+*   **可解释性：** 聚类结果（质心和簇分配）相对容易理解。
+*   **广泛应用：** 作为一种基础聚类算法，应用非常广泛。
+
+**缺点：**
+
+*   **需要预先指定K值：** K值的选择对结果影响很大，且选择不当可能导致次优的聚类。
+*   **对初始质心敏感：** 不同的初始质心可能导致不同的局部最优解。K-Means++初始化策略可以缓解这个问题。
+*   **对异常值和噪声敏感：** 异常值会显著影响质心的计算。
+*   **倾向于发现球状簇：** 由于使用均值作为质心并基于欧氏距离进行分配，K-Means倾向于发现大小相似、密度均匀的球状（或凸形）簇。对于非球形、不同大小、不同密度的簇，或者存在复杂几何形状的簇，K-Means可能效果不佳。
+*   **对特征尺度敏感：** 如果特征的尺度差异很大，尺度较大的特征会在距离计算中占据主导地位。因此，通常建议在使用K-Means之前对数据进行标准化或归一化。
+
+### 7.3.4 在 Scikit-learn 中使用 K-Means
+
+Scikit-learn 提供了 `sklearn.cluster.KMeans` 类来实现K-Means算法。
+
+```{python}
+#| echo: true
+#| fig-cap: "K-Means聚类示例：不同K值下的肘部法则曲线和轮廓系数图。"
+#| label: fig-kmeans-example
+
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs # 用于生成聚类数据
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. 生成模拟数据
+X_blobs, y_blobs_true = make_blobs(n_samples=300, centers=4, cluster_std=0.8, random_state=42)
+
+# 2. 数据预处理（K-Means对尺度敏感，通常需要标准化）
+scaler = StandardScaler()
+X_scaled_blobs = scaler.fit_transform(X_blobs)
+
+# 3. 肘部法则选择K值
+inertia_values = []
+possible_k_values = range(1, 11) # 尝试K从1到10
+
+for k in possible_k_values:
+    kmeans_elbow = KMeans(n_clusters=k, init='k-means++', random_state=42, n_init=10)
+    kmeans_elbow.fit(X_scaled_blobs)
+    inertia_values.append(kmeans_elbow.inertia_)
+
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.plot(possible_k_values, inertia_values, marker='o', linestyle='-')
+plt.title('Elbow Method for Optimal K')
+plt.xlabel('Number of clusters (K)')
+plt.ylabel('Inertia (WCSS)')
+plt.xticks(possible_k_values)
+plt.grid(True)
+
+# 4. 轮廓系数选择K值
+silhouette_avg_scores = []
+for k in range(2, 11): # 轮廓系数至少需要2个簇
+    kmeans_silhouette = KMeans(n_clusters=k, init='k-means++', random_state=42, n_init=10)
+    cluster_labels = kmeans_silhouette.fit_predict(X_scaled_blobs)
+    silhouette_avg = silhouette_score(X_scaled_blobs, cluster_labels)
+    silhouette_avg_scores.append(silhouette_avg)
+    print(f"For K={k}, the average silhouette_score is : {silhouette_avg:.4f}")
+
+plt.subplot(1, 2, 2)
+plt.plot(range(2, 11), silhouette_avg_scores, marker='s', linestyle='-')
+plt.title('Silhouette Analysis for Optimal K')
+plt.xlabel('Number of clusters (K)')
+plt.ylabel('Average Silhouette Score')
+plt.xticks(range(2,11))
+plt.grid(True)
+
+plt.tight_layout()
+# plt.savefig('images/07-clustering/kmeans_k_selection.svg', format='svg')
+plt.show()
+
+# 5. 根据肘部和轮廓分析，选择一个K值 (例如 K=4)
+optimal_k = 4
+kmeans_final = KMeans(n_clusters=optimal_k, init='k-means++', random_state=42, n_init=10)
+y_kmeans_pred = kmeans_final.fit_predict(X_scaled_blobs)
+centers = kmeans_final.cluster_centers_
+
+# 6. 可视化聚类结果 (仅适用于2D数据)
+plt.figure(figsize=(8, 6))
+plt.scatter(X_scaled_blobs[:, 0], X_scaled_blobs[:, 1], c=y_kmeans_pred, s=50, cmap='viridis', alpha=0.7)
+plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, marker='X', label='Centroids')
+plt.title(f'K-Means Clustering (K={optimal_k})')
+plt.xlabel('Feature 1 (scaled)')
+plt.ylabel('Feature 2 (scaled)')
+plt.legend()
+plt.grid(True)
+# plt.savefig(f'images/07-clustering/kmeans_clusters_k{optimal_k}.svg', format='svg')
+plt.show()
+
+# 7. 评估聚类效果 (内部指标)
+silhouette_final = silhouette_score(X_scaled_blobs, y_kmeans_pred)
+ch_score_final = calinski_harabasz_score(X_scaled_blobs, y_kmeans_pred)
+db_score_final = davies_bouldin_score(X_scaled_blobs, y_kmeans_pred)
+
+print(f"\nFor K={optimal_k}:")
+print(f"  Silhouette Coefficient: {silhouette_final:.4f}")
+print(f"  Calinski-Harabasz Index: {ch_score_final:.4f}")
+print(f"  Davies-Bouldin Index: {db_score_final:.4f}")
+```
+
+**`KMeans` 主要参数：**
+
+*   `n_clusters`: `int`, 默认=8。要形成的簇的数量以及要生成的质心的数量。
+*   `init`: `{'k-means++', 'random', callable}` 或 `array-like`, 默认='k-means++'。
+    *   `'k-means++'` : 以一种智能的方式为K-Means聚类选择初始簇中心，以加速收敛。
+    *   `'random'` : 从数据中随机选择 `n_clusters` 个观测值（行）作为初始质心。
+    *   如果传递一个数组，其形状应为 `(n_clusters, n_features)` 并给出初始中心。
+*   `n_init`: `int` 或 `'auto'`, 默认=10。使用不同质心种子运行K-Means算法的次数。最终结果将是就惯性而言的最佳输出。如果 `n_init='auto'`，则对于 `init='random'`，该值为10；对于 `init='k-means++'`，该值为1。
+*   `max_iter`: `int`, 默认=300。单次运行K-Means算法的最大迭代次数。
+*   `tol`: `float`, 默认=1e-4。关于质心变化的容忍度，用于声明收敛。
+*   `random_state`: `int`, `RandomState instance` 或 `None`, 默认=None。用于质心初始化的随机数生成。
+
+## 7.4 层次聚类 (Hierarchical Clustering)
+
+层次聚类是一种历史悠久的聚类方法，最早由心理学家Robert C. Tryon在1939年提出，后来在1960年代由统计学家Joe H. Ward等人进一步发展。这种方法创建簇的层次结构，可以表示为一个树状图(Dendrogram)。与K-Means不同，它不需要预先指定簇的数量。
+
+### 7.4.1 层次聚类的类型与原理
+
+主要有两种类型的层次聚类：
+
+1.  **凝聚型层次聚类 (Agglomerative Hierarchical Clustering, AHC)：**
+    *   **思想 (Bottom-up)：** 开始时，每个数据点都是一个独立的簇。在每一步，算法会合并两个最"接近"的簇，直到所有数据点都属于同一个簇，或者满足某个停止条件（例如，达到预设的簇数量）。
+    *   这是最常用的层次聚类方法。
+
+2.  **分裂型层次聚类 (Divisive Hierarchical Clustering)：**
+    *   **思想 (Top-down)：** 开始时，所有数据点都在一个大簇中。在每一步，算法会选择一个簇并将其分裂成两个或多个更小的簇，直到每个数据点都是一个独立的簇，或者满足某个停止条件。
+    *   分裂型层次聚类在计算上通常比凝聚型更复杂，因为它需要考虑如何分裂一个大簇。
+
+**凝聚型层次聚类的基本步骤：**
+
+1.  将每个数据点视为一个初始簇。
+2.  计算任意两个簇之间的**邻近度 (Proximity)** 或 **距离 (Distance)**。
+3.  合并距离最近（或邻近度最高）的两个簇，形成一个新的簇。
+4.  重新计算新簇与其他现有簇之间的邻近度。
+5.  重复步骤3和4，直到所有数据点都合并到一个簇中，或者簇的数量达到预设值。
+
+### 7.4.2 连接准则 (Linkage Criteria)
+
+在凝聚型层次聚类中，如何定义两个簇之间的距离（或相似度）是关键，这由**连接准则 (Linkage Criteria)** 决定。常用的连接准则有：
+
+*   **Single Linkage (最小连接 / 单连接)：**
+    两个簇之间的距离定义为不同簇中两个最近点之间的距离。
+    $$ d(C_i, C_j) = \min_{\mathbf{x} \in C_i, \mathbf{y} \in C_j} ||\mathbf{x} - \mathbf{y}|| $$
+    *   倾向于产生长条形的簇，容易受到噪声和异常值的影响（"链式效应"）。
+
+*   **Complete Linkage (最大连接 / 全连接)：**
+    两个簇之间的距离定义为不同簇中两个最远点之间的距离。
+    $$ d(C_i, C_j) = \max_{\mathbf{x} \in C_i, \mathbf{y} \in C_j} ||\mathbf{x} - \mathbf{y}|| $$
+    *   倾向于产生更紧凑的球形簇，对异常值不那么敏感，但可能会将大簇分裂。
+
+*   **Average Linkage (平均连接)：**
+    两个簇之间的距离定义为不同簇中所有点对之间距离的平均值。
+    $$ d(C_i, C_j) = \frac{1}{|C_i||C_j|} \sum_{\mathbf{x} \in C_i} \sum_{\mathbf{y} \in C_j} ||\mathbf{x} - \mathbf{y}|| $$
+    *   介于Single Linkage和Complete Linkage之间，试图平衡两者。
+
+*   **Ward's Linkage (Ward方差最小化)：**
+    两个簇之间的距离定义为合并它们后，所有簇的簇内平方和 (WCSS) 的增加量。它试图合并那些使得合并后WCSS增加最小的簇。
+    $$ d(C_i, C_j) = \text{WCSS}(C_i \cup C_j) - (\text{WCSS}(C_i) + \text{WCSS}(C_j)) $$
+    *   只适用于欧氏距离。倾向于产生大小相似的球形簇。通常表现良好。
+
+### 7.4.3 树状图 (Dendrogram)
+
+层次聚类的结果通常用一个称为**树状图 (Dendrogram)** 的树形图来可视化。
+
+*   树叶代表单个数据点。
+*   树枝的高度表示合并簇时的距离（或不相似度）。
+*   通过在某个高度水平切割树状图，可以得到特定数量的簇。切割线与树枝相交的数量即为簇的数量。
+
+### 7.4.4 在 Scikit-learn 中使用层次聚类
+
+Scikit-learn 提供了 `sklearn.cluster.AgglomerativeClustering` 类用于凝聚型层次聚类。`scipy.cluster.hierarchy` 模块则提供了更底层的层次聚类功能，包括生成和绘制树状图。
+
+```{python}
+#| echo: true
+#| fig-cap: "层次聚类示例：使用不同连接准则的树状图和聚类结果。"
+#| label: fig-hierarchical-example
+
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage # linkage 用于计算连接矩阵
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.datasets import make_blobs
+from sklearn.preprocessing import StandardScaler
+
+# 1. 生成数据 (使用与K-Means相同的scaled数据)
+X_hier, y_hier_true = make_blobs(n_samples=50, centers=3, cluster_std=1.0, random_state=42) # 少点样本，树状图更清晰
+scaler_hier = StandardScaler()
+X_scaled_hier = scaler_hier.fit_transform(X_hier)
+
+
+# 2. 使用 SciPy 生成连接矩阵并绘制树状图
+# Linkage methods: 'ward', 'single', 'complete', 'average', 'weighted', 'centroid', 'median'
+linkage_methods_to_try = ['ward', 'complete', 'average']
+
+plt.figure(figsize=(15, 10))
+for i, method in enumerate(linkage_methods_to_try):
+    plt.subplot(2, len(linkage_methods_to_try), i + 1)
+    linked_matrix = linkage(X_scaled_hier, method=method)
+    dendrogram(linked_matrix,
+               orientation='top',
+               # labels=y_hier_true, # 如果有标签可以显示
+               distance_sort='descending',
+               show_leaf_counts=True)
+    plt.title(f'Dendrogram ({method.capitalize()} Linkage)')
+    plt.xlabel("Sample index or (cluster size)")
+    plt.ylabel("Distance")
+
+# 3. 使用 AgglomerativeClustering 进行聚类
+# n_clusters: 要找到的簇的数量。如果 linkage='ward'，则必须是int。
+#             如果 distance_threshold 不为None，则 n_clusters 必须为None，反之亦然。
+# affinity: 用于计算连接的度量，默认='euclidean'。可以是 'l1', 'l2', 'manhattan', 'cosine', 'precomputed'。
+#           如果 linkage='ward'，则 affinity 必须是 'euclidean'。
+# linkage: 使用哪种连接准则。{'ward', 'complete', 'average', 'single'}，默认='ward'。
+
+n_clusters_hier = 3 # 假设我们想得到3个簇
+
+for i, method in enumerate(linkage_methods_to_try):
+    agg_clustering = AgglomerativeClustering(n_clusters=n_clusters_hier, linkage=method)
+    y_agg_pred = agg_clustering.fit_predict(X_scaled_hier)
+    
+    plt.subplot(2, len(linkage_methods_to_try), i + 1 + len(linkage_methods_to_try))
+    plt.scatter(X_scaled_hier[:, 0], X_scaled_hier[:, 1], c=y_agg_pred, cmap='viridis', s=50, alpha=0.7)
+    plt.title(f'Clusters ({method.capitalize()} Linkage, K={n_clusters_hier})')
+    plt.xlabel('Feature 1 (scaled)')
+    plt.ylabel('Feature 2 (scaled)')
+    plt.grid(True)
+
+plt.tight_layout()
+# plt.savefig('images/07-clustering/hierarchical_clustering_comparison.svg', format='svg')
+plt.show()
+
+# 评估 (以ward为例)
+agg_ward = AgglomerativeClustering(n_clusters=n_clusters_hier, linkage='ward')
+y_agg_ward_pred = agg_ward.fit_predict(X_scaled_hier)
+silhouette_agg_ward = silhouette_score(X_scaled_hier, y_agg_ward_pred)
+print(f"\nAgglomerative Clustering (Ward, K={n_clusters_hier}) Silhouette Score: {silhouette_agg_ward:.4f}")
+```
+
+**`AgglomerativeClustering` 主要参数：**
+
+*   `n_clusters`: `int` 或 `None`, 默认=2。要找到的簇的数量。如果 `linkage` 是 'ward'，则此参数必须是 `int`。如果 `distance_threshold` 不为 `None`，则此参数必须为 `None`。
+*   `affinity`: `str` 或 `callable`, 默认='euclidean'。用于计算连接的度量。可以是 'l1', 'l2', 'manhattan', 'cosine', 或 'precomputed'。如果 `linkage` 是 'ward'，则 `affinity` 必须是 'euclidean'。
+*   `linkage`: `{'ward', 'complete', 'average', 'single'}`, 默认='ward'。使用的连接准则。
+*   `distance_threshold`: `float` 或 `None`, 默认=None。连接阈值，高于此阈值的簇将不会被合并。如果指定了此参数且 `n_clusters` 为 `None`，则聚类过程将在达到此阈值时停止。
+
+### 7.4.5 层次聚类的优缺点
+
+**优点：**
+
+*   **不需要预先指定K值：** 可以通过观察树状图来决定合适的簇数量。
+*   **可解释性强：** 树状图提供了丰富的可视化信息，有助于理解数据点之间的层次关系。
+*   **可以处理任意形状的簇（取决于连接准则）：** 例如，Single Linkage可以发现非球形簇。
+*   **对距离度量选择灵活：** 可以使用不同的距离度量和连接准则。
+
+**缺点：**
+
+*   **计算和存储开销大：** 传统的凝聚型层次聚类算法的时间复杂度通常是 $O(N^3)$ 或 $O(N^2 \log N)$（取决于实现），空间复杂度是 $O(N^2)$（存储距离矩阵）。这使得它们不适用于非常大的数据集。
+*   **贪心算法，不可逆：** 一旦一个合并或分裂操作被执行，就不能撤销。这可能导致次优的聚类结果。
+*   **对噪声和异常值敏感（某些连接准则）：** 例如，Single Linkage。
+*   **树状图的解读可能主观。**
+
+## 7.5 DBSCAN (Density-Based Spatial Clustering of Applications with Noise)
+
+DBSCAN 是一种流行的基于密度的聚类算法，由 Martin Ester, Hans-Peter Kriegel, Jörg Sander 和 Xiaowei Xu 于 1996 年提出。它能够发现任意形状的簇，并且能有效地识别出噪声点。
+
+### 7.5.1 DBSCAN 的核心概念
+
+DBSCAN 的核心思想是，一个簇可以被定义为一个数据点密度较高的区域，该区域与密度较低的区域被分隔开。算法基于以下几个关键概念：
+
+1.  **$\epsilon$ (eps)：** 一个距离阈值。用于定义一个数据点的"邻域"范围。
+2.  **MinPts (min_samples)：** 一个整数阈值。用于判断一个点是否为"核心点"。一个点的 $\epsilon$-邻域内至少需要包含 MinPts 个点（包括该点本身），这个点才被认为是核心点。
+3.  **核心点 (Core Point)：** 如果一个数据点 $p$ 的 $\epsilon$-邻域内至少有 MinPts 个点，则 $p$ 是一个核心点。
+4.  **边界点 (Border Point)：** 如果一个数据点 $q$ 不是核心点，但它落在某个核心点 $p$ 的 $\epsilon$-邻域内，则 $q$ 是一个边界点。边界点属于某个簇，但其邻域内的点数不足以使其成为核心点。
+5.  **噪声点 (Noise Point / Outlier)：** 既不是核心点也不是边界点的数据点。噪声点不属于任何簇。
+6.  **直接密度可达 (Directly Density-Reachable)：** 如果点 $q$ 在核心点 $p$ 的 $\epsilon$-邻域内，则称 $q$ 从 $p$ 直接密度可达。
+7.  **密度可达 (Density-Reachable)：** 如果存在一个核心点链 $p_1, p_2, ..., p_n$，其中 $p_1=p$, $p_n=q$，并且 $p_{i+1}$ 从 $p_i$ 直接密度可达，则称 $q$ 从 $p$ 密度可达。
+8.  **密度相连 (Density-Connected)：** 如果存在一个核心点 $o$，使得点 $p$ 和点 $q$ 都从 $o$ 密度可达，则称 $p$ 和 $q$ 密度相连。
+
+**簇的定义：** DBSCAN中的一个簇是密度相连点的最大集合。
+
+### 7.5.2 DBSCAN 算法原理与步骤
+
+1.  **选择参数：** 确定 `eps` 和 `MinPts` 的值。
+2.  **遍历所有点：**
+    a.  选择一个未被访问过的数据点 $p$。
+    b.  标记 $p$ 为已访问。
+    c.  检查 $p$ 是否为核心点：找出 $p$ 的 $\epsilon$-邻域内的所有点。如果邻域内的点数少于 `MinPts`，则将 $p$ 暂时标记为噪声点（它后续可能被发现是某个簇的边界点）。
+    d.  如果 $p$ 是核心点：
+        i.  创建一个新的簇 $C$，并将 $p$ 加入 $C$。
+        ii. 扩展簇：对于 $p$ 的 $\epsilon$-邻域内的每个点 $q$：
+            1.  如果 $q$ 未被访问，标记 $q$ 为已访问。
+            2.  如果 $q$ 也是核心点，将其 $\epsilon$-邻域内的所有（未被分配到任何簇的）点也加入到队列中，以便进一步扩展。
+            3.  如果 $q$ 还未属于任何簇，则将 $q$ 加入到当前簇 $C$ 中。
+3.  重复步骤2，直到所有点都被访问过。
+
+### 7.5.3 DBSCAN 的参数选择
+
+*   **`eps` (epsilon)：**
+    *   如果 `eps` 太小，大部分数据可能被视为噪声。
+    *   如果 `eps` 太大，多个簇或者所有点可能会被合并成一个大簇。
+    *   一个常用的启发式方法是绘制 **k-距离图 (k-distance graph)**。对于每个点，计算它到第 `k` 个最近邻的距离（通常 `k = MinPts` 或 `k = MinPts - 1`），然后将这些距离排序并绘制出来。图中的"拐点"可以作为 `eps` 的一个候选值。
+*   **`MinPts` (min_samples)：**
+    *   通常根据领域知识设定，或者凭经验选择。一个常见的经验法则是 `MinPts >= D + 1`，其中 `D` 是数据的维度。对于2维数据，`MinPts` 可以从3或4开始尝试。
+    *   `MinPts` 越大，形成的簇越稠密，更多点可能被标记为噪声。
+
+### 7.5.4 DBSCAN 的优缺点
+
+**优点：**
+
+*   **不需要预先指定簇的数量：** 簇的数量由算法自动确定。
+*   **可以发现任意形状的簇：** 不像K-Means那样局限于球形簇。
+*   **能够有效处理噪声和异常值：** 将它们识别为噪声点，不强行分到某个簇中。
+*   **对数据点的顺序不敏感（除了边界点可能归属不同簇的情况）。**
+*   **参数相对较少且直观 (eps, MinPts)。**
+
+**缺点：**
+
+*   **对参数敏感：** `eps` 和 `MinPts` 的选择对结果影响很大，且选择不当可能导致很差的聚类效果。选择合适的参数可能需要领域知识和多次试验。
+*   **对于密度差异很大的簇效果不佳：** DBSCAN使用全局的 `eps` 和 `MinPts`，难以同时处理密度变化剧烈的不同簇。 (OPTICS算法是对DBSCAN的改进，试图解决这个问题)
+*   **对于高维数据，效果可能下降：** "维度灾难"会导致在高维空间中，点之间的距离差异变小，密度定义变得困难。k-距离图在高维时可能不那么清晰。
+*   **计算复杂度：** 朴素实现的DBSCAN时间复杂度为 $O(N^2)$，但使用空间索引（如R-tree, k-d tree）可以优化到 $O(N \log N)$。
+
+### 7.5.5 在 Scikit-learn 中使用 DBSCAN
+
+Scikit-learn 提供了 `sklearn.cluster.DBSCAN` 类。
+
+```{python}
+#| echo: true
+#| fig-cap: "DBSCAN聚类示例：不同eps和min_samples参数下的聚类结果。"
+#| label: fig-dbscan-example
+
+from sklearn.cluster import DBSCAN
+from sklearn.datasets import make_moons # DBSCAN擅长处理非球形簇
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. 生成月亮形状数据
+X_moons, y_moons_true = make_moons(n_samples=200, noise=0.05, random_state=42)
+X_scaled_moons = StandardScaler().fit_transform(X_moons)
+
+# 2. 尝试不同的DBSCAN参数
+params_to_try = [
+    {'eps': 0.2, 'min_samples': 3},
+    {'eps': 0.3, 'min_samples': 5},
+    {'eps': 0.5, 'min_samples': 5}
+]
+
+plt.figure(figsize=(15, 5))
+for i, params in enumerate(params_to_try):
+    dbscan = DBSCAN(eps=params['eps'], min_samples=params['min_samples'])
+    y_dbscan_pred = dbscan.fit_predict(X_scaled_moons)
+    
+    # 提取核心样本索引和噪声点（标签为-1）
+    core_samples_mask = np.zeros_like(dbscan.labels_, dtype=bool)
+    if hasattr(dbscan, 'core_sample_indices_'): # 检查属性是否存在
+        core_samples_mask[dbscan.core_sample_indices_] = True
+    
+    n_clusters_ = len(set(y_dbscan_pred)) - (1 if -1 in y_dbscan_pred else 0)
+    n_noise_ = list(y_dbscan_pred).count(-1)
+
+    plt.subplot(1, len(params_to_try), i + 1)
+    # 绘制非噪声点
+    unique_labels = set(y_dbscan_pred)
+    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+    
+    for k_label, col in zip(unique_labels, colors):
+        if k_label == -1: # 噪声点用黑色
+            col = [0, 0, 0, 1]
+        
+        class_member_mask = (y_dbscan_pred == k_label)
+        
+        # 绘制核心点 (大点)
+        xy_core = X_scaled_moons[class_member_mask & core_samples_mask]
+        plt.plot(xy_core[:, 0], xy_core[:, 1], 'o', markerfacecolor=tuple(col), markeredgecolor='k', markersize=10)
+        
+        # 绘制边界点 (小点)
+        xy_border = X_scaled_moons[class_member_mask & ~core_samples_mask]
+        plt.plot(xy_border[:, 0], xy_border[:, 1], 'o', markerfacecolor=tuple(col), markeredgecolor='k', markersize=6)
+
+    plt.title(f'DBSCAN (eps={params["eps"]}, min_samples={params["min_samples"]})\nEst. clusters: {n_clusters_}, Noise points: {n_noise_}')
+    plt.xlabel('Feature 1 (scaled)')
+    plt.ylabel('Feature 2 (scaled)')
+    plt.grid(True)
+
+plt.tight_layout()
+# plt.savefig('images/07-clustering/dbscan_moons_comparison.svg', format='svg')
+plt.show()
+
+# 评估一个较优参数组合
+dbscan_best = DBSCAN(eps=0.3, min_samples=5)
+y_dbscan_best_pred = dbscan_best.fit_predict(X_scaled_moons)
+
+# 只有当存在多于1个簇且少于N-1个簇时，内部评估指标才有意义
+if len(set(y_dbscan_best_pred) - {-1}) > 1 and len(set(y_dbscan_best_pred) - {-1}) < (len(X_scaled_moons) -1) :
+    silhouette_dbscan = silhouette_score(X_scaled_moons, y_dbscan_best_pred)
+    print(f"\nDBSCAN (eps=0.3, min_samples=5) Silhouette Score: {silhouette_dbscan:.4f}")
+else:
+    print("\nDBSCAN (eps=0.3, min_samples=5): Not enough clusters for silhouette score.")
+```
+
+**`DBSCAN` 主要参数：**
+
+*   `eps`: `float`, 默认=0.5。两个样本被视为邻居的最大距离，也是从一个点扩展簇的球的半径。
+*   `min_samples`: `int`, 默认=5。一个点被视为核心点的邻域中的样本（或总权重）数量。这包括点本身。
+*   `metric`: `str` 或 `callable`, 默认='euclidean'。计算样本之间距离时使用的度量。
+*   `algorithm`: `{'auto', 'ball_tree', 'kd_tree', 'brute'}`, 默认='auto'。用于查找点邻居的算法。
+*   `leaf_size`: `int`, 默认=30。传递给BallTree或KDTree的叶大小。
+*   `p`: `float`, 默认=None。Minkowski度量的幂参数。
+
+## 7.6 (可选) 其他聚类算法简介
+
+除了K-Means、层次聚类和DBSCAN，还有许多其他有用的聚类算法，它们各有特点和适用场景：
+
+*   **均值漂移 (Mean Shift)：**
+    *   **思想：** 基于密度的非参数聚类算法，试图找到数据点分布中的模式（密度吸引子）。它通过迭代地将每个数据点移动到其邻域内数据点的均值位置（"漂移"到密度更高的区域），直到收敛。
+    *   **特点：** 不需要预先指定簇的数量，可以发现任意形状的簇。对参数（带宽 `bandwidth`）敏感。
+    *   Scikit-learn: `sklearn.cluster.MeanShift`
+
+*   **谱聚类 (Spectral Clustering)：**
+    *   **思想：** 将聚类问题转换为图划分问题。它首先构建数据点之间的相似度图（邻接矩阵），然后计算图的拉普拉斯矩阵，并对其进行特征分解，最后在低维的特征向量空间中进行聚类（通常使用K-Means）。
+    *   **特点：** 能够有效处理非凸形状的簇，对数据分布的假设较少。计算开销较大。
+    *   Scikit-learn: `sklearn.cluster.SpectralClustering`
+
+*   **高斯混合模型 (Gaussian Mixture Models, GMM)：**
+    *   **思想：** 基于模型的概率聚类方法，假设数据是由若干个高斯分布（每个高斯分布代表一个簇）混合生成的。算法通过期望最大化 (Expectation-Maximization, EM) 算法来估计每个高斯分布的参数（均值、协方差）以及每个数据点属于各个簇的概率。
+    *   **特点：** 可以处理椭球形的簇，提供软聚类（每个点属于各簇的概率）。需要预先指定簇的数量。
+    *   Scikit-learn: `sklearn.mixture.GaussianMixture`
+
+*   **Affinity Propagation:**
+    *   **思想：** 基于消息传递的聚类算法，数据点之间通过发送"消息"来决定哪些点适合作为"样本代表点 (exemplars)"。
+    *   **特点：** 不需要预先指定簇的数量。计算复杂度较高 $O(N^2)$。
+    *   Scikit-learn: `sklearn.cluster.AffinityPropagation`
+
+*   **BIRCH (Balanced Iterative Reducing and Clustering using Hierarchies):**
+    *   **思想：** 专为处理大规模数据集设计的层次聚类算法。它通过构建一个紧凑的聚类特征树 (CF Tree) 来对数据进行摘要，然后在CF Tree的叶节点上进行聚类。
+    *   **特点：** 速度快，内存效率高，适合大数据。
+    *   Scikit-learn: `sklearn.cluster.Birch`
+
+选择哪种聚类算法通常取决于数据的特性、簇的期望形状、数据集的大小以及计算资源等因素。
+
+## 7.7 本章总结
+
+本章我们进入了无监督学习的领域，重点学习了聚类分析。
+
+*   **无监督学习**旨在从无标签数据中发现隐藏的结构或模式。
+*   **聚类分析**的目标是将数据点划分为相似对象组成的簇，使得簇内相似度高，簇间相似度低。
+*   我们介绍了主要的**聚类算法类型**：划分式、层次式、基于密度、基于模型和基于网格。
+*   讨论了**聚类评估指标**，分为外部指标（有真实标签时使用，如ARI、NMI）和内部指标（无真实标签时使用，如轮廓系数、Calinski-Harabasz指数、Davies-Bouldin指数）。
+*   详细学习了三种主流的聚类算法：
+    *   **K-Means：**
+        *   一种简单高效的划分式聚类算法，通过迭代优化簇内平方和。
+        *   需要预先指定K值，对初始质心和特征尺度敏感，倾向于发现球状簇。
+        *   K值选择方法包括肘部法则和轮廓系数法。
+    *   **层次聚类 (Agglomerative)：**
+        *   通过自底向上的方式构建簇的层次结构（树状图）。
+        *   不需要预先指定K值，结果由连接准则（如Ward, Complete, Average）决定。
+        *   计算和存储开销较大。
+    *   **DBSCAN：**
+        *   一种基于密度的聚类算法，能够发现任意形状的簇并处理噪声。
+        *   核心概念包括 `eps` (邻域半径) 和 `MinPts` (核心点最小邻居数)。
+        *   不需要预先指定K值，但对参数 `eps` 和 `MinPts` 敏感。
+*   简要介绍了其他一些聚类算法，如均值漂移、谱聚类和高斯混合模型。
+
+聚类是数据探索和模式发现的强大工具，选择合适的算法和参数对于获得有意义的结果至关重要。
+
+## 7.8 思考与练习
+
+### 7.8.1 基础练习
+
+1.  **核心概念回顾：**
+    *   什么是无监督学习？它与监督学习的主要区别是什么？
+    *   聚类的主要目标是什么？列举至少三个聚类的实际应用场景。
+    *   简述划分式聚类、层次聚类和基于密度聚类的基本思想和主要区别。
+    *   为什么在没有外部标签的情况下，评估聚类效果比评估分类器效果更具挑战性？轮廓系数是如何尝试解决这个问题的？
+
+2.  **K-Means 理解：**
+    *   解释K-Means算法的迭代过程（分配步骤和更新步骤）。
+    *   为什么K-Means对初始质心的选择敏感？K-Means++是如何尝试改进初始化的？
+    *   肘部法则和轮廓系数法在选择K值时，分别关注什么指标？它们各有什么优缺点？
+    *   在什么情况下K-Means可能表现不佳？
+
+3.  **层次聚类理解：**
+    *   凝聚型层次聚类和分裂型层次聚类的主要区别是什么？
+    *   解释Single Linkage, Complete Linkage, Average Linkage和Ward's Linkage这四种连接准则的含义和特点。它们各自可能产生什么形状的簇？
+    *   树状图是如何帮助我们理解层次聚类结果和选择簇数量的？
+
+4.  **DBSCAN 理解：**
+    *   解释DBSCAN中的核心点、边界点和噪声点。
+    *   参数`eps`和`MinPts`在DBSCAN中起什么作用？它们如何影响聚类结果？
+    *   相比K-Means，DBSCAN在哪些方面具有优势？又有哪些不足？
+
+### 7.8.2 编码与实践
+
+1.  **数据集准备：**
+    *   使用 `sklearn.datasets.make_blobs` 生成具有不同特征（例如，不同簇数量、不同簇标准差、不同形状）的多个合成数据集。
+    *   （可选）选择一个真实世界的数据集（例如，UCI的Iris数据集的前两个特征，或者Wine数据集），并进行适当的预处理（如特征缩放）。
+
+2.  **K-Means 实践：**
+    *   对你准备的数据集应用K-Means算法。
+    *   实现肘部法则和轮廓系数分析来辅助选择最佳的K值。
+    *   可视化不同K值下的聚类结果和质心。
+    *   尝试不同的`init`参数（如`'random'`和`'k-means++'`）和`n_init`参数，观察其对结果稳定性的影响。
+    *   记录并比较不同K值下的轮廓系数、Calinski-Harabasz指数和Davies-Bouldin指数。
+
+3.  **层次聚类实践：**
+    *   对相同的数据集应用凝聚型层次聚类。
+    *   尝试不同的连接准则（`ward`, `complete`, `average`, `single`）。
+    *   为每种连接准则绘制树状图，并根据树状图尝试选择不同的簇数量（例如，通过在不同高度切割）。
+    *   可视化使用不同连接准则和不同簇数量得到的聚类结果。
+    *   比较不同设置下的轮廓系数。
+
+4.  **DBSCAN 实践：**
+    *   对相同的数据集（特别是尝试包含非球形簇或噪声的数据集，如`make_moons`或`make_circles`）应用DBSCAN算法。
+    *   系统地调整`eps`和`min_samples`参数，观察它们如何影响簇的数量、噪声点的数量以及簇的形状。
+    *   （可选）尝试实现或使用k-距离图来辅助选择`eps`。
+    *   可视化不同参数下的聚类结果，并突出显示核心点、边界点和噪声点。
+    *   在有意义的情况下，计算轮廓系数（注意DBSCAN可能不适合所有能计算轮廓系数的场景，例如当所有点都被标记为噪声或只有一个大簇时）。
+
+5.  **算法比较与分析：**
+    *   针对你使用的一个或多个数据集，总结K-Means、层次聚类（选择一种较优的连接准则）和DBSCAN的聚类结果。
+    *   讨论哪种算法在特定数据集或特定数据分布下表现更好，为什么？
+    *   结合内部评估指标和可视化结果，分析各种算法的优缺点。
+
+通过理论思考和动手实践，你将能更深刻地理解各种聚类算法的特性、适用场景以及它们在实际数据分析中的应用方式。
+
+### 7.8.3 推荐阅读
+
+1.  **《Python数据科学手册》(Python Data Science Handbook) by Jake VanderPlas - 第5章：机器学习 - In-Depth: k-Means Clustering, In-Depth: Gaussian Mixture Models, In-Depth: Kernel Density Estimation.** (这本书有很好的代码示例)
+2.  **《机器学习实战》(Machine Learning in Action) by Peter Harrington - 第10章：利用K-均值聚类算法对未标注数据分组。**
+3.  **《统计学习方法》李航著 - 第14章：聚类方法。** (对K-Means、层次聚类有数学描述)
+4.  **《Elements of Statistical Learning》 (ESL) by Hastie, Tibshirani, and Friedman - Chapter 14: Unsupervised Learning ( notamment 14.3 Cluster Analysis).**
+5.  **Scikit-learn官方文档 - Clustering:** (<https://scikit-learn.org/stable/modules/clustering.html>) 包含了各种聚类算法的详细用户指南和API参考。
+6.  **Kaufman, L., & Rousseeuw, P. J. (1990). Finding groups in data: an introduction to cluster analysis. John Wiley & Sons.** (经典的聚类分析书籍)
+7.  **Ester, M., Kriegel, H. P., Sander, J., & Xu, X. (1996, August). A density-based algorithm for discovering clusters in large spatial databases with noise. In Kdd (Vol. 96, No. 34, pp. 226-231).** DBSCAN的原始论文。
+8.  **StatQuest with Josh Starmer - YouTube频道:** 搜索 "K-means", "Hierarchical Clustering", "DBSCAN" 等关键词，有非常直观的视频讲解。 

@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>深度学习进阶 – 机器学习：从理论到Python实践</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./14-reinforcement-learning.html" rel="next">
+<link href="./12-rnn.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10-deep-learning-basics.html">第五部分：深度学习初探</a></li><li class="breadcrumb-item"><a href="./13-deep-learning-advanced.html"><span class="chapter-title">深度学习进阶</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">机器学习：从理论到Python实践</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">欢迎学习《机器学习：从理论到Python实践》</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">第一部分：机器学习基石与Python生态</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习导论</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Python机器学习环境与核心库</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">第二部分：监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">回归与线性模型</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-classification-logreg-knn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">分类与逻辑回归、KNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-svm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">支持向量机 (SVM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-decision-trees-ensemble-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">决策树与集成学习</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">第三部分：无监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clustering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">聚类分析</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-dimensionality-reduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">降维</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">第四部分：模型评估、优化与特征工程</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-model-evaluation-feature-engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">模型评估、优化与特征工程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">第五部分：深度学习初探</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-deep-learning-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习基础</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-cnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">卷积神经网络 (CNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-rnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">循环神经网络 (RNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-deep-learning-advanced.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">深度学习进阶</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">第六部分：强化学习入门</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-reinforcement-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">强化学习基础与应用</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">第七部分：综合项目与展望</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-ml-project-workflow-summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习项目实战流程与总结</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-summary-outlook.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">课程总结与展望</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">附录</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#学习目标" id="toc-学习目标" class="nav-link active" data-scroll-target="#学习目标">学习目标</a></li>
+  <li><a href="#引言" id="toc-引言" class="nav-link" data-scroll-target="#引言">13.1 引言</a></li>
+  <li><a href="#注意力机制与transformer" id="toc-注意力机制与transformer" class="nav-link" data-scroll-target="#注意力机制与transformer">13.2 注意力机制与Transformer</a>
+  <ul class="collapse">
+  <li><a href="#注意力机制的基本思想" id="toc-注意力机制的基本思想" class="nav-link" data-scroll-target="#注意力机制的基本思想">13.2.1 注意力机制的基本思想</a></li>
+  <li><a href="#自注意力-self-attention" id="toc-自注意力-self-attention" class="nav-link" data-scroll-target="#自注意力-self-attention">13.2.2 自注意力 (Self-Attention)</a></li>
+  <li><a href="#多头自注意力-multi-head-self-attention" id="toc-多头自注意力-multi-head-self-attention" class="nav-link" data-scroll-target="#多头自注意力-multi-head-self-attention">13.2.3 多头自注意力 (Multi-Head Self-Attention)</a></li>
+  <li><a href="#transformer架构" id="toc-transformer架构" class="nav-link" data-scroll-target="#transformer架构">13.2.4 Transformer架构</a></li>
+  <li><a href="#bert等预训练模型简介" id="toc-bert等预训练模型简介" class="nav-link" data-scroll-target="#bert等预训练模型简介">13.2.5 BERT等预训练模型简介</a></li>
+  </ul></li>
+  <li><a href="#生成模型-generative-models" id="toc-生成模型-generative-models" class="nav-link" data-scroll-target="#生成模型-generative-models">13.3 生成模型 (Generative Models)</a>
+  <ul class="collapse">
+  <li><a href="#自编码器-autoencoders-ae" id="toc-自编码器-autoencoders-ae" class="nav-link" data-scroll-target="#自编码器-autoencoders-ae">13.3.1 自编码器 (Autoencoders, AE)</a></li>
+  <li><a href="#变分自编码器-variational-autoencoders-vaes" id="toc-变分自编码器-variational-autoencoders-vaes" class="nav-link" data-scroll-target="#变分自编码器-variational-autoencoders-vaes">13.3.2 变分自编码器 (Variational Autoencoders, VAEs)</a></li>
+  <li><a href="#生成对抗网络-generative-adversarial-networks-gans" id="toc-生成对抗网络-generative-adversarial-networks-gans" class="nav-link" data-scroll-target="#生成对抗网络-generative-adversarial-networks-gans">13.3.3 生成对抗网络 (Generative Adversarial Networks, GANs)</a></li>
+  </ul></li>
+  <li><a href="#迁移学习-transfer-learning" id="toc-迁移学习-transfer-learning" class="nav-link" data-scroll-target="#迁移学习-transfer-learning">13.4 迁移学习 (Transfer Learning)</a></li>
+  <li><a href="#选读-深度学习模型部署概览" id="toc-选读-深度学习模型部署概览" class="nav-link" data-scroll-target="#选读-深度学习模型部署概览">13.5 (选读) 深度学习模型部署概览</a></li>
+  <li><a href="#生成式预训练transformer-gpt-与大语言模型浪潮" id="toc-生成式预训练transformer-gpt-与大语言模型浪潮" class="nav-link" data-scroll-target="#生成式预训练transformer-gpt-与大语言模型浪潮">13.6 生成式预训练Transformer (GPT) 与大语言模型浪潮</a></li>
+  <li><a href="#本章总结" id="toc-本章总结" class="nav-link" data-scroll-target="#本章总结">13.7 本章总结</a></li>
+  <li><a href="#思考与练习" id="toc-思考与练习" class="nav-link" data-scroll-target="#思考与练习">13.8 思考与练习</a>
+  <ul class="collapse">
+  <li><a href="#概念回顾与思考" id="toc-概念回顾与思考" class="nav-link" data-scroll-target="#概念回顾与思考">13.8.1 概念回顾与思考</a></li>
+  <li><a href="#keras实践与探索" id="toc-keras实践与探索" class="nav-link" data-scroll-target="#keras实践与探索">13.8.2 Keras实践与探索</a></li>
+  <li><a href="#深入思考与未来方向" id="toc-深入思考与未来方向" class="nav-link" data-scroll-target="#深入思考与未来方向">13.8.3 深入思考与未来方向</a></li>
+  <li><a href="#推荐阅读与资源" id="toc-推荐阅读与资源" class="nav-link" data-scroll-target="#推荐阅读与资源">13.8.4 推荐阅读与资源</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10-deep-learning-basics.html">第五部分：深度学习初探</a></li><li class="breadcrumb-item"><a href="./13-deep-learning-advanced.html"><span class="chapter-title">深度学习进阶</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">深度学习进阶</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="学习目标" class="level2">
+<h2 class="anchored" data-anchor-id="学习目标">学习目标</h2>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>学习目标：</strong></p>
+<ul>
+<li>理解注意力机制的基本原理及其在序列模型中的作用。</li>
+<li>掌握Transformer模型的核心概念：自注意力、多头注意力、位置编码、编码器-解码器架构。</li>
+<li>了解Transformer对现代自然语言处理 (NLP) 领域的革命性影响，以及BERT等预训练模型的概念。</li>
+<li>理解自编码器 (AE) 的基本结构、工作原理及其在降维和特征学习中的应用。</li>
+<li>理解变分自编码器 (VAE) 的原理，包括学习数据分布、潜在空间和重参数化技巧，并了解其生成新样本的能力。</li>
+<li>掌握生成对抗网络 (GAN) 的基本思想：生成器与判别器的对抗学习过程。</li>
+<li>能够使用Keras实现简单的AE、VAE和GAN模型。</li>
+<li>理解迁移学习的概念、重要性以及常见的策略（特征提取、模型微调）。</li>
+<li>能够使用Keras实践迁移学习，利用预训练的CNN模型解决新的图像分类任务。</li>
+<li>对深度学习模型部署的基本流程和相关工具有初步认识。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="引言" class="level2">
+<h2 class="anchored" data-anchor-id="引言">13.1 引言</h2>
+<p>在前面的章节中，我们已经学习了深度学习的基础，以及两类核心的神经网络架构：卷积神经网络 (CNN) 和循环神经网络 (RNN)。CNN在处理网格状数据（如图像）方面表现出色，而RNN则擅长处理序列数据（如文本和时间序列）。</p>
+<p>然而，深度学习领域仍在飞速发展，不断涌现出更强大、更灵活的模型和技术。本章将带你进入深度学习的进阶领域，探索一些近年来极具影响力的概念和架构，包括：</p>
+<ul>
+<li><strong>注意力机制 (Attention Mechanisms)</strong> 和基于它的 <strong>Transformer</strong> 模型，它们彻底改变了自然语言处理的面貌。</li>
+<li><strong>生成模型 (Generative Models)</strong>，如自编码器 (AE)、变分自编码器 (VAE) 和生成对抗网络 (GAN)，它们能够学习数据的内在结构并生成新的数据样本。</li>
+<li><strong>迁移学习 (Transfer Learning)</strong>，一种强大的技术，允许我们将从一个任务上学到的知识应用于另一个相关任务，特别是在数据量有限的情况下。</li>
+</ul>
+<p>这些进阶主题将为你打开通往更复杂、更前沿深度学习应用的大门。</p>
+</section>
+<section id="注意力机制与transformer" class="level2">
+<h2 class="anchored" data-anchor-id="注意力机制与transformer">13.2 注意力机制与Transformer</h2>
+<p>传统的RNN（包括LSTM和GRU）在处理长序列时，尽管有所改进，但仍然面临信息瓶颈问题——即试图将整个输入序列的”意义”压缩到一个固定大小的隐藏状态向量中。对于非常长的序列，这可能导致早期信息的丢失。</p>
+<p><strong>注意力机制 (Attention Mechanism)</strong> 最初是为了改进神经机器翻译中的编码器-解码器架构而提出的。其核心思想是允许解码器在生成每个输出词时，能够”关注”输入序列中不同部分的相关性，并动态地赋予它们不同的权重。</p>
+<section id="注意力机制的基本思想" class="level3">
+<h3 class="anchored" data-anchor-id="注意力机制的基本思想">13.2.1 注意力机制的基本思想</h3>
+<p>想象一下你在翻译一个长句子。当你翻译某个词时，你不会平等地看待原文中的所有词，而是会特别关注与当前翻译相关的几个词。注意力机制模仿了这种行为。</p>
+<p>在基于RNN的编码器-解码器模型中：</p>
+<ol type="1">
+<li><strong>编码器 (Encoder)</strong> 将输入序列编码成一系列隐藏状态（而不是仅仅最后一个隐藏状态）。</li>
+<li><strong>解码器 (Decoder)</strong> 在生成每个目标词时，会计算一个”注意力权重”分布，该分布表示输入序列中每个位置对于当前生成步骤的重要性。</li>
+<li>然后，解码器使用这些权重对编码器的隐藏状态进行加权求和，得到一个”上下文向量 (Context Vector)“。</li>
+<li>这个上下文向量富含了与当前解码步骤最相关的输入信息，然后被用于预测下一个目标词。</li>
+</ol>
+<p>常见的注意力类型包括Bahdanau注意力和Luong注意力，它们在计算注意力权重的方式上略有不同。</p>
+<p><strong>Bahdanau注意力机制</strong>（又称加法注意力）是2014年由Dzmitry Bahdanau等人提出的首个神经注意力机制，主要应用于机器翻译任务。其核心特点包括：</p>
+<ol type="1">
+<li><strong>结构组成</strong>：
+<ul>
+<li>编码器：双向RNN生成每个时间步的隐藏状态</li>
+<li>解码器：通过注意力权重动态组合编码器状态</li>
+</ul></li>
+<li><strong>计算过程</strong>：
+<ul>
+<li>对齐模型：<span class="math inline">\(e_{ij} = v_a^T \tanh(W_a s_{i-1} + U_a h_j)\)</span>
+<ul>
+<li><span class="math inline">\(s_{i-1}\)</span>: 解码器上一时刻隐藏状态</li>
+<li><span class="math inline">\(h_j\)</span>: 编码器第j时刻隐藏状态</li>
+<li><span class="math inline">\(v_a, W_a, U_a\)</span>: 可学习参数</li>
+</ul></li>
+<li>注意力权重：<span class="math inline">\(\alpha_{ij} = \text{softmax}(e_{ij})\)</span></li>
+<li>上下文向量：<span class="math inline">\(c_i = \sum_j \alpha_{ij}h_j\)</span></li>
+</ul></li>
+<li><strong>主要优势</strong>：
+<ul>
+<li>自动学习源语言和目标语言的词对齐</li>
+<li>有效处理长距离依赖</li>
+<li>输出可解释的注意力分布</li>
+</ul></li>
+</ol>
+<div id="fig-attention" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Attention Mechanism">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/13-deep-learning-advanced/Bahdanau.png" class="img-fluid figure-img" alt="Attention Mechanism" width="600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.1: 注意力机制示意图 (来源: Bahdanau et al., 2014)
+</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Bahdanau注意力的重要意义</strong></p>
+<p>Bahdanau注意力机制在深度学习发展历程中具有里程碑式的意义：</p>
+<ol type="1">
+<li><strong>突破固定长度瓶颈</strong>：
+<ul>
+<li>传统编码器-解码器结构需要将整个输入序列压缩为固定长度的上下文向量</li>
+<li>注意力机制允许动态生成与解码位置相关的上下文向量</li>
+</ul></li>
+<li><strong>建立显式对齐机制</strong>：
+<ul>
+<li>首次在神经网络中实现了源序列和目标序列的软对齐</li>
+<li>可解释性强，注意力权重直观显示模型关注点</li>
+</ul></li>
+<li><strong>处理长序列优势</strong>：
+<ul>
+<li>有效缓解了RNN处理长序列时的信息衰减问题</li>
+<li>为后续Transformer架构奠定基础</li>
+</ul></li>
+<li><strong>跨领域影响</strong>：
+<ul>
+<li>不仅改进机器翻译，还启发了：
+<ul>
+<li>计算机视觉中的视觉注意力</li>
+<li>语音处理中的声学注意力</li>
+<li>多模态学习中的跨模态注意力</li>
+</ul></li>
+</ul></li>
+<li><strong>方法论贡献</strong>：
+<ul>
+<li>开创了”查询-键-值”的注意力计算范式</li>
+<li>证明了注意力权重可学习性</li>
+<li>为后续自注意力机制提供理论依据</li>
+</ul></li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+<section id="自注意力-self-attention" class="level3">
+<h3 class="anchored" data-anchor-id="自注意力-self-attention">13.2.2 自注意力 (Self-Attention)</h3>
+<p>注意力机制不仅可以用在编码器和解码器之间，还可以用在单个序列内部，这就是所谓的<strong>自注意力 (Self-Attention)</strong>，也称为内部注意力 (Intra-Attention)。</p>
+<p>自注意力允许模型在处理序列中的每个元素时，都能够衡量序列中所有其他元素对当前元素的重要性。换句话说，它计算序列中每个词与其他所有词（包括自身）之间的关联度。</p>
+<p><strong>Query, Key, Value (QKV) 模型：</strong></p>
+<p>自注意力的计算通常通过Query, Key, Value这三个向量来描述：</p>
+<ol type="1">
+<li>对于序列中的每个输入元素（例如，一个词的嵌入向量），我们通过乘以三个不同的权重矩阵，分别生成它的Query向量 (<span class="math inline">\(\mathbf{q}\)</span>)、Key向量 (<span class="math inline">\(\mathbf{k}\)</span>)、和Value向量 (<span class="math inline">\(\mathbf{v}\)</span>)。这些权重矩阵是模型学习得到的参数。</li>
+<li>要计算某个位置的输出，我们取该位置的Query向量，并将其与序列中所有其他位置的Key向量进行点积（或其他相似度计算），然后通过Softmax归一化得到注意力权重。</li>
+<li>这些注意力权重随后用于对所有位置的Value向量进行加权求和，得到该位置的自注意力输出。</li>
+</ol>
+<p><span class="math display">\[ \text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^T}{\sqrt{d_k}}\right) \mathbf{V} \]</span></p>
+<p>其中 <span class="math inline">\(d_k\)</span> 是Key向量的维度，除以 <span class="math inline">\(\sqrt{d_k}\)</span> 是为了缩放点积结果，防止梯度过小。</p>
+</section>
+<section id="多头自注意力-multi-head-self-attention" class="level3">
+<h3 class="anchored" data-anchor-id="多头自注意力-multi-head-self-attention">13.2.3 多头自注意力 (Multi-Head Self-Attention)</h3>
+<p>为了让模型能够同时关注来自不同表示子空间的信息，Transformer引入了<strong>多头自注意力 (Multi-Head Self-Attention)</strong>。</p>
+<p>它不是只计算一次自注意力，而是并行地执行多次自注意力计算（每个称为一个”头”）。在每个头中，Query, Key, Value向量首先被线性投影到较低的维度，然后进行自注意力计算。每个头的输出被拼接起来，再经过一次线性投影得到最终的多头注意力输出。</p>
+<div id="fig-multi-head-attention" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Multi-Head Attention">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-multi-head-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/13-deep-learning-advanced/multi_head_attention.png" class="img-fluid figure-img" alt="Multi-Head Attention" width="500">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-multi-head-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.2: 多头自注意力机制 (来源: Vaswani et al., 2017, “Attention Is All You Need”)
+</figcaption>
+</figure>
+</div>
+<p>多头机制使得模型可以在不同位置、不同表示子空间中共同学习相关信息。</p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>通俗理解注意力机制</strong></p>
+<p>想象你在参加一场多国语言会议：</p>
+<ol type="1">
+<li><strong>传统翻译(无注意力)</strong>：
+<ul>
+<li>同声传译员必须记住整段发言才能翻译</li>
+<li>长段落时容易遗漏细节</li>
+<li>类似RNN的固定长度瓶颈问题</li>
+</ul></li>
+<li><strong>带注意力的翻译</strong>：
+<ul>
+<li>翻译每个句子时，传译员会：
+<ul>
+<li>快速扫视发言稿(编码器状态)</li>
+<li>用荧光笔标记当前最相关的部分(注意力权重)</li>
+<li>重点参考标记内容生成翻译(上下文向量)</li>
+</ul></li>
+<li>类似人脑的注意力聚焦机制</li>
+</ul></li>
+<li><strong>自注意力场景</strong>：
+<ul>
+<li>就像会议记录员整理笔记时：
+<ul>
+<li>看到”人工智能”时会自动关联前文的”深度学习”</li>
+<li>发现”股价”与”财报数据”的对应关系</li>
+<li>建立文档内部的语义关联网络</li>
+</ul></li>
+</ul></li>
+<li><strong>多头注意力的优势</strong>：
+<ul>
+<li>如同多个专家同时分析：
+<ul>
+<li>语法专家关注句子结构</li>
+<li>术语专家聚焦专业词汇</li>
+<li>逻辑专家把握论述脉络</li>
+</ul></li>
+<li>综合各方意见得到更全面的理解</li>
+</ul></li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+<section id="transformer架构" class="level3">
+<h3 class="anchored" data-anchor-id="transformer架构">13.2.4 Transformer架构</h3>
+<p><strong>Transformer</strong>模型由Google Brain团队的Ashish Vaswani、Noam Shazeer、Niki Parmar、Jakob Uszkoreit、Llion Jones、Aidan N. Gomez、Lukasz Kaiser和Illia Polosukhin在2017年的开创性论文《Attention Is All You Need》中首次提出。这一革命性架构完全摒弃了传统RNN的循环结构和CNN的卷积操作，创新性地仅依赖自注意力机制来处理序列数据。</p>
+<p>Transformer的核心架构也是一个<strong>编码器-解码器 (Encoder-Decoder)</strong> 结构：</p>
+<ul>
+<li><strong>编码器 (Encoder)：</strong> 由N个相同的层堆叠而成。每层包含两个主要子层：
+<ol type="1">
+<li>一个多头自注意力层 (Multi-Head Self-Attention Layer)。</li>
+<li>一个简单的位置全连接前馈网络 (Position-wise Fully Connected Feed-Forward Network)。 每个子层周围都有残差连接 (Residual Connection) 和层归一化 (Layer Normalization)。</li>
+</ol></li>
+<li><strong>解码器 (Decoder)：</strong> 也由N个相同的层堆叠而成。每层除了编码器中的两个子层外，还插入了第三个子层：
+<ol type="1">
+<li>一个”掩码”多头自注意力层 (Masked Multi-Head Self-Attention Layer)，确保在预测当前位置时只能关注到已生成的部分，不会”看到未来”。</li>
+<li>一个多头注意力层，其Query来自前一个解码器子层，而Key和Value来自编码器的输出（这实现了编码器-解码器之间的注意力）。</li>
+<li>一个位置全连接前馈网络。 同样，每个子层周围也有残差连接和层归一化。</li>
+</ol></li>
+</ul>
+<div id="fig-transformer" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Transformer Architecture">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-transformer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/13-deep-learning-advanced/transformer_architecture.png" class="img-fluid figure-img" alt="Transformer Architecture" width="600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-transformer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.3: Transformer模型架构图 (来源: Vaswani et al., 2017)
+</figcaption>
+</figure>
+</div>
+<p><strong>位置编码 (Positional Encoding)：</strong> 由于Transformer没有循环或卷积结构，它本身无法感知序列中元素的位置信息。为了解决这个问题，Transformer在输入嵌入向量中加入了<strong>位置编码 (Positional Encoding)</strong>。这些编码是根据元素在序列中的绝对或相对位置计算得到的固定或可学习的向量，它们为模型提供了关于元素顺序的信息。</p>
+<p><strong>Transformer的影响：</strong> Transformer凭借其强大的并行计算能力（自注意力可以对序列中的所有元素同时计算）和捕捉长距离依赖的能力，在自然语言处理领域取得了巨大成功，催生了如BERT、GPT、T5等一系列大规模预训练语言模型，并在机器翻译、文本摘要、问答等任务上刷新了记录。其思想也被扩展到计算机视觉、语音识别等其他领域。</p>
+</section>
+<section id="bert等预训练模型简介" class="level3">
+<h3 class="anchored" data-anchor-id="bert等预训练模型简介">13.2.5 BERT等预训练模型简介</h3>
+<p><strong>BERT (Bidirectional Encoder Representations from Transformers)</strong> 是由Google AI团队的Jacob Devlin、Ming-Wei Chang、Kenton Lee和Kristina Toutanova在2018年发表的论文《BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding》中提出的基于Transformer编码器架构的预训练语言模型。它通过在大型无标签文本语料库上进行两种预训练任务来学习通用的语言表示：</p>
+<ol type="1">
+<li><strong>掩码语言模型 (Masked Language Model, MLM)：</strong> 随机遮盖输入句子中的一些词，然后让模型预测这些被遮盖的词。</li>
+<li><strong>下一句预测 (Next Sentence Prediction, NSP)：</strong> 给模型两个句子A和B，让模型判断句子B是否是句子A的下一句。</li>
+</ol>
+<p>通过这两个任务，BERT能够学习到丰富的上下文相关的词嵌入表示。预训练好的BERT模型可以作为基础，通过在其上添加一个简单的输出层，并针对特定下游任务（如文本分类、问答、命名实体识别）进行微调 (fine-tuning)，从而在这些任务上取得优异的性能，即使下游任务的标注数据量很小。</p>
+<p>BERT的成功开启了大规模预训练语言模型的时代，后续出现了许多改进模型，如RoBERTa, XLNet, ALBERT, GPT系列等。</p>
+</section>
+</section>
+<section id="生成模型-generative-models" class="level2">
+<h2 class="anchored" data-anchor-id="生成模型-generative-models">13.3 生成模型 (Generative Models)</h2>
+<p>生成模型的目标是学习训练数据的内在分布，并能够从这个学到的分布中生成新的、与训练数据相似的样本。常见的生成模型包括自编码器、变分自编码器和生成对抗网络。</p>
+<section id="自编码器-autoencoders-ae" class="level3">
+<h3 class="anchored" data-anchor-id="自编码器-autoencoders-ae">13.3.1 自编码器 (Autoencoders, AE)</h3>
+<p>自编码器(Autoencoder)最早由Rumelhart等人在1986年的论文《Learning representations by back-propagating errors》中提出，是一种无监督的神经网络，其目标是学习输入数据的有效编码（压缩表示），并能够从该编码重构出原始输入。</p>
+<p><strong>结构：</strong></p>
+<p>一个典型的自编码器由两部分组成：</p>
+<ol type="1">
+<li><strong>编码器 (Encoder)：</strong> 将输入数据 <span class="math inline">\(\mathbf{x}\)</span> 映射到一个低维的潜在表示 (latent representation) 或编码 (code) <span class="math inline">\(\mathbf{z}\)</span>。 <span class="math display">\[ \mathbf{z} = f_{enc}(\mathbf{x}) \]</span></li>
+<li><strong>解码器 (Decoder)：</strong> 将潜在表示 <span class="math inline">\(\mathbf{z}\)</span> 映射回重构的输入数据 <span class="math inline">\(\mathbf{x}'\)</span>。 <span class="math display">\[ \mathbf{x}' = f_{dec}(\mathbf{z}) \]</span></li>
+</ol>
+<p>网络的训练目标是最小化重构误差，即原始输入 <span class="math inline">\(\mathbf{x}\)</span> 与重构输出 <span class="math inline">\(\mathbf{x}'\)</span> 之间的差异（例如，使用均方误差MSE或二元交叉熵）。</p>
+<p><span class="math display">\[ L(\mathbf{x}, \mathbf{x}') = || \mathbf{x} - \mathbf{x}' ||^2 \]</span></p>
+<div id="fig-autoencoder" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Autoencoder Structure">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-autoencoder-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/13-deep-learning-advanced/autoencoder_structure.webp" class="img-fluid figure-img" alt="Autoencoder Structure" width="450">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-autoencoder-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14.4: 简单自编码器结构 (来源: <a href="https://medium.com/data-science/applied-deep-learning-part-3-autoencoders-1c083af4d798">Medium</a>)
+</figcaption>
+</figure>
+</div>
+<p>如果潜在表示 <span class="math inline">\(\mathbf{z}\)</span> 的维度远小于输入 <span class="math inline">\(\mathbf{x}\)</span> 的维度，那么编码器被迫学习输入数据中最显著的特征，从而实现降维和特征学习。这个瓶颈层 (bottleneck layer) 是自编码器的核心。</p>
+<p><strong>应用：</strong></p>
+<ul>
+<li><strong>降维 (Dimensionality Reduction)：</strong> 类似于PCA，但可以学习非线性映射。</li>
+<li><strong>特征学习 (Feature Learning)：</strong> 编码器部分可以作为预训练模型提取特征。</li>
+<li><strong>数据去噪 (Denoising Autoencoders)：</strong> 通过在输入中加入噪声，并让模型重构原始的、干净的输入，可以学习到更鲁棒的特征表示。</li>
+<li><strong>异常检测 (Anomaly Detection)：</strong> 对于正常数据，重构误差通常较小；对于异常数据，重构误差会较大。</li>
+</ul>
+<p><strong>Keras实现简单AE (MNIST示例):</strong></p>
+<div id="code-ae-mnist" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> keras</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.layers <span class="im">import</span> Input, Dense</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.models <span class="im">import</span> Model</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.datasets <span class="im">import</span> mnist</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载数据</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>(x_train, _), (x_test, _) <span class="op">=</span> mnist.load_data()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> x_train.astype(<span class="st">'float32'</span>) <span class="op">/</span> <span class="fl">255.</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> x_test.astype(<span class="st">'float32'</span>) <span class="op">/</span> <span class="fl">255.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> x_train.reshape((<span class="bu">len</span>(x_train), np.prod(x_train.shape[<span class="dv">1</span>:])))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> x_test.reshape((<span class="bu">len</span>(x_test), np.prod(x_test.shape[<span class="dv">1</span>:])))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 定义编码维度 (瓶颈层大小)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>encoding_dim <span class="op">=</span> <span class="dv">32</span>  </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 输入层</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>input_img <span class="op">=</span> Input(shape<span class="op">=</span>(<span class="dv">784</span>,))</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 编码器</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> Dense(<span class="dv">128</span>, activation<span class="op">=</span><span class="st">'relu'</span>)(input_img)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'relu'</span>)(encoded)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> Dense(encoding_dim, activation<span class="op">=</span><span class="st">'relu'</span>)(encoded) <span class="co"># 瓶颈层</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 解码器</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>decoded <span class="op">=</span> Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'relu'</span>)(encoded)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>decoded <span class="op">=</span> Dense(<span class="dv">128</span>, activation<span class="op">=</span><span class="st">'relu'</span>)(decoded)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>decoded <span class="op">=</span> Dense(<span class="dv">784</span>, activation<span class="op">=</span><span class="st">'sigmoid'</span>)(decoded) <span class="co"># 输出层用sigmoid，因为像素值在0-1</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 自编码器模型</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>autoencoder <span class="op">=</span> Model(input_img, decoded)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 编码器模型 (单独用于获取编码)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>encoder <span class="op">=</span> Model(input_img, encoded)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co"># 解码器模型 (单独用于从编码生成图像，需要定义其输入)</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>encoded_input <span class="op">=</span> Input(shape<span class="op">=</span>(encoding_dim,))</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>decoder_layer1 <span class="op">=</span> autoencoder.layers[<span class="op">-</span><span class="dv">3</span>] <span class="co"># 重用autoencoder的解码器层</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>decoder_layer2 <span class="op">=</span> autoencoder.layers[<span class="op">-</span><span class="dv">2</span>]</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>decoder_layer3 <span class="op">=</span> autoencoder.layers[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>decoder <span class="op">=</span> Model(encoded_input, decoder_layer3(decoder_layer2(decoder_layer1(encoded_input))))</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 编译</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>autoencoder.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>, loss<span class="op">=</span><span class="st">'binary_crossentropy'</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># 训练</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>autoencoder.fit(x_train, x_train, <span class="co"># 输入和目标都是x_train</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>                epochs<span class="op">=</span><span class="dv">50</span>,</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>                batch_size<span class="op">=</span><span class="dv">256</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>                shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                validation_data<span class="op">=</span>(x_test, x_test),</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co"># 可视化重构结果</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>encoded_imgs <span class="op">=</span> encoder.predict(x_test,verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>decoded_imgs <span class="op">=</span> decoder.predict(encoded_imgs,verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">4</span>))</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 显示原始图像</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> plt.subplot(<span class="dv">2</span>, n, i <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    plt.imshow(x_test[i].reshape(<span class="dv">28</span>, <span class="dv">28</span>))</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    plt.gray()</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    ax.get_xaxis().set_visible(<span class="va">False</span>)</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    ax.get_yaxis().set_visible(<span class="va">False</span>)</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 显示重构图像</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> plt.subplot(<span class="dv">2</span>, n, i <span class="op">+</span> <span class="dv">1</span> <span class="op">+</span> n)</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    plt.imshow(decoded_imgs[i].reshape(<span class="dv">28</span>, <span class="dv">28</span>))</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    plt.gray()</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    ax.get_xaxis().set_visible(<span class="va">False</span>)</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    ax.get_yaxis().set_visible(<span class="va">False</span>)</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig("images/13-advanced/ae_reconstruction.png")</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="变分自编码器-variational-autoencoders-vaes" class="level3">
+<h3 class="anchored" data-anchor-id="变分自编码器-variational-autoencoders-vaes">13.3.2 变分自编码器 (Variational Autoencoders, VAEs)</h3>
+<p>标准的自编码器学习的是一个从输入到潜在空间的确定性映射。虽然它们可以用于降维和重构，但它们的潜在空间可能没有很好的结构性，直接在潜在空间采样并解码，不一定能生成有意义的新样本。</p>
+<p><strong>变分自编码器 (Variational Autoencoder, VAE)</strong> (Kingma &amp; Welling, 2014) 是一种基于概率图模型的生成式神经网络架构，它通过引入变分推断方法对传统自编码器进行了概率化扩展。VAE的核心创新在于将输入数据映射到一个潜在空间的概率分布而非确定性编码，从而能够学习数据生成过程的潜在概率结构。</p>
+<p><strong>核心思想：</strong></p>
+<ol type="1">
+<li><strong>编码器 (Encoder / Recognition Network)：</strong> 不再直接输出一个潜在编码 <span class="math inline">\(\mathbf{z}\)</span>，而是输出潜在变量的概率分布的参数。通常假设这个分布是高斯分布，所以编码器输出均值 <span class="math inline">\(\boldsymbol{\mu}\)</span> 和标准差（或对数方差）<span class="math inline">\(\boldsymbol{\sigma}\)</span>。 <span class="math display">\[ q(\mathbf{z}|\mathbf{x}) = \mathcal{N}(\mathbf{z} | \boldsymbol{\mu}(\mathbf{x}), \boldsymbol{\sigma}^2(\mathbf{x})\mathbf{I}) \]</span></li>
+<li><strong>潜在空间采样 (Sampling)：</strong> 从学习到的分布 <span class="math inline">\(q(\mathbf{z}|\mathbf{x})\)</span> 中采样一个点 <span class="math inline">\(\mathbf{z}\)</span>。
+<ul>
+<li><strong>重参数化技巧 (Reparameterization Trick)：</strong> 为了使采样过程可导（从而可以通过反向传播进行训练），通常使用重参数化技巧：<span class="math inline">\(\mathbf{z} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}\)</span>，其中 <span class="math inline">\(\boldsymbol{\epsilon}\)</span> 是从标准正态分布 <span class="math inline">\(\mathcal{N}(0, \mathbf{I})\)</span> 中采样的噪声。</li>
+</ul></li>
+<li><strong>解码器 (Decoder / Generative Network)：</strong> 将采样的潜在向量 <span class="math inline">\(\mathbf{z}\)</span> 解码回重构的输入数据 <span class="math inline">\(\mathbf{x}'\)</span>。 <span class="math display">\[ p(\mathbf{x}|\mathbf{z}) \]</span></li>
+</ol>
+<p><strong>损失函数：</strong></p>
+<p>VAE的损失函数包含两部分：</p>
+<ol type="1">
+<li><strong>重构损失 (Reconstruction Loss)：</strong> 与AE类似，衡量原始输入与重构输出之间的差异。例如，对于图像可以是二元交叉熵或MSE。 <span class="math display">\[ L_{recon} = -\mathbb{E}_{q(\mathbf{z}|\mathbf{x})}[\log p(\mathbf{x}|\mathbf{z})] \]</span></li>
+<li><strong>KL散度 (KL Divergence) 正则项：</strong> 衡量编码器学习到的潜在分布 <span class="math inline">\(q(\mathbf{z}|\mathbf{x})\)</span> 与一个预定义的先验分布 <span class="math inline">\(p(\mathbf{z})\)</span> (通常是标准正态分布 <span class="math inline">\(\mathcal{N}(0, \mathbf{I})\)</span>) 之间的差异。这个正则项迫使潜在空间具有良好的结构（例如，连续和平滑），使得我们可以从先验分布 <span class="math inline">\(p(\mathbf{z})\)</span> 中采样并生成新的、有意义的数据。 <span class="math display">\[ L_{KL} = D_{KL}(q(\mathbf{z}|\mathbf{x}) || p(\mathbf{z})) \]</span></li>
+</ol>
+<p>总损失为： <span class="math inline">\(L_{VAE} = L_{recon} + \beta L_{KL}\)</span> (其中 <span class="math inline">\(\beta\)</span> 是一个超参数，用于平衡两项损失)</p>
+<p><strong>生成新样本：</strong> 一旦VAE训练完成，我们可以通过从先验分布 <span class="math inline">\(p(\mathbf{z})\)</span> (例如，标准正态分布) 中采样一个潜在向量 <span class="math inline">\(\mathbf{z}_{new}\)</span>，然后将其输入解码器，得到新的数据样本 <span class="math inline">\(\mathbf{x}_{new} = f_{dec}(\mathbf{z}_{new})\)</span>。</p>
+<p><strong>Keras实现简单VAE (MNIST示例):</strong></p>
+<div id="code-vae-mnist" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> keras</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.layers <span class="im">import</span> Input, Dense, Lambda</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.models <span class="im">import</span> Model</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.datasets <span class="im">import</span> mnist</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras <span class="im">import</span> backend <span class="im">as</span> K</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载数据</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>(x_train, y_train), (x_test, y_test) <span class="op">=</span> mnist.load_data()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>original_dim <span class="op">=</span> <span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> x_train.astype(<span class="st">'float32'</span>) <span class="op">/</span> <span class="fl">255.</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> x_test.astype(<span class="st">'float32'</span>) <span class="op">/</span> <span class="fl">255.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> x_train.reshape((<span class="bu">len</span>(x_train), np.prod(x_train.shape[<span class="dv">1</span>:])))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>x_test <span class="op">=</span> x_test.reshape((<span class="bu">len</span>(x_test), np.prod(x_test.shape[<span class="dv">1</span>:])))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 网络参数</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>input_shape <span class="op">=</span> (original_dim, )</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>intermediate_dim <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>latent_dim <span class="op">=</span> <span class="dv">2</span> <span class="co"># 潜在空间维度设为2，方便可视化</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>epochs <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># === 编码器 ===</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> Input(shape<span class="op">=</span>input_shape, name<span class="op">=</span><span class="st">'encoder_input'</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> Dense(intermediate_dim, activation<span class="op">=</span><span class="st">'relu'</span>)(inputs)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>z_mean <span class="op">=</span> Dense(latent_dim, name<span class="op">=</span><span class="st">'z_mean'</span>)(x)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>z_log_var <span class="op">=</span> Dense(latent_dim, name<span class="op">=</span><span class="st">'z_log_var'</span>)(x)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 重参数化技巧</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sampling(args):</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    z_mean, z_log_var <span class="op">=</span> args</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    batch <span class="op">=</span> K.shape(z_mean)[<span class="dv">0</span>]</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    dim <span class="op">=</span> K.int_shape(z_mean)[<span class="dv">1</span>]</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    epsilon <span class="op">=</span> K.random_normal(shape<span class="op">=</span>(batch, dim))</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> z_mean <span class="op">+</span> K.exp(<span class="fl">0.5</span> <span class="op">*</span> z_log_var) <span class="op">*</span> epsilon</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> Lambda(sampling, output_shape<span class="op">=</span>(latent_dim,), name<span class="op">=</span><span class="st">'z'</span>)([z_mean, z_log_var])</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>encoder <span class="op">=</span> Model(inputs, [z_mean, z_log_var, z], name<span class="op">=</span><span class="st">'encoder'</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co"># encoder.summary()</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co"># === 解码器 ===</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>latent_inputs <span class="op">=</span> Input(shape<span class="op">=</span>(latent_dim,), name<span class="op">=</span><span class="st">'decoder_input'</span>)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> Dense(intermediate_dim, activation<span class="op">=</span><span class="st">'relu'</span>)(latent_inputs)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>outputs <span class="op">=</span> Dense(original_dim, activation<span class="op">=</span><span class="st">'sigmoid'</span>)(x)</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>decoder <span class="op">=</span> Model(latent_inputs, outputs, name<span class="op">=</span><span class="st">'decoder'</span>)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="co"># decoder.summary()</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="co"># === VAE模型 ===</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>outputs <span class="op">=</span> decoder(encoder(inputs)[<span class="dv">2</span>]) <span class="co"># VAE的输出是解码器对编码器采样结果的重构</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>vae <span class="op">=</span> Model(inputs, outputs, name<span class="op">=</span><span class="st">'vae'</span>)</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co"># VAE损失函数</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>reconstruction_loss <span class="op">=</span> keras.losses.binary_crossentropy(inputs, outputs)</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>reconstruction_loss <span class="op">*=</span> original_dim</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>kl_loss_terms <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> z_log_var <span class="op">-</span> tf.math.square(z_mean) <span class="op">-</span> tf.math.exp(z_log_var)</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>kl_loss <span class="op">=</span> tf.reduce_sum(kl_loss_terms, axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>kl_loss <span class="op">*=</span> <span class="op">-</span><span class="fl">0.5</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>vae_loss <span class="op">=</span> tf.reduce_mean(reconstruction_loss <span class="op">+</span> kl_loss)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>vae.add_loss(vae_loss)</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>vae.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>)</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="co"># vae.summary()</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co"># 训练VAE</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>vae.fit(x_train, </span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        epochs<span class="op">=</span>epochs, </span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        batch_size<span class="op">=</span>batch_size, </span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        validation_data<span class="op">=</span>(x_test, <span class="va">None</span>), <span class="co"># 验证时不需要标签</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>        verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="co"># 可视化潜在空间</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_latent_space(vae_encoder, data, labels, n<span class="op">=</span><span class="dv">30</span>, figsize<span class="op">=</span><span class="dv">15</span>):</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    x_data, y_data <span class="op">=</span> data</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    z_mean, _, _ <span class="op">=</span> vae_encoder.predict(x_data)</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(figsize, figsize))</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    plt.scatter(z_mean[:, <span class="dv">0</span>], z_mean[:, <span class="dv">1</span>], c<span class="op">=</span>labels)</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    plt.colorbar()</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"z[0]"</span>)</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"z[1]"</span>)</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plt.savefig("images/13-advanced/vae_latent_space.png")</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>plot_latent_space(encoder, (x_test, y_test))</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="co"># 可视化生成的新数字</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_generated_images(vae_decoder, n<span class="op">=</span><span class="dv">10</span>, figsize<span class="op">=</span><span class="dv">15</span>, latent_dim<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 从二维潜在空间中网格采样</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    grid_x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">4</span>, n)</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    grid_y <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">4</span>, <span class="dv">4</span>, n)[::<span class="op">-</span><span class="dv">1</span>] <span class="co"># y轴反转以匹配常见图像显示</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    figure <span class="op">=</span> np.zeros((<span class="dv">28</span> <span class="op">*</span> n, <span class="dv">28</span> <span class="op">*</span> n))</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, yi <span class="kw">in</span> <span class="bu">enumerate</span>(grid_y):</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j, xi <span class="kw">in</span> <span class="bu">enumerate</span>(grid_x):</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> latent_dim <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>                z_sample <span class="op">=</span> np.array([[xi, yi]])</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>: <span class="co"># 对于更高维潜在空间，随机采样</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>                z_sample <span class="op">=</span> np.random.normal(size<span class="op">=</span>(<span class="dv">1</span>, latent_dim))</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>            x_decoded <span class="op">=</span> vae_decoder.predict(z_sample, verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>            digit <span class="op">=</span> x_decoded[<span class="dv">0</span>].reshape(<span class="dv">28</span>, <span class="dv">28</span>)</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>            figure[i <span class="op">*</span> <span class="dv">28</span>: (i <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">28</span>, j <span class="op">*</span> <span class="dv">28</span>: (j <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">28</span>] <span class="op">=</span> digit</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(figsize, figsize))</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>    start_range <span class="op">=</span> <span class="dv">28</span> <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    end_range <span class="op">=</span> n <span class="op">*</span> <span class="dv">28</span> <span class="op">+</span> start_range</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>    pixel_range <span class="op">=</span> np.arange(start_range, end_range, <span class="dv">28</span>)</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>    sample_range_x <span class="op">=</span> np.<span class="bu">round</span>(grid_x, <span class="dv">1</span>)</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>    sample_range_y <span class="op">=</span> np.<span class="bu">round</span>(grid_y, <span class="dv">1</span>)</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>    plt.xticks(pixel_range, sample_range_x)</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>    plt.yticks(pixel_range, sample_range_y)</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"z[0]"</span>)</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"z[1]"</span>)</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>    plt.imshow(figure, cmap<span class="op">=</span><span class="st">'Greys_r'</span>)</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plt.savefig("images/13-advanced/vae_generated_digits.png")</span></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>plot_generated_images(decoder, latent_dim<span class="op">=</span>latent_dim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="生成对抗网络-generative-adversarial-networks-gans" class="level3">
+<h3 class="anchored" data-anchor-id="生成对抗网络-generative-adversarial-networks-gans">13.3.3 生成对抗网络 (Generative Adversarial Networks, GANs)</h3>
+<p>生成对抗网络 (GAN) 由Ian Goodfellow等人在2014年提出，是一种强大的生成模型框架。GAN的核心思想是通过两个神经网络的对抗过程来学习数据的分布：</p>
+<ol type="1">
+<li><strong>生成器 (Generator, G)：</strong> 试图生成与真实数据无法区分的”假”数据。它接收一个随机噪声向量（通常从高斯分布或均匀分布采样）作为输入，并输出一个与真实数据维度相同的样本。</li>
+<li><strong>判别器 (Discriminator, D)：</strong> 试图区分真实数据和由生成器生成的假数据。它接收一个数据样本（真实的或假的）作为输入，并输出该样本为真实数据的概率。</li>
+</ol>
+<p><strong>对抗过程：</strong></p>
+<ul>
+<li>生成器G的目标是”欺骗”判别器D，使其无法分辨生成的样本和真实样本。</li>
+<li>判别器D的目标是尽可能准确地识别出假样本。</li>
+</ul>
+<p>这是一个零和博弈 (zero-sum game)。在训练过程中，G和D交替更新：</p>
+<ol type="1">
+<li><strong>训练判别器D：</strong> 固定生成器G，从真实数据集中采样一批真实样本，同时让G生成一批假样本。训练D来区分这两批样本（例如，真实样本标签为1，假样本标签为0）。</li>
+<li><strong>训练生成器G：</strong> 固定判别器D，让G生成一批假样本，并试图让D将这些假样本误判为真实样本（即，G的损失函数旨在最大化D将其生成的样本判为真的概率）。此时，梯度会通过D反向传播到G，指导G如何生成更逼真的样本。</li>
+</ol>
+<p>这个过程持续进行，理想情况下，生成器会学会生成非常逼真的数据，而判别器则难以区分真假。</p>
+<p><strong>损失函数 (以原始GAN为例)：</strong></p>
+<p>判别器的损失函数（最大化）： <span class="math display">\[ L_D = \mathbb{E}_{\mathbf{x} \sim p_{data}(\mathbf{x})}[\log D(\mathbf{x})] + \mathbb{E}_{\mathbf{z} \sim p_z(\mathbf{z})}[\log(1 - D(G(\mathbf{z})))] \]</span></p>
+<p>生成器的损失函数（最小化，等价于最大化 <span class="math inline">\(D(G(\mathbf{z}))\)</span>）： <span class="math display">\[ L_G = \mathbb{E}_{\mathbf{z} \sim p_z(\mathbf{z})}[\log(1 - D(G(\mathbf{z})))] \quad \text{或在实践中常用} \quad L_G = -\mathbb{E}_{\mathbf{z} \sim p_z(\mathbf{z})}[\log D(G(\mathbf{z}))] \]</span></p>
+<p><strong>挑战：</strong></p>
+<p>GAN的训练是出了名的困难和不稳定，常见的问题包括：</p>
+<ul>
+<li><strong>模式崩溃 (Mode Collapse)：</strong> 生成器只学会生成少数几种看起来不错的样本，而无法覆盖数据分布的多样性。</li>
+<li><strong>训练不稳定 (Non-convergence)：</strong> 生成器和判别器的训练可能无法达到一个稳定的平衡点。</li>
+<li><strong>梯度消失：</strong> 如果判别器过于强大，生成器的梯度可能会消失。</li>
+</ul>
+<p>为了解决这些问题，研究人员提出了许多GAN的变种，如DCGAN (Deep Convolutional GAN), WGAN (Wasserstein GAN), StyleGAN等，它们在网络结构、损失函数和训练策略上进行了改进。</p>
+<p><strong>Keras实现简单GAN (MNIST示例):</strong></p>
+<div id="code-gan-mnist" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> keras</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.layers <span class="im">import</span> Input, Dense, Reshape, Flatten, Dropout, LeakyReLU</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.layers <span class="im">import</span> BatchNormalization <span class="co"># 通常用于更稳定的GAN训练</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.models <span class="im">import</span> Sequential, Model</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.optimizers <span class="im">import</span> Adam</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.datasets <span class="im">import</span> mnist</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 参数 --- </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>img_rows, img_cols, channels <span class="op">=</span> <span class="dv">28</span>, <span class="dv">28</span>, <span class="dv">1</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>img_shape <span class="op">=</span> (img_rows, img_cols, channels)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>latent_dim <span class="op">=</span> <span class="dv">100</span> <span class="co"># 噪声向量维度</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 构建生成器 G ---</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_generator():</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> Sequential([</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        Dense(<span class="dv">256</span>, input_dim<span class="op">=</span>latent_dim),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        LeakyReLU(alpha<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        BatchNormalization(momentum<span class="op">=</span><span class="fl">0.8</span>),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        Dense(<span class="dv">512</span>),</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        LeakyReLU(alpha<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        BatchNormalization(momentum<span class="op">=</span><span class="fl">0.8</span>),</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        Dense(<span class="dv">1024</span>),</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        LeakyReLU(alpha<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        BatchNormalization(momentum<span class="op">=</span><span class="fl">0.8</span>),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        Dense(np.prod(img_shape), activation<span class="op">=</span><span class="st">'tanh'</span>), <span class="co"># 输出像素值在[-1, 1]</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        Reshape(img_shape)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    ], name<span class="op">=</span><span class="st">"generator"</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># model.summary()</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    noise <span class="op">=</span> Input(shape<span class="op">=</span>(latent_dim,))</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> model(noise)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Model(noise, img)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 构建判别器 D ---</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_discriminator():</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> Sequential([</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        Flatten(input_shape<span class="op">=</span>img_shape),</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        Dense(<span class="dv">512</span>),</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        LeakyReLU(alpha<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        Dense(<span class="dv">256</span>),</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        LeakyReLU(alpha<span class="op">=</span><span class="fl">0.2</span>),</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        Dense(<span class="dv">1</span>, activation<span class="op">=</span><span class="st">'sigmoid'</span>) <span class="co"># 输出为真实图像的概率</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    ], name<span class="op">=</span><span class="st">"discriminator"</span>)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># model.summary()</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> Input(shape<span class="op">=</span>img_shape)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    validity <span class="op">=</span> model(img)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Model(img, validity)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 构建并编译GAN --- </span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co"># 判别器</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>discriminator <span class="op">=</span> build_discriminator()</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>discriminator.<span class="bu">compile</span>(loss<span class="op">=</span><span class="st">'binary_crossentropy'</span>, </span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>                      optimizer<span class="op">=</span>Adam(<span class="fl">0.0002</span>, <span class="fl">0.5</span>), </span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                      metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="co"># 生成器</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>generator <span class="op">=</span> build_generator()</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co"># 对于组合模型，我们只训练生成器</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>discriminator.trainable <span class="op">=</span> <span class="va">False</span> <span class="co"># 关键步骤！</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> Input(shape<span class="op">=</span>(latent_dim,))</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>img_ <span class="op">=</span> generator(z)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>valid <span class="op">=</span> discriminator(img_)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="co"># 组合模型 (堆叠生成器和判别器)</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>combined <span class="op">=</span> Model(z, valid, name<span class="op">=</span><span class="st">"gan"</span>)</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>combined.<span class="bu">compile</span>(loss<span class="op">=</span><span class="st">'binary_crossentropy'</span>, optimizer<span class="op">=</span>Adam(<span class="fl">0.0002</span>, <span class="fl">0.5</span>))</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 训练GAN --- </span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_gan(epochs, batch_size<span class="op">=</span><span class="dv">128</span>, sample_interval<span class="op">=</span><span class="dv">50</span>):</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 加载数据</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    (X_train, _), (_, _) <span class="op">=</span> mnist.load_data()</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 归一化到 [-1, 1] (因为生成器输出用tanh)</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    X_train <span class="op">=</span> (X_train.astype(np.float32) <span class="op">-</span> <span class="fl">127.5</span>) <span class="op">/</span> <span class="fl">127.5</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    X_train <span class="op">=</span> np.expand_dims(X_train, axis<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 对抗训练的标签</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    valid <span class="op">=</span> np.ones((batch_size, <span class="dv">1</span>))</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    fake <span class="op">=</span> np.zeros((batch_size, <span class="dv">1</span>))</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- 训练判别器 ---</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 随机选择一批真实图像</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> np.random.randint(<span class="dv">0</span>, X_train.shape[<span class="dv">0</span>], batch_size)</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        real_imgs <span class="op">=</span> X_train[idx]</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 生成一批假图像</span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>        noise <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, (batch_size, latent_dim))</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>        gen_imgs <span class="op">=</span> generator.predict(noise, verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 训练判别器 (真实图像标签为1，假图像标签为0)</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>        d_loss_real <span class="op">=</span> discriminator.train_on_batch(real_imgs, valid)</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>        d_loss_fake <span class="op">=</span> discriminator.train_on_batch(gen_imgs, fake)</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>        d_loss <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> np.add(d_loss_real, d_loss_fake)</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- 训练生成器 ---</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 生成器试图让判别器将假图像标记为真实 (标签为1)</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>        g_loss <span class="op">=</span> combined.train_on_batch(noise, valid)</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 打印进度</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>        <span class="co"># if epoch % sample_interval == 0:</span></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>        <span class="co">#     print(f"{epoch} [D loss: {d_loss[0]:.4f}, acc.: {100*d_loss[1]:.2f}%] [G loss: {g_loss:.4f}]")</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>        <span class="co">#     # 保存生成的图像样本</span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>        <span class="co">#     # sample_images(epoch)</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a><span class="co"># def sample_images(epoch, save_dir="images/13-advanced/gan_generated"):</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a><span class="co">#     r, c = 5, 5</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a><span class="co">#     noise = np.random.normal(0, 1, (r * c, latent_dim))</span></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a><span class="co">#     gen_imgs = generator.predict(noise, verbose=0)</span></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a><span class="co">#     # 重缩放到 [0, 1]</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a><span class="co">#     gen_imgs = 0.5 * gen_imgs + 0.5 </span></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a><span class="co">#     fig, axs = plt.subplots(r, c)</span></span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a><span class="co">#     cnt = 0</span></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a><span class="co">#     for i in range(r):</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a><span class="co">#         for j in range(c):</span></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a><span class="co">#             axs[i,j].imshow(gen_imgs[cnt, :,:,0], cmap='gray')</span></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a><span class="co">#             axs[i,j].axis('off')</span></span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a><span class="co">#             cnt += 1</span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a><span class="co">#     # fig.savefig(f"{save_dir}/mnist_{epoch}.png")</span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a><span class="co">#     # plt.close()</span></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a><span class="co"># # 训练 (如果实际运行，会比较耗时)</span></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a><span class="co"># # train_gan(epochs=1000, batch_size=32, sample_interval=200) </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="迁移学习-transfer-learning" class="level2">
+<h2 class="anchored" data-anchor-id="迁移学习-transfer-learning">13.4 迁移学习 (Transfer Learning)</h2>
+<p>迁移学习是一种机器学习技术，其核心思想是将从一个任务（源任务）上学习到的知识和模型，应用于另一个相关但不同的任务（目标任务）。这在深度学习中尤其强大和流行，因为训练深度神经网络通常需要大量的标注数据和计算资源。</p>
+<p><strong>为什么迁移学习有效？</strong></p>
+<p>深度神经网络，特别是CNN，在处理图像等数据时，具有学习层次化特征的能力：</p>
+<ul>
+<li><strong>浅层</strong>通常学习通用的低级特征，如边缘、角点、颜色块等。</li>
+<li><strong>中层</strong>学习更复杂的模式和纹理，如物体的局部部件。</li>
+<li><strong>深层</strong>学习更抽象、更特定于任务的高级特征。</li>
+</ul>
+<p>对于许多视觉任务，这些浅层和中层学习到的特征具有很好的通用性，可以被迁移到新的任务中。</p>
+<p><strong>常见策略：</strong></p>
+<ol type="1">
+<li><strong>作为特征提取器 (Feature Extractor)：</strong>
+<ul>
+<li>取一个在大型数据集（如ImageNet）上预训练好的CNN模型（例如VGG16, ResNet50, InceptionV3）。</li>
+<li>移除其顶部的全连接分类层。</li>
+<li>将其余部分（通常是卷积基）作为固定的特征提取器。将新任务的数据输入这个固定的卷积基，得到特征向量。</li>
+<li>然后，在这些提取的特征之上训练一个新的、较小的分类器（例如一个简单的全连接网络）。</li>
+<li>这种方法适用于目标任务数据量较小，且与源任务差异较大的情况。</li>
+</ul></li>
+<li><strong>微调预训练模型 (Fine-tuning)：</strong>
+<ul>
+<li>与特征提取类似，也是从预训练模型开始。</li>
+<li>不仅替换顶部分类层，还会解冻卷积基的一部分（通常是顶部的几层），并与新的分类器一起在目标任务数据上进行端到端的重新训练（通常使用较小的学习率）。</li>
+<li>底部的卷积层通常保持冻结，因为它们学习到的通用特征仍然有用且不应轻易改变。</li>
+<li>这种方法适用于目标任务数据量相对较多，或者与源任务非常相似的情况。</li>
+</ul></li>
+</ol>
+<p><strong>Keras实践：使用预训练的VGG16进行图像分类</strong></p>
+<p>假设我们有一个新的、较小的猫狗图像分类任务。</p>
+<div id="code-transfer-learning-vgg16" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> keras</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.applications <span class="im">import</span> VGG16</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.layers <span class="im">import</span> Dense, Flatten, Dropout</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.models <span class="im">import</span> Model</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.preprocessing.image <span class="im">import</span> ImageDataGenerator <span class="co"># 用于数据增强和加载</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 参数 ---</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>img_width, img_height <span class="op">=</span> <span class="dv">150</span>, <span class="dv">150</span> <span class="co"># VGG16期望的输入尺寸 (至少32x32，通常224x224)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                               <span class="co"># 这里用150x150作为示例</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>train_data_dir <span class="op">=</span> <span class="st">'path/to/your/cats_and_dogs_small/train'</span> <span class="co"># 替换为你的数据路径</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>validation_data_dir <span class="op">=</span> <span class="st">'path/to/your/cats_and_dogs_small/validation'</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>nb_train_samples <span class="op">=</span> <span class="dv">2000</span> <span class="co"># 假设训练集有2000张图片</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>nb_validation_samples <span class="op">=</span> <span class="dv">800</span> <span class="co"># 假设验证集有800张图片</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>epochs <span class="op">=</span> <span class="dv">5</span> <span class="co"># 少量epochs用于演示</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> tf.keras.backend.image_data_format() <span class="op">==</span> <span class="st">'channels_first'</span>:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    input_shape <span class="op">=</span> (<span class="dv">3</span>, img_width, img_height)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    input_shape <span class="op">=</span> (img_width, img_height, <span class="dv">3</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1. 使用预训练模型作为特征提取器 ---</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载VGG16模型，不包括顶部的全连接层，使用ImageNet预训练权重</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>conv_base <span class="op">=</span> VGG16(weights<span class="op">=</span><span class="st">'imagenet'</span>, </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                  include_top<span class="op">=</span><span class="va">False</span>, </span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                  input_shape<span class="op">=</span>input_shape)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co"># # 冻结卷积基 (使其权重在训练中不更新)</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co"># conv_base.trainable = False </span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 添加新的分类器</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co"># model_feat_ext = keras.models.Sequential([</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#     conv_base,</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co">#     Flatten(),</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">#     Dense(256, activation='relu'),</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#     Dropout(0.5),</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co">#     Dense(1, activation='sigmoid') # 二分类 (猫/狗)</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co"># ])</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co"># # model_feat_ext.summary()</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 编译模型</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co"># # model_feat_ext.compile(optimizer=keras.optimizers.RMSprop(learning_rate=2e-5),</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co"># #                        loss='binary_crossentropy',</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co"># #                        metrics=['accuracy'])</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 数据预处理和增强</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="co"># # train_datagen = ImageDataGenerator(</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="co"># #     rescale=1./255,</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co"># #     rotation_range=40,</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="co"># #     width_shift_range=0.2,</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="co"># #     height_shift_range=0.2,</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="co"># #     shear_range=0.2,</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="co"># #     zoom_range=0.2,</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="co"># #     horizontal_flip=True,</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="co"># #     fill_mode='nearest')</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="co"># # test_datagen = ImageDataGenerator(rescale=1./255) # 验证/测试数据不增强</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="co"># # train_generator = train_datagen.flow_from_directory(</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="co"># #         train_data_dir,</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="co"># #         target_size=(img_width, img_height),</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a><span class="co"># #         batch_size=batch_size,</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a><span class="co"># #         class_mode='binary') # 因为是二分类</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="co"># # validation_generator = test_datagen.flow_from_directory(</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="co"># #         validation_data_dir,</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="co"># #         target_size=(img_width, img_height),</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="co"># #         batch_size=batch_size,</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a><span class="co"># #         class_mode='binary')</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 训练模型</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a><span class="co"># # history_feat_ext = model_feat_ext.fit(</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a><span class="co"># #       train_generator,</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a><span class="co"># #       steps_per_epoch=nb_train_samples // batch_size,</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="co"># #       epochs=epochs,</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a><span class="co"># #       validation_data=validation_generator,</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a><span class="co"># #       validation_steps=nb_validation_samples // batch_size,</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="co"># #       verbose=0)</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2. 微调预训练模型 --- </span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a><span class="co"># # 首先，确保卷积基是可训练的（如果之前设为False）</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="co"># conv_base.trainable = True</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 冻结部分底层，只微调顶部的几个卷积块</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 例如，VGG16有5个卷积块 (block1_conv1 ... block5_conv3)</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 我们冻结前4个块</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a><span class="co"># # set_trainable = False</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="co"># # for layer in conv_base.layers:</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a><span class="co"># #     if layer.name == 'block5_conv1': # 从block5开始解冻</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a><span class="co"># #         set_trainable = True</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a><span class="co"># #     if set_trainable:</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a><span class="co"># #         layer.trainable = True</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a><span class="co"># #     else:</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a><span class="co"># #         layer.trainable = False</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 构建与特征提取相似的模型结构</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a><span class="co"># model_fine_tune = keras.models.Sequential([</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a><span class="co">#     conv_base,</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a><span class="co">#     Flatten(),</span></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a><span class="co">#     Dense(256, activation='relu'),</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="co">#     Dropout(0.5),</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a><span class="co">#     Dense(1, activation='sigmoid')</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a><span class="co"># ])</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 编译模型 (使用非常低的学习率进行微调)</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a><span class="co"># # model_fine_tune.compile(optimizer=keras.optimizers.RMSprop(learning_rate=1e-5),</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a><span class="co"># #                         loss='binary_crossentropy',</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a><span class="co"># #                         metrics=['accuracy'])</span></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a><span class="co"># # # # 继续训练 (微调)</span></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a><span class="co"># # # # 假设你已经完成了特征提取阶段的训练，或者从头开始但epochs更多</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a><span class="co"># history_fine_tune = model_fine_tune.fit(</span></span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a><span class="co">#       train_generator, # 使用之前定义的数据生成器</span></span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a><span class="co">#       steps_per_epoch=nb_train_samples // batch_size,</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a><span class="co">#       epochs=epochs, # 微调通常也需要一些epochs</span></span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a><span class="co">#       validation_data=validation_generator,</span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a><span class="co">#       validation_steps=nb_validation_samples // batch_size,</span></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a><span class="co">#       verbose=0)</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a><span class="co"># # # 可视化训练历史 (与之前章节类似)</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a><span class="co"># # def plot_training_history(history, title_suffix):</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a><span class="co"># #     acc = history.history['accuracy']</span></span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a><span class="co"># #     val_acc = history.history['val_accuracy']</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a><span class="co"># #     loss = history.history['loss']</span></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a><span class="co"># #     val_loss = history.history['val_loss']</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a><span class="co"># #     epochs_range = range(len(acc))</span></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.figure(figsize=(12, 4))</span></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.subplot(1, 2, 1)</span></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.plot(epochs_range, acc, label='Training Accuracy')</span></span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.plot(epochs_range, val_acc, label='Validation Accuracy')</span></span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.legend(loc='lower right')</span></span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.title(f'Training and Validation Accuracy ({title_suffix})')</span></span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.subplot(1, 2, 2)</span></span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.plot(epochs_range, loss, label='Training Loss')</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.plot(epochs_range, val_loss, label='Validation Loss')</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.legend(loc='upper right')</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.title(f'Training and Validation Loss ({title_suffix})')</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a><span class="co"># #     # plt.savefig(f"images/13-advanced/transfer_learning_{title_suffix.lower().replace(' ','_')}.png")</span></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a><span class="co"># #     plt.show()</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a><span class="co"># # if 'history_feat_ext' in locals(): plot_training_history(history_feat_ext, "Feature Extraction")</span></span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a><span class="co"># # if 'history_fine_tune' in locals(): plot_training_history(history_fine_tune, "Fine Tuning")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="选读-深度学习模型部署概览" class="level2">
+<h2 class="anchored" data-anchor-id="选读-深度学习模型部署概览">13.5 (选读) 深度学习模型部署概览</h2>
+<p>训练好的深度学习模型如果不能被实际应用，其价值就无法体现。模型部署是指将训练好的模型集成到现有生产环境或应用程序中，使其能够接收新的输入数据并提供预测服务的过程。</p>
+<p><strong>关键步骤和考虑因素：</strong></p>
+<ol type="1">
+<li><strong>模型保存与格式转换：</strong>
+<ul>
+<li>训练完成后，模型需要以一种标准格式保存。Keras模型通常保存为HDF5 (<code>.h5</code>) 或 TensorFlow SavedModel 格式。</li>
+<li><strong>ONNX (Open Neural Network Exchange)：</strong> 一个开放的模型表示格式，允许在不同的深度学习框架之间转换模型（例如，从PyTorch转到TensorFlow，反之亦然）。</li>
+</ul></li>
+<li><strong>模型优化与量化：</strong>
+<ul>
+<li>为了在资源受限的设备（如移动设备、嵌入式系统）上运行，或者为了提高推理速度和减少模型大小，通常需要对模型进行优化。</li>
+<li><strong>剪枝 (Pruning)：</strong> 移除模型中不重要的权重或连接。</li>
+<li><strong>量化 (Quantization)：</strong> 将模型的权重从浮点数（如32位浮点）转换为较低精度的表示（如8位整数），可以显著减小模型大小并加速计算，但可能会有轻微的精度损失。</li>
+<li><strong>TensorFlow Lite (<code>.tflite</code>)：</strong> TensorFlow提供的用于在移动和嵌入式设备上部署模型的轻量级解决方案，支持模型转换和优化。</li>
+</ul></li>
+<li><strong>部署环境与服务框架：</strong>
+<ul>
+<li><strong>云平台：</strong> AWS SageMaker, Google AI Platform, Azure Machine Learning 等提供了模型部署和管理的托管服务。</li>
+<li><strong>服务器端部署：</strong>
+<ul>
+<li><strong>TensorFlow Serving：</strong> 一个高性能的服务系统，专为生产环境中的机器学习模型而设计，支持模型的版本控制和热更新。</li>
+<li><strong>TorchServe：</strong> PyTorch的模型服务库。</li>
+<li>使用Web框架（如Flask, Django, FastAPI）将模型封装成API服务。</li>
+</ul></li>
+<li><strong>边缘设备部署：</strong> 直接在移动设备、嵌入式系统或浏览器中运行模型（例如，使用TensorFlow Lite, Core ML, TensorFlow.js）。</li>
+</ul></li>
+<li><strong>监控与维护：</strong>
+<ul>
+<li>部署后需要持续监控模型的性能、预测准确率、延迟等指标。</li>
+<li>随着时间的推移和数据的变化，模型性能可能会下降（模型漂移），需要定期重新训练和更新模型。</li>
+</ul></li>
+</ol>
+<p>模型部署是一个涉及软件工程、系统架构和机器学习运维 (MLOps) 的复杂过程。</p>
+</section>
+<section id="生成式预训练transformer-gpt-与大语言模型浪潮" class="level2">
+<h2 class="anchored" data-anchor-id="生成式预训练transformer-gpt-与大语言模型浪潮">13.6 生成式预训练Transformer (GPT) 与大语言模型浪潮</h2>
+<p>在Transformer架构的基础上，除了像BERT这样主要关注理解任务（通过编码器学习双向上下文表示）的模型外，另一条重要的发展路径是<strong>生成式预训练Transformer (Generative Pre-trained Transformer, GPT)</strong> 系列模型，它们引领了当前大语言模型 (Large Language Models, LLMs) 的浪潮。</p>
+<p><strong>从判别式到生成式：</strong></p>
+<ul>
+<li><strong>BERT类模型</strong>（如BERT, RoBERTa）通常更侧重于判别式任务，它们通过编码器理解文本的上下文，并在预训练的表示之上进行微调，以完成分类、问答（抽取式）、命名实体识别等任务。它们的目标是理解和分析已有的文本。</li>
+<li><strong>GPT类模型</strong> 则更侧重于生成式任务，它们通常基于Transformer的解码器结构，以自回归 (auto-regressive) 的方式生成文本，即根据已经生成的上文逐个预测下一个词（或token）。它们的目标是创造新的文本内容。</li>
+</ul>
+<p><strong>GPT核心思想：</strong></p>
+<ol type="1">
+<li><strong>基于Transformer解码器 (Decoder-only Architecture)：</strong>
+<ul>
+<li>GPT系列模型主要采用Transformer的解码器部分。解码器中的自注意力机制是”掩码”的，确保在预测当前token时，模型只能关注到已经生成的token序列，而不能”看到未来”，这非常适合自回归的文本生成任务。</li>
+</ul></li>
+<li><strong>预训练任务：下一个词预测 (Next Token Prediction)：</strong>
+<ul>
+<li>GPT的核心预训练任务非常简单直接：在海量的无标签文本数据上，学习预测序列中的下一个词。给定一个文本序列，模型的目标是最大化下一个真实词出现的概率。</li>
+<li>这种看似简单的任务，当在足够大规模的数据和模型上进行时，能够迫使模型学习到关于语言的丰富知识，包括语法、语义、常识，甚至一定的推理能力。</li>
+</ul></li>
+<li><strong>模型规模与能力涌现 (Scaling Laws &amp; Emergent Abilities)：</strong>
+<ul>
+<li>研究表明，语言模型的性能与其参数规模、训练数据量以及训练计算量之间存在幂律关系 (Scaling Laws)。随着这些因素的指数级增长，模型的性能也随之提升。</li>
+<li>更引人注目的是，当模型规模达到一定阈值后，会表现出一些在小模型上不具备的”涌现能力”，例如进行上下文学习 (In-context Learning)、算术推理、代码生成等。</li>
+</ul></li>
+<li><strong>少样本/零样本学习 (Few-shot / Zero-shot Learning)：</strong>
+<ul>
+<li>特别是从GPT-3开始，大规模的GPT模型展现出了惊人的少样本/零样本学习能力。这意味着，对于许多新的任务，不再需要大量的标注数据进行微调。我们只需要在模型的输入提示 (Prompt) 中给出少量任务示例（少样本），甚至只给出任务描述（零样本），模型就能理解并执行任务。</li>
+</ul></li>
+</ol>
+<p><strong>GPT系列模型演进简介：</strong></p>
+<ul>
+<li><strong>GPT-1 (2018)：</strong> 验证了通过Transformer解码器进行生成式预训练，然后在下游任务上进行微调的有效性。</li>
+<li><strong>GPT-2 (2019)：</strong> 模型参数量和数据量大幅增加 (15亿参数)，展示了在无特定任务微调的情况下，生成高度连贯和多样化文本的强大能力。由于担心被滥用，OpenAI最初并未放出完整模型。</li>
+<li><strong>GPT-3 (2020)：</strong> 参数量达到惊人的1750亿，进一步强化了少样本/零样本学习能力，在许多NLP基准测试中取得了SOTA或接近SOTA的成绩，引发了广泛关注。</li>
+<li><strong>InstructGPT / ChatGPT (GPT-3.5, 2022)：</strong> 针对GPT-3在遵循用户指令和生成有害内容方面的问题，OpenAI引入了<strong>基于人类反馈的强化学习 (Reinforcement Learning from Human Feedback, RLHF)</strong> 进行微调。RLHF通过收集人类对模型输出的偏好排序数据，训练一个奖励模型，然后用强化学习算法优化语言模型以最大化这个奖励。这使得模型（如ChatGPT）在对话、遵循指令、减少有害输出方面取得了显著进步。</li>
+<li><strong>GPT-4 (2023)：</strong> 作为更强大的多模态模型发布，能够处理文本和图像输入，并在专业和学术基准上表现出人类水平的性能，具有更强的推理能力和更长的上下文处理能力。</li>
+</ul>
+<p><strong>生成式大语言模型的应用：</strong></p>
+<p>GPT等生成式LLM的出现极大地拓展了AI的应用场景：</p>
+<ul>
+<li><strong>内容创作：</strong> 撰写文章、故事、诗歌、邮件、广告文案等。</li>
+<li><strong>对话系统：</strong> 构建智能客服、虚拟助手、开放域聊天机器人。</li>
+<li><strong>代码生成与辅助：</strong> 根据自然语言描述生成代码片段，解释代码，调试代码。</li>
+<li><strong>文本摘要：</strong> 生成长篇文章或文档的简洁摘要。</li>
+<li><strong>机器翻译：</strong> 实现高质量的跨语言文本翻译。</li>
+<li><strong>知识问答：</strong> 回答用户提出的各种问题。</li>
+<li><strong>教育辅导：</strong> 提供个性化的学习支持和解答。</li>
+</ul>
+<p><strong>挑战与未来：</strong></p>
+<p>尽管生成式LLM取得了巨大成就，但也面临诸多挑战：</p>
+<ul>
+<li><strong>事实性与幻觉 (Factual Accuracy &amp; Hallucination)：</strong> 模型有时会生成看似合理但不符合事实，甚至是凭空捏造的信息。</li>
+<li><strong>偏见与公平性 (Bias &amp; Fairness)：</strong> 预训练数据中存在的偏见可能会被模型学习并放大。</li>
+<li><strong>滥用风险：</strong> 可能被用于生成虚假信息、垃圾邮件、恶意软件等。</li>
+<li><strong>计算资源：</strong> 训练和部署超大规模LLM需要巨大的计算资源和成本。</li>
+<li><strong>可解释性：</strong> 理解LLM的内部工作机制仍然是一个难题。</li>
+<li><strong>长程依赖与逻辑一致性：</strong> 在生成非常长的文本时，保持逻辑一致性和连贯性仍有挑战。</li>
+</ul>
+<p>未来，研究方向可能包括提升模型的效率、可控性、事实性、安全性，探索更有效的对齐方法，以及发展多模态、具身智能等。</p>
+</section>
+<section id="本章总结" class="level2">
+<h2 class="anchored" data-anchor-id="本章总结">13.7 本章总结</h2>
+<p>本章我们探索了深度学习的一些进阶主题，这些技术极大地扩展了深度学习的应用范围和能力：</p>
+<ul>
+<li><strong>注意力机制与Transformer：</strong> 学习了注意力如何使模型能够动态关注输入的相关部分，以及完全基于注意力的Transformer架构如何革新序列处理，特别是在NLP领域，催生了BERT等强大的预训练模型。</li>
+<li><strong>生成模型：</strong>
+<ul>
+<li><strong>自编码器 (AE)</strong> 通过学习数据的压缩表示来进行降维和特征提取。</li>
+<li><strong>变分自编码器 (VAE)</strong> 通过学习数据的潜在概率分布来生成新的、相似的数据样本。</li>
+<li><strong>生成对抗网络 (GAN)</strong> 通过生成器和判别器的对抗博弈来学习生成高度逼真的数据，尽管其训练可能具有挑战性。</li>
+</ul></li>
+<li><strong>迁移学习：</strong> 理解了如何利用在大型数据集上预训练的模型（尤其是CNN）来解决新的、数据量较少的任务，通过特征提取或模型微调的策略，显著提高模型性能并减少训练成本。</li>
+<li><strong>模型部署概览：</strong> 初步了解了将训练好的模型投入实际应用所涉及的关键步骤和工具，如模型保存、优化、服务框架等。</li>
+</ul>
+<p>这些高级主题代表了深度学习研究的前沿方向。掌握它们将使你能够理解和构建更复杂、更强大的深度学习系统，以解决现实世界中更具挑战性的问题。</p>
+</section>
+<section id="思考与练习" class="level2">
+<h2 class="anchored" data-anchor-id="思考与练习">13.8 思考与练习</h2>
+<section id="概念回顾与思考" class="level3">
+<h3 class="anchored" data-anchor-id="概念回顾与思考">13.8.1 概念回顾与思考</h3>
+<ol type="1">
+<li><strong>注意力与Transformer：</strong>
+<ul>
+<li>用自己的话解释什么是注意力机制？它解决了传统编码器-解码器架构的什么问题？</li>
+<li>自注意力机制与标准注意力机制有何不同？Query, Key, Value在自注意力中是如何工作的？</li>
+<li>Transformer模型为什么不需要RNN的循环结构就能处理序列？位置编码在其中扮演什么角色？</li>
+<li>BERT这样的预训练模型是如何利用Transformer进行语言理解的？它们通常在哪些任务上进行预训练？</li>
+</ul></li>
+<li><strong>生成模型：</strong>
+<ul>
+<li>比较自编码器 (AE) 和变分自编码器 (VAE) 的主要区别（在目标、潜在空间、损失函数方面）。VAE为什么更适合生成新样本？</li>
+<li>解释GAN中生成器和判别器的角色以及它们之间的对抗关系。GAN训练中常见的”模式崩溃”是什么意思？</li>
+<li>如果你想生成特定类别的人脸图像（例如，微笑的女性），你认为哪种生成模型（AE, VAE, GAN）或其变体可能更合适？为什么？</li>
+</ul></li>
+<li><strong>迁移学习：</strong>
+<ul>
+<li>迁移学习的核心思想是什么？为什么它在深度学习中如此重要？</li>
+<li>描述”作为特征提取器”和”微调模型”这两种迁移学习策略的区别。在什么情况下你会选择其中一种而不是另一种？</li>
+<li>为什么在微调预训练的CNN时，通常只解冻顶部的几层，并使用较小的学习率？</li>
+</ul></li>
+<li><strong>生成式大语言模型 (LLMs) 与GPT：</strong>
+<ul>
+<li>GPT模型与BERT模型在架构和预训练目标上的主要区别是什么？为什么GPT更擅长文本生成？</li>
+<li>解释什么是”涌现能力” (Emergent Abilities) 以及它在大语言模型中的体现。</li>
+<li>RLHF (Reinforcement Learning from Human Feedback) 是如何帮助改进像ChatGPT这样的模型的？</li>
+<li>讨论至少三个当前大语言模型面临的主要挑战。</li>
+</ul></li>
+</ol>
+</section>
+<section id="keras实践与探索" class="level3">
+<h3 class="anchored" data-anchor-id="keras实践与探索">13.8.2 Keras实践与探索</h3>
+<ol type="1">
+<li><strong>Transformer用于文本分类 (选做，较复杂)：</strong>
+<ul>
+<li>尝试使用Keras实现一个简化的基于Transformer编码器的文本分类器（例如，在IMDb情感分析数据集上）。你可以参考Keras官方文档中的Transformer教程。</li>
+<li>重点关注：词嵌入、位置编码的添加、自注意力层和前馈网络的实现。</li>
+<li>将其性能与之前章节中基于LSTM/GRU的模型进行比较。</li>
+</ul></li>
+<li><strong>VAE探索：</strong>
+<ul>
+<li>在本章提供的VAE MNIST示例代码基础上，尝试修改潜在空间的维度 (<code>latent_dim</code>)，例如增加到10或更高。观察生成图像的质量和多样性有何变化？（注意：如果潜在维度不是2，则二维潜在空间可视化将不适用，但你仍然可以生成图像。）</li>
+<li>尝试在不同的数据集上训练VAE，例如Fashion MNIST。</li>
+</ul></li>
+<li><strong>GAN探索：</strong>
+<ul>
+<li>运行本章提供的简单GAN MNIST示例代码（如果计算资源允许，可以适当增加训练轮数）。观察生成的数字图像质量如何随训练改善。</li>
+<li>尝试修改生成器G和判别器D的网络结构（例如，增加层数、改变神经元数量、使用不同的激活函数），观察对训练稳定性和生成效果的影响。</li>
+<li><strong>(挑战)</strong> 尝试实现一个简单的DCGAN (Deep Convolutional GAN)，即在G和D中使用卷积层和转置卷积层 (Conv2DTranspose) 来处理图像。DCGAN通常能生成更高质量的图像。</li>
+</ul></li>
+<li><strong>迁移学习实践 (CIFAR-10)：</strong>
+<ul>
+<li>选择一个预训练的CNN模型（例如 <code>ResNet50</code>, <code>InceptionV3</code>, <code>MobileNetV2</code>，这些都可以从 <code>tensorflow.keras.applications</code> 中获取）。</li>
+<li>将其应用于CIFAR-10图像分类任务（10个类别）。CIFAR-10图像尺寸较小 (32x32)，某些预训练模型可能需要调整输入尺寸或使用 <code>include_top=False</code> 后的全局平均池化层来适应。</li>
+<li><strong>策略一 (特征提取)：</strong> 冻结预训练模型的卷积基，在其上添加新的分类头（例如，<code>Flatten</code> -&gt; <code>Dense</code> -&gt; <code>Dense(10, activation='softmax')</code>），然后在CIFAR-10上训练这个分类头。</li>
+<li><strong>策略二 (微调)：</strong> 在策略一的基础上，解冻预训练模型卷积基的最后几个卷积块，并使用非常低的学习率继续训练整个模型。</li>
+<li>比较两种策略以及从头开始训练一个类似大小的CNN在CIFAR-10上的性能。</li>
+</ul></li>
+</ol>
+</section>
+<section id="深入思考与未来方向" class="level3">
+<h3 class="anchored" data-anchor-id="深入思考与未来方向">13.8.3 深入思考与未来方向</h3>
+<ol type="1">
+<li><strong>Transformer的局限性：</strong> 虽然Transformer非常强大，但它在处理超长序列时仍然面临计算复杂度（与序列长度的平方成正比）和内存消耗的问题。了解一下有哪些后续研究试图解决这些问题（例如，稀疏注意力、线性Transformer等）？</li>
+<li><strong>GAN的评估：</strong> 如何客观地评估GAN生成的样本质量和多样性？（提示：了解Inception Score, FID等指标。）</li>
+<li><strong>多模态学习 (Multimodal Learning)：</strong> 许多现实世界的问题涉及多种类型的数据（例如，图像和文本描述、视频和音频）。深度学习如何处理和融合这些不同模态的信息？</li>
+<li><strong>可解释性AI (Explainable AI, XAI)：</strong> 深度学习模型通常被认为是”黑箱”。为什么模型的可解释性很重要？有哪些技术可以帮助我们理解深度学习模型的决策过程（例如，Grad-CAM, LIME, SHAP）？</li>
+<li><strong>联邦学习 (Federated Learning)：</strong> 在数据隐私日益重要的背景下，联邦学习允许在不直接共享原始数据的情况下，在多个分布式设备上协同训练模型。了解其基本原理。</li>
+<li><strong>大语言模型的伦理与应用：</strong> 探讨大语言模型在教育领域的潜在应用和风险。</li>
+<li><strong>LLM的未来：</strong> 你认为未来一两年内，大语言模型技术会有哪些重要的发展方向？</li>
+</ol>
+</section>
+<section id="推荐阅读与资源" class="level3">
+<h3 class="anchored" data-anchor-id="推荐阅读与资源">13.8.4 推荐阅读与资源</h3>
+<ol type="1">
+<li><strong>Vaswani, A., et al.&nbsp;(2017). “Attention Is All You Need.” (Transformer原始论文)</strong> - 了解Transformer架构的必读文献。</li>
+<li><strong>Devlin, J., et al.&nbsp;(2018). “BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.” (BERT原始论文)</strong></li>
+<li><strong>Goodfellow, I., et al.&nbsp;(2014). “Generative Adversarial Nets.” (GAN原始论文)</strong></li>
+<li><strong>Kingma, D. P., &amp; Welling, M. (2013). “Auto-Encoding Variational Bayes.” (VAE原始论文)</strong></li>
+<li><strong>Chollet, F. (2021). <em>Deep Learning with Python</em> (2nd ed.). Manning Publications.</strong> (相关章节覆盖了Transformer, GAN, 迁移学习等)</li>
+<li><strong>TensorFlow官方教程和Keras官方文档：</strong> 包含许多关于Transformer、GAN、VAE、迁移学习的优秀教程和API文档。
+<ul>
+<li>Transformer model for language understanding: <a href="https://www.tensorflow.org/text/tutorials/transformer">https://www.tensorflow.org/text/tutorials/transformer</a></li>
+<li>Deep Convolutional Generative Adversarial Network (DCGAN): <a href="https://www.tensorflow.org/tutorials/generative/dcgan">https://www.tensorflow.org/tutorials/generative/dcgan</a></li>
+<li>Variational Autoencoder (VAE): <a href="https://www.tensorflow.org/tutorials/generative/cvae">https://www.tensorflow.org/tutorials/generative/cvae</a></li>
+<li>Transfer learning and fine-tuning: <a href="https://www.tensorflow.org/tutorials/images/transfer_learning">https://www.tensorflow.org/tutorials/images/transfer_learning</a></li>
+</ul></li>
+<li><strong>Distill.pub:</strong> 很多关于深度学习概念（包括注意力、GAN等）的优秀可视化解释文章。</li>
+<li>Radford, A., et al.&nbsp;(2018). “Improving Language Understanding by Generative Pre-Training.” (GPT-1 Paper)</li>
+<li>Radford, A., et al.&nbsp;(2019). “Language Models are Unsupervised Multitask Learners.” (GPT-2 Paper)</li>
+<li>Brown, T. B., et al.&nbsp;(2020). “Language Models are Few-Shot Learners.” (GPT-3 Paper)</li>
+<li>Ouyang, L., et al.&nbsp;(2022). “Training language models to follow instructions with human feedback.” (InstructGPT Paper)</li>
+<li>OpenAI. (2023). “GPT-4 Technical Report.”</li>
+</ol>
+<hr>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./12-rnn.html" class="pagination-link" aria-label="循环神经网络 (RNN)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">循环神经网络 (RNN)</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./14-reinforcement-learning.html" class="pagination-link" aria-label="强化学习基础与应用">
+        <span class="nav-page-text"><span class="chapter-title">强化学习基础与应用</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

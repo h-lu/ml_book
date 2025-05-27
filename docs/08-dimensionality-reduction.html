@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>降维 – 机器学习：从理论到Python实践</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./09-model-evaluation-feature-engineering.html" rel="next">
+<link href="./07-clustering.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./07-clustering.html">第三部分：无监督学习</a></li><li class="breadcrumb-item"><a href="./08-dimensionality-reduction.html"><span class="chapter-title">降维</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">机器学习：从理论到Python实践</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">欢迎学习《机器学习：从理论到Python实践》</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">第一部分：机器学习基石与Python生态</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习导论</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Python机器学习环境与核心库</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">第二部分：监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">回归与线性模型</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-classification-logreg-knn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">分类与逻辑回归、KNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-svm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">支持向量机 (SVM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-decision-trees-ensemble-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">决策树与集成学习</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">第三部分：无监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clustering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">聚类分析</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-dimensionality-reduction.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">降维</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">第四部分：模型评估、优化与特征工程</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-model-evaluation-feature-engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">模型评估、优化与特征工程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">第五部分：深度学习初探</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-deep-learning-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习基础</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-cnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">卷积神经网络 (CNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-rnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">循环神经网络 (RNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-deep-learning-advanced.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习进阶</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">第六部分：强化学习入门</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-reinforcement-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">强化学习基础与应用</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">第七部分：综合项目与展望</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-ml-project-workflow-summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习项目实战流程与总结</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-summary-outlook.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">课程总结与展望</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">附录</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#学习目标" id="toc-学习目标" class="nav-link active" data-scroll-target="#学习目标">学习目标</a></li>
+  <li><a href="#降维概述" id="toc-降维概述" class="nav-link" data-scroll-target="#降维概述">8.1 降维概述</a>
+  <ul class="collapse">
+  <li><a href="#什么是降维" id="toc-什么是降维" class="nav-link" data-scroll-target="#什么是降维">8.1.1 什么是降维？</a></li>
+  <li><a href="#降维的主要方法" id="toc-降维的主要方法" class="nav-link" data-scroll-target="#降维的主要方法">8.1.2 降维的主要方法</a></li>
+  </ul></li>
+  <li><a href="#主成分分析-pca" id="toc-主成分分析-pca" class="nav-link" data-scroll-target="#主成分分析-pca">8.2 主成分分析 (PCA)</a>
+  <ul class="collapse">
+  <li><a href="#pca-的核心思想" id="toc-pca-的核心思想" class="nav-link" data-scroll-target="#pca-的核心思想">8.2.1 PCA 的核心思想</a></li>
+  <li><a href="#pca-的数学原理" id="toc-pca-的数学原理" class="nav-link" data-scroll-target="#pca-的数学原理">8.2.2 PCA 的数学原理</a></li>
+  <li><a href="#pca-的优缺点" id="toc-pca-的优缺点" class="nav-link" data-scroll-target="#pca-的优缺点">8.2.3 PCA 的优缺点</a></li>
+  </ul></li>
+  <li><a href="#在-scikit-learn-中使用-pca" id="toc-在-scikit-learn-中使用-pca" class="nav-link" data-scroll-target="#在-scikit-learn-中使用-pca">8.3 在 Scikit-learn 中使用 PCA</a>
+  <ul class="collapse">
+  <li><a href="#基本用法与参数" id="toc-基本用法与参数" class="nav-link" data-scroll-target="#基本用法与参数">8.3.1 基本用法与参数</a></li>
+  <li><a href="#选择主成分数量-n_components" id="toc-选择主成分数量-n_components" class="nav-link" data-scroll-target="#选择主成分数量-n_components">8.3.2 选择主成分数量 <code>n_components</code></a></li>
+  <li><a href="#pca-用于数据可视化" id="toc-pca-用于数据可视化" class="nav-link" data-scroll-target="#pca-用于数据可视化">8.3.3 PCA 用于数据可视化</a></li>
+  <li><a href="#pca-的逆变换-reconstruction" id="toc-pca-的逆变换-reconstruction" class="nav-link" data-scroll-target="#pca-的逆变换-reconstruction">8.3.4 PCA 的逆变换 (Reconstruction)</a></li>
+  </ul></li>
+  <li><a href="#pca-的应用场景总结" id="toc-pca-的应用场景总结" class="nav-link" data-scroll-target="#pca-的应用场景总结">8.4 PCA 的应用场景总结</a></li>
+  <li><a href="#其他重要降维技术简介" id="toc-其他重要降维技术简介" class="nav-link" data-scroll-target="#其他重要降维技术简介">8.5 其他重要降维技术简介</a></li>
+  <li><a href="#本章总结" id="toc-本章总结" class="nav-link" data-scroll-target="#本章总结">8.6 本章总结</a></li>
+  <li><a href="#思考与练习" id="toc-思考与练习" class="nav-link" data-scroll-target="#思考与练习">8.7 思考与练习</a>
+  <ul class="collapse">
+  <li><a href="#基础练习" id="toc-基础练习" class="nav-link" data-scroll-target="#基础练习">8.7.1 基础练习</a></li>
+  <li><a href="#编码与实践" id="toc-编码与实践" class="nav-link" data-scroll-target="#编码与实践">8.7.2 编码与实践</a></li>
+  <li><a href="#推荐阅读" id="toc-推荐阅读" class="nav-link" data-scroll-target="#推荐阅读">8.7.3 推荐阅读</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./07-clustering.html">第三部分：无监督学习</a></li><li class="breadcrumb-item"><a href="./08-dimensionality-reduction.html"><span class="chapter-title">降维</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">降维</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="学习目标" class="level2">
+<h2 class="anchored" data-anchor-id="学习目标">学习目标</h2>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>学习目标：</strong></p>
+<ul>
+<li>理解降维的基本概念、目标及其在机器学习中的重要性。</li>
+<li>区分特征选择与特征提取两类主要的降维方法。</li>
+<li>深入理解主成分分析 (PCA) 的核心思想、数学原理（包括协方差矩阵、特征值分解）。</li>
+<li>掌握 PCA 的步骤、优缺点以及对数据预处理（如标准化）的敏感性。</li>
+<li>能够使用 Scikit-learn 实现 PCA，包括 <code>n_components</code> 参数的选择、查看解释方差比例和主成分。</li>
+<li>理解如何利用 PCA 进行数据可视化和数据重构（逆变换）。</li>
+<li>了解 PCA 的主要应用场景。</li>
+<li>对其他降维技术如线性判别分析 (LDA)、t-分布随机邻域嵌入 (t-SNE) 和独立成分分析 (ICA) 有初步认识及其适用场景。</li>
+<li>能够根据数据特性和任务需求初步选择合适的降维方法。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="降维概述" class="level2">
+<h2 class="anchored" data-anchor-id="降维概述">8.1 降维概述</h2>
+<section id="什么是降维" class="level3">
+<h3 class="anchored" data-anchor-id="什么是降维">8.1.1 什么是降维？</h3>
+<p>在高维数据中，许多维度之间可能存在相关性，或者某些维度对于特定任务而言是冗余的甚至包含噪声。<strong>降维 (Dimensionality Reduction)</strong> 是一系列技术，旨在通过保留数据中的重要结构或特征，同时减少特征的数量（即维度）来简化数据集。</p>
+<p><strong>降维的主要益处：</strong></p>
+<ul>
+<li><strong>降低计算复杂度与存储需求：</strong> 更少的维度意味着模型训练和预测更快，所需内存更少。</li>
+<li><strong>缓解维度灾难 (Curse of Dimensionality)：</strong> 在非常高维的空间中，数据点会变得异常稀疏，许多算法的性能会急剧下降，或者需要指数级增长的样本量才能获得可靠结果。降维有助于减轻此问题。</li>
+<li><strong>数据可视化：</strong> 将高维数据降至2维或3维，使得我们可以直观地观察数据的分布、结构和潜在的簇。</li>
+<li><strong>去除噪声与冗余：</strong> 消除不相关的特征或合并高度相关的特征可以提高模型的泛化能力和鲁棒性。</li>
+<li><strong>特征工程：</strong> 降维产生的低维特征可以作为后续机器学习模型的输入。</li>
+</ul>
+</section>
+<section id="降维的主要方法" class="level3">
+<h3 class="anchored" data-anchor-id="降维的主要方法">8.1.2 降维的主要方法</h3>
+<p>降维方法通常可以分为两大类：</p>
+<ol type="1">
+<li><strong>特征选择 (Feature Selection)：</strong>
+<ul>
+<li><strong>思想：</strong> 直接从原始特征集中选择一个最优的特征子集，而不改变原始特征的表示。</li>
+<li><strong>目标：</strong> 选出对模型性能贡献最大、冗余度最低的特征。</li>
+<li><strong>常用方法：</strong>
+<ul>
+<li><strong>过滤法 (Filter Methods)：</strong> 根据特征本身的统计特性（如方差、与目标变量的相关系数、互信息等）进行评分和排序，独立于后续的学习算法。例如：方差选择法、卡方检验、F检验。</li>
+<li><strong>包裹法 (Wrapper Methods)：</strong> 将特征子集的选择过程视为一个搜索问题，使用后续学习算法的性能作为评估标准来指导搜索。例如：递归特征消除 (RFE)、前向选择、后向剔除。</li>
+<li><strong>嵌入法 (Embedded Methods)：</strong> 将特征选择过程嵌入到学习算法的训练过程中，算法本身会自动进行特征权重的分配或特征的筛选。例如：L1正则化 (Lasso)、决策树的特征重要性。</li>
+</ul></li>
+</ul></li>
+<li><strong>特征提取 (Feature Extraction)：</strong>
+<ul>
+<li><strong>思想：</strong> 通过某种映射函数将原始的高维特征空间转换为一个新的、维度更低的特征空间。新的特征是原始特征的某种组合或变换。</li>
+<li><strong>目标：</strong> 在新的低维空间中尽可能多地保留原始数据的信息或某种特定结构。</li>
+<li><strong>常用方法：</strong>
+<ul>
+<li><strong>线性方法：</strong> 主成分分析 (PCA)、线性判别分析 (LDA)、独立成分分析 (ICA)。</li>
+<li><strong>非线性方法 (流形学习 Manifold Learning)：</strong> t-分布随机邻域嵌入 (t-SNE)、局部线性嵌入 (LLE)、Isomap、核PCA (Kernel PCA)。</li>
+</ul></li>
+</ul></li>
+</ol>
+<p>本章将重点介绍应用最广泛的特征提取方法之一：<strong>主成分分析 (PCA)</strong>。</p>
+</section>
+</section>
+<section id="主成分分析-pca" class="level2">
+<h2 class="anchored" data-anchor-id="主成分分析-pca">8.2 主成分分析 (PCA)</h2>
+<p>主成分分析 (Principal Component Analysis, PCA) 是一种经典的、广泛应用的无监督线性降维技术，由 Karl Pearson 于1901年首次提出，后由 Harold Hotelling 在1930年代发展。</p>
+<section id="pca-的核心思想" class="level3">
+<h3 class="anchored" data-anchor-id="pca-的核心思想">8.2.1 PCA 的核心思想</h3>
+<p>PCA 的核心思想是将数据投影到一个新的正交坐标系（由主成分构成），使得数据在这些新坐标轴上的方差得到最大化。具体来说：</p>
+<ol type="1">
+<li><strong>第一主成分 (PC1)：</strong> 是原始数据中方差最大的方向。换句话说，数据点在 PC1 上的投影具有最大的散布。</li>
+<li><strong>第二主成分 (PC2)：</strong> 在与第一主成分正交的方向中，寻找数据方差次大的方向。</li>
+<li><strong>第三主成分 (PC3)：</strong> 在与前两个主成分都正交的方向中，寻找数据方差再次大的方向。</li>
+<li>以此类推，直到找到与原始数据维度相同数量的主成分。</li>
+</ol>
+<p>通过选择方差最大的前 <span class="math inline">\(k\)</span> 个主成分（<span class="math inline">\(k\)</span> 小于原始维度），我们可以构建一个 <span class="math inline">\(k\)</span> 维的子空间，并将原始数据投影到这个子空间上，从而实现在信息损失尽可能小的前提下降维。</p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>PCA的目标：</strong> 最大化投影方差（等价于最小化重构误差）。</p>
+</div>
+</div>
+</div>
+</section>
+<section id="pca-的数学原理" class="level3">
+<h3 class="anchored" data-anchor-id="pca-的数学原理">8.2.2 PCA 的数学原理</h3>
+<p>假设我们有一个包含 <span class="math inline">\(m\)</span> 个样本的数据集 <span class="math inline">\(X \in \mathbb{R}^{m \times n}\)</span>，其中每行是一个 <span class="math inline">\(n\)</span> 维样本 <span class="math inline">\(\mathbf{x}^{(i)}\)</span>。</p>
+<p><strong>步骤如下：</strong></p>
+<ol type="1">
+<li><p><strong>数据中心化 (Mean Centering)：</strong> 对每个特征（列）减去其均值，使得每个特征的均值为0。这是PCA的一个必要步骤。 <span class="math display">\[ X' = X - \text{mean}(X)_{\text{col-wise}} \]</span> 令中心化后的数据仍记为 <span class="math inline">\(X\)</span> (为简洁起见，下文 <span class="math inline">\(X\)</span> 指中心化后的数据)。</p></li>
+<li><p><strong>计算协方差矩阵 (Covariance Matrix)：</strong> 协方差矩阵 <span class="math inline">\(\Sigma \in \mathbb{R}^{n \times n}\)</span> 描述了原始 <span class="math inline">\(n\)</span> 个特征之间的线性相关性。 <span class="math display">\[ \Sigma = \frac{1}{m-1} X^T X \]</span> 或者，如果 <span class="math inline">\(X\)</span> 的每一行是一个样本，则 <span class="math inline">\(\Sigma_{ij} = \text{cov}(X_{\cdot i}, X_{\cdot j})\)</span>。</p></li>
+<li><p><strong>计算协方差矩阵的特征值和特征向量 (Eigenvalue Decomposition)：</strong> 对协方差矩阵 <span class="math inline">\(\Sigma\)</span> 进行特征分解： <span class="math display">\[ \Sigma \mathbf{v}_j = \lambda_j \mathbf{v}_j \]</span> 其中：</p>
+<ul>
+<li><span class="math inline">\(\lambda_j\)</span> 是第 <span class="math inline">\(j\)</span> 个特征值，表示数据在对应特征向量方向上的方差大小。</li>
+<li><span class="math inline">\(\mathbf{v}_j \in \mathbb{R}^{n}\)</span> 是与 <span class="math inline">\(\lambda_j\)</span> 对应的特征向量，它代表了第 <span class="math inline">\(j\)</span> 个主成分的方向。这些特征向量是正交的（如果特征值不同）或可以选择为正交的（如果特征值相同）。</li>
+</ul></li>
+<li><p><strong>选择主成分：</strong> 将特征值 <span class="math inline">\(\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_n \ge 0\)</span> 从大到小排序。选择前 <span class="math inline">\(k\)</span> 个最大的特征值对应的特征向量 <span class="math inline">\(\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}\)</span>。这些特征向量构成了投影矩阵 <span class="math inline">\(W \in \mathbb{R}^{n \times k}\)</span>，其中 <span class="math inline">\(W = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k]\)</span>。 <span class="math inline">\(k\)</span> 的选择可以基于：</p>
+<ul>
+<li><strong>预设维度：</strong> 直接指定降维后的目标维度 <span class="math inline">\(k\)</span>。</li>
+<li><strong>累计解释方差比例 (Cumulative Explained Variance Ratio)：</strong> 选择最小的 <span class="math inline">\(k\)</span> 使得 <span class="math inline">\(\frac{\sum_{j=1}^{k} \lambda_j}{\sum_{j=1}^{n} \lambda_j}\)</span> 达到某个阈值（例如90%, 95%, 99%）。</li>
+</ul></li>
+<li><p><strong>数据投影 (Transformation)：</strong> 将中心化后的原始数据 <span class="math inline">\(X \in \mathbb{R}^{m \times n}\)</span> 投影到由选定的 <span class="math inline">\(k\)</span> 个主成分构成的子空间，得到降维后的数据 <span class="math inline">\(Z \in \mathbb{R}^{m \times k}\)</span>： <span class="math display">\[ Z = XW \]</span> <span class="math inline">\(Z\)</span> 的每一行 <span class="math inline">\(\mathbf{z}^{(i)}\)</span> 是原始样本 <span class="math inline">\(\mathbf{x}^{(i)}\)</span> 在新的 <span class="math inline">\(k\)</span> 维主成分空间中的坐标。</p></li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+SVD 与 PCA
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>实践中，PCA 更常通过对中心化数据矩阵 <span class="math inline">\(X\)</span> 进行奇异值分解 (Singular Value Decomposition, SVD) 来实现，而不是显式计算协方差矩阵。 若 <span class="math inline">\(X = U S V^T\)</span> 是 <span class="math inline">\(X\)</span> 的SVD (经济版或截断版)，则：</p>
+<ul>
+<li><span class="math inline">\(V\)</span> 的列向量（右奇异向量）即为主成分方向（等同于协方差矩阵的特征向量）。</li>
+<li><span class="math inline">\(S\)</span> 的奇异值 <span class="math inline">\(\sigma_j\)</span> 与协方差矩阵的特征值 <span class="math inline">\(\lambda_j\)</span> 关系为 <span class="math inline">\(\lambda_j = \frac{\sigma_j^2}{m-1}\)</span>。</li>
+<li>降维后的数据 <span class="math inline">\(Z = X V_k = U_k S_k\)</span> (其中 <span class="math inline">\(V_k\)</span> 是前 <span class="math inline">\(k\)</span> 个右奇异向量，<span class="math inline">\(U_k S_k\)</span> 是对应部分)。 SVD在数值上更稳定，尤其当特征数量 <span class="math inline">\(n\)</span> 远大于样本数量 <span class="math inline">\(m\)</span> 时效率更高。</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="pca-的优缺点" class="level3">
+<h3 class="anchored" data-anchor-id="pca-的优缺点">8.2.3 PCA 的优缺点</h3>
+<p><strong>优点：</strong></p>
+<ul>
+<li><strong>简单有效：</strong> 算法原理清晰，易于实现，计算效率高（尤其基于SVD）。</li>
+<li><strong>无监督：</strong> 不需要类别标签信息，完全依赖数据自身的方差。</li>
+<li><strong>去除线性相关性：</strong> 转换后的主成分是两两正交的，消除了原始特征间的线性相关。</li>
+<li><strong>降噪：</strong> 通过保留方差较大的主成分，可以滤除方差较小（可能对应噪声）的成分。</li>
+<li><strong>数据压缩与可视化：</strong> 能够有效地减少数据维度，便于存储、处理和可视化。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><strong>线性假设：</strong> PCA 是一种线性变换，它假设数据的主要变化可以用线性子空间来描述。对于具有复杂非线性结构的数据，PCA 可能无法有效捕捉其内在模式。</li>
+<li><strong>可解释性降低：</strong> 新的主成分是原始特征的线性组合，其物理意义可能不如原始特征直观和清晰。</li>
+<li><strong>对数据缩放敏感：</strong> 如果原始特征的尺度差异很大（例如，一个特征的范围是0-1，另一个是0-1000），那么方差较大的特征会在PCA中占据主导地位。因此，<strong>在使用PCA之前通常强烈建议对数据进行标准化 (Standardization)</strong>，例如Z-score标准化，使得所有特征具有相同的均值0和单位方差1。</li>
+<li><strong>信息损失：</strong> 降维是一个有损压缩过程，必然会损失一部分信息。选择保留的主成分数量 <span class="math inline">\(k\)</span> 是一个权衡，需要在降维效果和信息保留量之间取得平衡。</li>
+<li><strong>未考虑类别信息（对于分类任务）：</strong> PCA是无监督的，它只关注数据的方差，而不考虑类别标签。如果目标是最大化类别可分性，监督的降维方法（如LDA）可能更合适。</li>
+</ul>
+</section>
+</section>
+<section id="在-scikit-learn-中使用-pca" class="level2">
+<h2 class="anchored" data-anchor-id="在-scikit-learn-中使用-pca">8.3 在 Scikit-learn 中使用 PCA</h2>
+<p>Scikit-learn 提供了 <code>sklearn.decomposition.PCA</code> 类来实现主成分分析。</p>
+<section id="基本用法与参数" class="level3">
+<h3 class="anchored" data-anchor-id="基本用法与参数">8.3.1 基本用法与参数</h3>
+<div id="cell-fig-pca-basic" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 生成示例数据 (3个特征，其中一些相关)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>X_orig <span class="op">=</span> np.random.rand(<span class="dv">100</span>, <span class="dv">3</span>) <span class="op">*</span> np.array([<span class="dv">10</span>, <span class="dv">1</span>, <span class="dv">5</span>]) <span class="co"># 不同尺度的特征</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>X_orig[:, <span class="dv">1</span>] <span class="op">+=</span> X_orig[:, <span class="dv">0</span>] <span class="op">*</span> <span class="fl">0.5</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="dv">100</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>X_orig[:, <span class="dv">2</span>] <span class="op">-=</span> X_orig[:, <span class="dv">0</span>] <span class="op">*</span> <span class="fl">0.3</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="dv">100</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 数据标准化 (PCA对尺度敏感，此步骤非常重要)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="op">=</span> scaler.fit_transform(X_orig)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 初始化并拟合PCA</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># n_components:</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># - int: 保留的主成分数量。</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># - float (0 &lt; n_components &lt; 1): 保留能够解释至少这么多方差比例的主成分数量。</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'mle': Minka's MLE 算法自动选择维度。</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># - None: 保留所有主成分, min(n_samples, n_features)。</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">2</span>) <span class="co"># 目标是降到2维</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>pca.fit(X_scaled) <span class="co"># 拟合PCA模型</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 应用降维 (transform)</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>X_pca <span class="op">=</span> pca.transform(X_scaled)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 也可以一步完成拟合和转换: X_pca = pca.fit_transform(X_scaled)</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"原始数据维度: </span><span class="sc">{</span>X_scaled<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"降维后数据维度: </span><span class="sc">{</span>X_pca<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. 查看PCA的重要属性</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"解释方差比例 (各主成分): </span><span class="sc">{</span>pca<span class="sc">.</span>explained_variance_ratio_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"累计解释方差比例: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(pca.explained_variance_ratio_)<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"主成分 (特征向量, components_):</span><span class="ch">\n</span><span class="sc">{</span>pca<span class="sc">.</span>components_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"各主成分对应的方差 (explained_variance_):</span><span class="ch">\n</span><span class="sc">{</span>pca<span class="sc">.</span>explained_variance_<span class="sc">}</span><span class="ss">"</span>) <span class="co"># 等于特征值 lambda * (m-1)/m 或者 lambda</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"奇异值 (singular_values_):</span><span class="ch">\n</span><span class="sc">{</span>pca<span class="sc">.</span>singular_values_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"估计的噪声协方差 (get_covariance()):</span><span class="ch">\n</span><span class="sc">{</span>pca<span class="sc">.</span>get_covariance()<span class="sc">}</span><span class="ss">"</span>) <span class="co"># 原始特征空间的协方差矩阵</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. 可视化降维后的数据 (如果降到2D)</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> X_pca.shape[<span class="dv">1</span>] <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    plt.scatter(X_pca[:, <span class="dv">0</span>], X_pca[:, <span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="ss">f'First Principal Component (PC1) - </span><span class="sc">{</span>pca<span class="sc">.</span>explained_variance_ratio_[<span class="dv">0</span>]<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">% Variance'</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="ss">f'Second Principal Component (PC2) - </span><span class="sc">{</span>pca<span class="sc">.</span>explained_variance_ratio_[<span class="dv">1</span>]<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">% Variance'</span>)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">'PCA Dimensionality Reduction Result (2D)'</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    plt.grid(<span class="va">True</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># plt.savefig('images/08-dimensionality-reduction/pca_basic_2d.svg', format='svg')</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>原始数据维度: (100, 3)
+降维后数据维度: (100, 2)
+解释方差比例 (各主成分): [0.80963365 0.18264547]
+累计解释方差比例: 0.9923
+主成分 (特征向量, components_):
+[[ 0.61812378  0.6143898  -0.49035514]
+ [ 0.33147555  0.36190324  0.87129215]]
+各主成分对应的方差 (explained_variance_):
+[2.4534353  0.55347111]
+奇异值 (singular_values_):
+[15.58493165  7.40227264]
+估计的噪声协方差 (get_covariance()):
+[[ 1.01010101  0.98644207 -0.58345325]
+ [ 0.98644207  1.01010101 -0.56495088]
+ [-0.58345325 -0.56495088  1.01010101]]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-pca-basic" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-basic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="08-dimensionality-reduction_files/figure-html/fig-pca-basic-output-2.png" width="674" height="523" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-basic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.1: PCA降维示例：将3维数据降至2维并可视化。
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong><code>PCA</code> 主要参数：</strong></p>
+<ul>
+<li><code>n_components</code>: <code>int</code>, <code>float</code>, <code>str</code> 或 <code>None</code>。如上所述，用于指定降维的目标维度或保留的方差。</li>
+<li><code>copy</code>: <code>bool</code>, 默认=True。如果为False，则传递给 <code>fit</code> 的数据将被覆盖。</li>
+<li><code>whiten</code>: <code>bool</code>, 默认=False。如果为True，则主成分向量会被乘以样本数量的平方根，然后除以奇异值，以确保输出具有单位方差。白化可以去除一些算法（如SVM）中特征尺度依赖性，但也会丢失一些信息（相对方差大小）。</li>
+<li><code>svd_solver</code>: <code>{'auto', 'full', 'arpack', 'randomized'}</code>, 默认=‘auto’。
+<ul>
+<li><code>'auto'</code> : 根据 <code>X.shape</code> 和 <code>n_components</code> 自动选择求解器。</li>
+<li><code>'full'</code> : 运行精确的完整SVD，然后选择主成分。</li>
+<li><code>'arpack'</code> : 运行ARPACK（Arnoldi迭代）SVD，通常用于 <code>n_components</code> 远小于特征数的情况，计算更高效。</li>
+<li><code>'randomized'</code> : 运行随机SVD，对于大规模高维数据非常高效。</li>
+</ul></li>
+<li><code>tol</code>: <code>float</code>, 默认=0.0。<code>svd_solver='arpack'</code> 时的容忍度。</li>
+<li><code>iterated_power</code>: <code>int</code> 或 <code>'auto'</code>, 默认=‘auto’。<code>svd_solver='randomized'</code> 时的幂迭代次数。</li>
+<li><code>random_state</code>: <code>int</code>, <code>RandomState instance</code> 或 <code>None</code>。用于 <code>svd_solver</code> 为 ‘arpack’ 或 ‘randomized’ 时的随机数种子。</li>
+</ul>
+</section>
+<section id="选择主成分数量-n_components" class="level3">
+<h3 class="anchored" data-anchor-id="选择主成分数量-n_components">8.3.2 选择主成分数量 <code>n_components</code></h3>
+<p>如何确定保留多少个主成分 (<code>n_components</code>) 是PCA应用中的一个关键问题。</p>
+<p><strong>方法1：基于累计解释方差比例</strong> 这是最常用的方法。我们希望选择足够少的主成分，同时保留原始数据中足够多的信息（方差）。</p>
+<div id="cell-fig-pca-explained-variance" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用上一节的 X_scaled 数据</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pca_explorer <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="va">None</span>) <span class="co"># 保留所有主成分</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pca_explorer.fit(X_scaled)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>explained_variance_ratio <span class="op">=</span> pca_explorer.explained_variance_ratio_</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>cumulative_explained_variance <span class="op">=</span> np.cumsum(explained_variance_ratio)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(cumulative_explained_variance) <span class="op">+</span> <span class="dv">1</span>), cumulative_explained_variance, marker<span class="op">=</span><span class="st">'o'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Number of Principal Components'</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Cumulative Explained Variance Ratio'</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Cumulative Explained Variance Ratio vs. Number of Principal Components'</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 常见阈值</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>plt.axhline(y<span class="op">=</span><span class="fl">0.90</span>, color<span class="op">=</span><span class="st">'g'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'90% Variance'</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.axhline(y<span class="op">=</span><span class="fl">0.95</span>, color<span class="op">=</span><span class="st">'r'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'95% Variance'</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>plt.axhline(y<span class="op">=</span><span class="fl">0.99</span>, color<span class="op">=</span><span class="st">'b'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'99% Variance'</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig('images/08-dimensionality-reduction/pca_cumulative_variance.svg', format='svg')</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 找到达到例如95%方差所需的最小组件数</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>n_components_95_variance <span class="op">=</span> np.argmax(cumulative_explained_variance <span class="op">&gt;=</span> <span class="fl">0.95</span>) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"保留约95%方差所需的主成分数量: </span><span class="sc">{</span>n_components_95_variance<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="fig-pca-explained-variance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-explained-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="08-dimensionality-reduction_files/figure-html/fig-pca-explained-variance-output-1.png" width="829" height="523" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-explained-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.2: 通过累计解释方差比例选择PCA的主成分数量。
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>保留约95%方差所需的主成分数量: 2</code></pre>
+</div>
+</div>
+<p>上图显示了随着主成分数量的增加，累计解释的方差比例如何变化。我们可以根据业务需求或经验选择一个阈值（如90%, 95%, 99%），然后找到达到该阈值所需的最小主成分数量。</p>
+<p><strong>方法2：Minka’s MLE</strong> 当 <code>n_components='mle'</code> 时，Scikit-learn 使用 Minka (2000) 提出的最大似然估计方法来自动推断最佳的潜在维度。</p>
+<p><strong>方法3：根据应用需求</strong> 例如，如果PCA用于数据可视化，通常选择 <code>n_components=2</code> 或 <code>n_components=3</code>。</p>
+</section>
+<section id="pca-用于数据可视化" class="level3">
+<h3 class="anchored" data-anchor-id="pca-用于数据可视化">8.3.3 PCA 用于数据可视化</h3>
+<p>PCA 最直观的应用之一就是将高维数据集降至2维或3维，以便进行可视化，帮助我们理解数据的结构、簇的分布等。</p>
+<p><strong>示例：在鸢尾花 (Iris) 数据集上应用 PCA 并可视化</strong></p>
+<div id="cell-fig-pca-iris" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>iris <span class="op">=</span> load_iris()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>X_iris <span class="op">=</span> iris.data</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>y_iris <span class="op">=</span> iris.target</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>target_names_iris <span class="op">=</span> iris.target_names</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 标准化数据</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>scaler_iris <span class="op">=</span> StandardScaler()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>X_iris_scaled <span class="op">=</span> scaler_iris.fit_transform(X_iris)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. PCA 降至2维</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>pca_iris <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>X_iris_pca <span class="op">=</span> pca_iris.fit_transform(X_iris_scaled)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 可视化</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">7</span>))</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'navy'</span>, <span class="st">'turquoise'</span>, <span class="st">'darkorange'</span>]</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>lw <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> color, i, target_name <span class="kw">in</span> <span class="bu">zip</span>(colors, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>], target_names_iris):</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    plt.scatter(X_iris_pca[y_iris <span class="op">==</span> i, <span class="dv">0</span>], X_iris_pca[y_iris <span class="op">==</span> i, <span class="dv">1</span>],</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>                color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">.8</span>, lw<span class="op">=</span>lw, label<span class="op">=</span>target_name)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>, shadow<span class="op">=</span><span class="va">False</span>, scatterpoints<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'PCA of IRIS dataset (2D)'</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="ss">f'PC1 (</span><span class="sc">{</span>pca_iris<span class="sc">.</span>explained_variance_ratio_[<span class="dv">0</span>]<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%)'</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="ss">f'PC2 (</span><span class="sc">{</span>pca_iris<span class="sc">.</span>explained_variance_ratio_[<span class="dv">1</span>]<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%)'</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig('images/08-dimensionality-reduction/pca_iris_2d.svg', format='svg')</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Iris: PCA保留的总方差 (2D): </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(pca_iris.explained_variance_ratio_)<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="fig-pca-iris" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-iris-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="08-dimensionality-reduction_files/figure-html/fig-pca-iris-output-1.png" width="810" height="597" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-iris-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.3: 使用PCA将4维鸢尾花数据集降至2维进行可视化。
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Iris: PCA保留的总方差 (2D): 95.81%</code></pre>
+</div>
+</div>
+<p>从图中可以看出，即使只使用两个主成分（保留了约95.81%的原始方差），不同种类的鸢尾花在2D空间中也表现出较好的可分性。</p>
+</section>
+<section id="pca-的逆变换-reconstruction" class="level3">
+<h3 class="anchored" data-anchor-id="pca-的逆变换-reconstruction">8.3.4 PCA 的逆变换 (Reconstruction)</h3>
+<p>PCA不仅可以将数据从高维投影到低维，还可以通过 <code>inverse_transform()</code> 方法将降维后的数据近似地恢复（重构）到原始的高维空间。由于降维是有损的，重构后的数据与原始数据之间通常存在一定的<strong>重构误差 (Reconstruction Error)</strong>。</p>
+<div id="code-pca-inverse" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用之前在 Iris 数据集上训练的 pca_iris (降到2D)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>X_iris_reconstructed <span class="op">=</span> pca_iris.inverse_transform(X_iris_pca)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 计算重构误差 (例如，均方误差 MSE)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>mse_reconstruction <span class="op">=</span> np.mean((X_iris_scaled <span class="op">-</span> X_iris_reconstructed)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"PCA (2D) 重构 Iris 数据集的均方误差 (MSE): </span><span class="sc">{</span>mse_reconstruction<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 如果我们保留更多主成分，重构误差会更小</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>pca_iris_3d <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>X_iris_pca_3d <span class="op">=</span> pca_iris_3d.fit_transform(X_iris_scaled)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>X_iris_reconstructed_3d <span class="op">=</span> pca_iris_3d.inverse_transform(X_iris_pca_3d)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>mse_reconstruction_3d <span class="op">=</span> np.mean((X_iris_scaled <span class="op">-</span> X_iris_reconstructed_3d)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"PCA (3D) 重构 Iris 数据集的均方误差 (MSE): </span><span class="sc">{</span>mse_reconstruction_3d<span class="sc">:.4f}</span><span class="ss"> (应小于2D的MSE)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>PCA (2D) 重构 Iris 数据集的均方误差 (MSE): 0.0419
+PCA (3D) 重构 Iris 数据集的均方误差 (MSE): 0.0052 (应小于2D的MSE)</code></pre>
+</div>
+</div>
+<p>逆变换可以用于评估降维的信息损失程度，或者在某些应用（如数据压缩后解压）中恢复数据的近似表示。</p>
+</section>
+</section>
+<section id="pca-的应用场景总结" class="level2">
+<h2 class="anchored" data-anchor-id="pca-的应用场景总结">8.4 PCA 的应用场景总结</h2>
+<ul>
+<li><strong>数据压缩：</strong> 如前所述，减少存储和传输开销。</li>
+<li><strong>加速机器学习算法：</strong> 在维度较低的数据上训练模型通常更快。</li>
+<li><strong>数据可视化：</strong> 将高维数据投影到2D或3D空间进行直观展示。</li>
+<li><strong>噪声过滤/平滑：</strong> 通过丢弃方差较小（可能对应噪声）的主成分来实现。</li>
+<li><strong>特征工程/特征提取：</strong> 提取出的主成分可以作为新的、不相关的特征输入到其他机器学习模型中，有时能提高模型性能，尤其是在原始特征高度相关时。</li>
+<li><strong>多重共线性处理：</strong> 在回归分析中，如果自变量之间存在高度相关性（多重共线性），PCA可以用来生成一组不相关的预测因子。</li>
+</ul>
+</section>
+<section id="其他重要降维技术简介" class="level2">
+<h2 class="anchored" data-anchor-id="其他重要降维技术简介">8.5 其他重要降维技术简介</h2>
+<p>除了PCA，还有许多其他有价值的降维技术，它们各有特点和适用场景。</p>
+<ul>
+<li><strong>线性判别分析 (Linear Discriminant Analysis, LDA)：</strong>
+<ul>
+<li><strong>类型：</strong> 监督学习，线性降维。</li>
+<li><strong>核心思想：</strong> 与PCA最大化数据方差不同，LDA的目标是找到一个投影方向（子空间），使得不同类别之间的分离度最大化，同时同一类别内部的方差最小化。它利用了类别标签信息。</li>
+<li><strong>应用：</strong> 主要用于分类任务的预处理，尤其当类别可分性是关键时。降维后的维度最多为 <code>n_classes - 1</code>。</li>
+<li><strong>论文时间：</strong> 1936年由Ronald Fisher提出</li>
+<li>Scikit-learn: <code>sklearn.discriminant_analysis.LinearDiscriminantAnalysis</code></li>
+</ul></li>
+<li><strong>t-分布随机邻域嵌入 (t-Distributed Stochastic Neighbor Embedding, t-SNE)：</strong>
+<ul>
+<li><strong>类型：</strong> 无监督学习，非线性降维（流形学习）。</li>
+<li><strong>核心思想：</strong> 旨在将高维空间中数据点之间的局部相似性结构保留到低维空间（通常是2D或3D）中。它将高维空间中数据点对的相似性转换为条件概率，然后在低维空间中构建相似的概率分布，并最小化这两个分布之间的KL散度。</li>
+<li><strong>特点：</strong> 非常擅长于高维数据的可视化，能够揭示复杂的非线性结构和簇。计算成本较高（尤其对于大数据集），结果对参数（如 <code>perplexity</code>, <code>learning_rate</code>）敏感，且低维嵌入的全局结构可能不完全可靠（主要关注局部结构）。</li>
+<li><strong>论文时间：</strong> 2008年由Laurens van der Maaten和Geoffrey Hinton提出</li>
+<li>Scikit-learn: <code>sklearn.manifold.TSNE</code></li>
+</ul></li>
+<li><strong>独立成分分析 (Independent Component Analysis, ICA)：</strong>
+<ul>
+<li><strong>类型：</strong> 无监督学习，线性降维。</li>
+<li><strong>核心思想：</strong> 旨在将观察到的多变量信号分解为一组统计上相互独立的潜在源信号的线性混合。与PCA寻找不相关的成分（二阶统计量）不同，ICA试图找到统计上独立的成分（高阶统计量）。</li>
+<li><strong>应用：</strong> 常用于盲源分离问题，例如从混合的脑电图(EEG)信号中分离出不同的神经活动源，或从混合音频中分离出单个说话人的声音。</li>
+<li><strong>论文时间：</strong> 1994年由Pierre Comon提出</li>
+<li>Scikit-learn: <code>sklearn.decomposition.FastICA</code></li>
+</ul></li>
+<li><strong>核PCA (Kernel PCA, kPCA)：</strong>
+<ul>
+<li><strong>类型：</strong> 无监督学习，非线性降维。</li>
+<li><strong>核心思想：</strong> PCA的非线性扩展。通过核技巧 (Kernel Trick)，首先将原始数据隐式地映射到一个非常高维（甚至无限维）的特征空间，然后在这个高维空间中执行标准的PCA。</li>
+<li><strong>特点：</strong> 能够有效地处理原始空间中线性不可分的数据结构。需要选择合适的核函数（如高斯核RBF、多项式核）及其参数。</li>
+<li><strong>论文时间：</strong> 1998年由Bernhard Schölkopf等人提出</li>
+<li>Scikit-learn: <code>sklearn.decomposition.KernelPCA</code></li>
+</ul></li>
+<li><strong>均匀流形逼近与投影 (Uniform Manifold Approximation and Projection, UMAP)：</strong>
+<ul>
+<li><strong>类型：</strong> 无监督学习，非线性降维（流形学习）。</li>
+<li><strong>核心思想：</strong> 与t-SNE类似，也是一种流形学习算法，旨在保留数据的拓扑结构。它基于黎曼几何和代数拓扑的理论构建。</li>
+<li><strong>特点：</strong> 通常比t-SNE运行速度更快，且在某些情况下能更好地保留数据的全局结构。也主要用于可视化。</li>
+<li><strong>论文时间：</strong> 2018年由Leland McInnes等人提出</li>
+<li>UMAP不是Scikit-learn的一部分，但有独立的Python库 <code>umap-learn</code>。</li>
+</ul></li>
+</ul>
+</section>
+<section id="本章总结" class="level2">
+<h2 class="anchored" data-anchor-id="本章总结">8.6 本章总结</h2>
+<p>本章我们深入探讨了降维技术，特别是主成分分析 (PCA)。</p>
+<ul>
+<li><strong>降维</strong>是处理高维数据的关键步骤，有助于克服维度灾难、提高计算效率、可视化数据和去除噪声。</li>
+<li>主要的降维方法分为<strong>特征选择</strong>（选择原始特征子集）和<strong>特征提取</strong>（创建新的低维特征）。</li>
+<li><strong>PCA</strong> 是一种无监督的线性特征提取方法，它通过将数据投影到最大化方差的正交主成分上，来实现降维。
+<ul>
+<li>PCA的实现依赖于数据中心化和协方差矩阵的特征分解（或SVD）。</li>
+<li><strong>数据标准化</strong>在使用PCA前通常是必要的，以避免尺度大的特征主导结果。</li>
+<li>选择保留的<strong>主成分数量</strong>是一个重要环节，可以基于累计解释方差比例。</li>
+<li>PCA可用于数据压缩、可视化、噪声过滤和特征工程。</li>
+</ul></li>
+<li>我们还简要介绍了其他重要的降维技术：
+<ul>
+<li><strong>LDA (监督, 线性):</strong> 最大化类别可分性。</li>
+<li><strong>t-SNE (无监督, 非线性):</strong> 优秀的可视化工具，保留局部结构。</li>
+<li><strong>ICA (无监督, 线性):</strong> 分离独立信号源。</li>
+<li><strong>Kernel PCA (无监督, 非线性):</strong> PCA的非线性扩展。</li>
+<li><strong>UMAP (无监督, 非线性):</strong> 另一种强大的可视化和降维工具。</li>
+</ul></li>
+</ul>
+<p>选择合适的降维方法取决于数据的特性（线性/非线性、是否有标签）、任务目标（可视化、分类预处理、特征提取等）以及计算资源的限制。</p>
+</section>
+<section id="思考与练习" class="level2">
+<h2 class="anchored" data-anchor-id="思考与练习">8.7 思考与练习</h2>
+<section id="基础练习" class="level3">
+<h3 class="anchored" data-anchor-id="基础练习">8.7.1 基础练习</h3>
+<ol type="1">
+<li><strong>核心概念回顾：</strong>
+<ul>
+<li>什么是”维度灾难”？降维如何帮助缓解这个问题？</li>
+<li>特征选择和特征提取的主要区别是什么？请各举一个例子。</li>
+<li>PCA的目标是最大化投影数据的什么统计量？为什么数据中心化是PCA的前提？</li>
+<li>解释”解释方差比例”在PCA中的含义和作用。</li>
+<li>为什么在使用PCA之前通常需要对数据进行标准化？如果不进行标准化，可能会发生什么？</li>
+</ul></li>
+<li><strong>PCA 理解：</strong>
+<ul>
+<li>PCA找到的主成分之间有什么数学关系？</li>
+<li>如果一个数据集的原始特征之间几乎不相关，应用PCA的效果会怎样？</li>
+<li>PCA的逆变换是否能完美恢复原始数据？为什么？重构误差代表什么？</li>
+<li>描述至少两种选择PCA中主成分数量 <code>k</code> 的方法。</li>
+</ul></li>
+<li><strong>PCA vs.&nbsp;其他方法：</strong>
+<ul>
+<li>PCA和LDA在目标和方法上的主要区别是什么？在什么情况下你会选择LDA而不是PCA？</li>
+<li>PCA和t-SNE都可用于数据可视化，它们的主要区别是什么？各自的优缺点是什么？</li>
+</ul></li>
+</ol>
+</section>
+<section id="编码与实践" class="level3">
+<h3 class="anchored" data-anchor-id="编码与实践">8.7.2 编码与实践</h3>
+<ol type="1">
+<li><strong>数据集准备与探索：</strong>
+<ul>
+<li>加载 <code>sklearn.datasets.load_digits()</code> 手写数字数据集。该数据集包含64个特征（8x8像素图像）。</li>
+<li>对数据进行标准化处理。</li>
+</ul></li>
+<li><strong>PCA 应用与分析：</strong>
+<ul>
+<li>对标准化的手写数字数据应用PCA。</li>
+<li>绘制累计解释方差比例随主成分数量变化的曲线图。确定保留例如90%、95%和99%方差所需的主成分数量。</li>
+<li>选择一个合适的 <code>n_components</code>（例如，保留95%方差的数量，或者直接选择一个较小的整数如10或20），得到降维后的数据。</li>
+</ul></li>
+<li><strong>PCA 用于可视化：</strong>
+<ul>
+<li>使用PCA将手写数字数据降至2维。</li>
+<li>绘制2D散点图，并用不同颜色标记不同的数字类别（0-9）。观察不同数字在2D PCA空间中的分布和可分性。</li>
+<li>在图中标注每个主成分解释的方差比例。</li>
+</ul></li>
+<li><strong>PCA 重构与可视化：</strong>
+<ul>
+<li>选择几个原始的数字图像（例如，数字0、1、2各一个）。</li>
+<li>将这些图像通过你训练好的PCA模型（例如，保留了 <code>N</code> 个主成分）进行降维，然后再通过逆变换重构回原始的64维空间。</li>
+<li>将原始图像和重构后的图像并排显示出来。比较它们之间的差异。</li>
+<li>尝试使用不同数量的主成分（例如，<code>N</code>=5, 10, 20, 50）进行重构，观察重构图像的质量如何随主成分数量变化。</li>
+</ul></li>
+<li><strong>PCA 与分类器结合：</strong>
+<ul>
+<li>选择一个简单的分类器（如逻辑回归或KNN）。</li>
+<li>在原始的64维手写数字数据上训练分类器，并在测试集上评估其性能。</li>
+<li>在PCA降维后的数据（例如，保留95%方差的主成分）上训练相同的分类器，并在测试集上评估其性能。</li>
+<li>比较两种情况下的模型性能和训练时间。讨论PCA在这种情况下的作用。</li>
+</ul></li>
+<li><strong>尝试非线性降维方法：</strong>
+<ul>
+<li>对标准化的手写数字数据应用t-SNE，将其降至2维。可视化结果并讨论t-SNE的参数选择（如 <code>perplexity</code>）。</li>
+<li>对相同数据应用UMAP，同样降至2维并进行可视化。</li>
+<li>将t-SNE、UMAP和PCA的2D可视化结果进行对比分析，讨论它们在计算效率、保留局部/全局结构、参数敏感性等方面的异同。</li>
+</ul></li>
+</ol>
+</section>
+<section id="推荐阅读" class="level3">
+<h3 class="anchored" data-anchor-id="推荐阅读">8.7.3 推荐阅读</h3>
+<ol type="1">
+<li><strong>Bishop, C. M. (2006). <em>Pattern Recognition and Machine Learning</em>. Springer. (Chapter 12: Continuous Latent Variables)</strong> - 对PCA有深入的概率解释。</li>
+<li><strong>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The Elements of Statistical Learning: Data Mining, Inference, and Prediction</em>. Springer. (Chapter 3.5, Chapter 14.5 for PCA, Chapter 4.3 for LDA, Chapter 14.8 for Manifold Learning)</strong> - 统计学习的经典教材。</li>
+<li><strong>Scikit-learn User Guide - Decomposition:</strong> (<a href="https://scikit-learn.org/stable/modules/decomposition.html" class="uri">https://scikit-learn.org/stable/modules/decomposition.html</a>) - 包含PCA, ICA, KernelPCA等算法的详细文档和示例。</li>
+<li><strong>Scikit-learn User Guide - Manifold learning:</strong> (<a href="https://scikit-learn.org/stable/modules/manifold.html" class="uri">https://scikit-learn.org/stable/modules/manifold.html</a>) - 包含t-SNE, Isomap, LLE等算法的介绍。</li>
+<li><strong>“A Tutorial on Principal Component Analysis” by Jonathon Shlens.</strong> - 一份非常清晰易懂的PCA数学原理教程。</li>
+<li><strong>StatQuest with Josh Starmer - YouTube频道:</strong> 搜索 “PCA”, “t-SNE”, “LDA” 等关键词，有非常直观的视频讲解。</li>
+<li><strong>Van der Maaten, L., &amp; Hinton, G. (2008). Visualizing data using t-SNE. <em>Journal of Machine Learning Research</em>, 9(Nov), 2579-2605.</strong> - t-SNE的原始论文。</li>
+</ol>
+<p>通过这些练习和阅读，你将能更全面地掌握降维技术，并能在实际项目中灵活应用。</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./07-clustering.html" class="pagination-link" aria-label="聚类分析">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">聚类分析</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./09-model-evaluation-feature-engineering.html" class="pagination-link" aria-label="模型评估、优化与特征工程">
+        <span class="nav-page-text"><span class="chapter-title">模型评估、优化与特征工程</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

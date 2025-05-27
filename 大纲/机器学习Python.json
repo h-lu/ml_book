@@ -1,0 +1,357 @@
+{
+    "basic_info": {
+        "name_cn": "机器学习（Python）",
+        "name_en": "Machine Learning (Python)",
+        "code": "B3104505",
+        "type": "必修",
+        "credits": 3,
+        "total_hours": 64,
+        "theory_hours": 32,
+        "lab_hours": 32,
+        "exam_mode": "考试",
+        "department": "经济与管理学院",
+        "major": "大数据管理与应用",
+        "prerequisites": "Python程序设计、数据结构（Python语言）、统计学与R语言基础、线性代数A、概率论与数理统计"
+    },
+    "textbooks": {
+        "main": [
+            "《机器学习》（西瓜书，最新版），周志华 著，清华大学出版社 (侧重理论与传统方法)",
+            "《动手学深度学习》（最新版，基于PyTorch或TensorFlow），阿斯顿·张 等著，人民邮电出版社 (侧重深度学习实践，教师可指定其中一个框架版本)"
+        ],
+        "references": [
+            "《Python机器学习基础教程》，[德] Andreas C. Müller, [美] Sarah Guido 著，人民邮电出版社 (Scikit-learn入门)",
+            "《深度学习》，[美] Ian Goodfellow, [加] Yoshua Bengio, [加] Aaron Courville 著（花书），人民邮电出版社 (深度学习理论经典)",
+            "《强化学习导论》（第2版或最新版），Richard S. Sutton, Andrew G. Barto 著，俞凯 等译，电子工业出版社 (强化学习经典)",
+            "Scikit-learn, TensorFlow, Keras, PyTorch官方文档及教程",
+            "Kaggle, 天池等数据科学竞赛平台案例",
+            "顶会论文（NeurIPS, ICML, ICLR等）的科普解读和行业报告"
+        ]
+    },
+    "intro": "机器学习是人工智能的核心，是大数据时代驱动数据价值发现和智能决策的关键技术。本课程是大数据管理与应用专业的专业核心课程，旨在系统介绍机器学习的基本理论、核心算法模型以及在Python环境下的编程实现与应用。课程内容将全面覆盖监督学习、无监督学习等传统机器学习方法，并深入介绍深度学习的基础与常用模型，以及强化学习的基本思想与应用场景。通过理论讲解与大量的Python编程实践（基于Scikit-learn, TensorFlow/Keras/PyTorch等主流框架），学生将掌握机器学习的完整工作流程（从数据预处理、特征工程到模型训练、评估与调优），具备运用机器学习和初步的深度学习、强化学习技术解决实际数据分析与预测问题的能力，为后续从事大数据分析、人工智能相关研发与应用工作奠定坚实的算法基础和工程实践技能，有力支撑本专业'强化计算机应用与智能数据处理能力'的培养目标。",
+    "objectives": {
+        "knowledge": [
+            "理解机器学习的基本概念、分类、一般流程以及在AI和大数据中的核心地位。",
+            "掌握常用监督学习算法（如线性回归、逻辑回归、KNN、SVM、决策树、集成学习等）的原理、数学基础、假设条件和适用场景。",
+            "掌握常用无监督学习算法（如K-Means聚类、DBSCAN、PCA降维等）的原理和适用场景。",
+            "掌握模型评估的基本指标、方法（如交叉验证）以及模型选择与调优策略。",
+            "理解深度学习的基本原理（神经网络、反向传播），掌握常用深度学习模型（如CNN、RNN、LSTM初步）的核心思想和典型应用。",
+            "初步理解强化学习的基本概念（智能体、环境、奖励、策略等）、核心算法思想（如Q-Learning, Policy Gradient概念）及应用领域。",
+            "熟悉Python中常用的机器学习与深度学习库（特别是Scikit-learn, TensorFlow/Keras或PyTorch）的使用。"
+        ],
+        "ability": [
+            "能够使用Python及其库进行复杂数据的加载、清洗、预处理、特征工程和可视化。",
+            "能够根据问题特点和数据特性，选择合适的机器学习算法，并使用Scikit-learn等工具进行模型训练、预测与评估。",
+            "能够运用交叉验证等方法评估和比较模型性能，进行有效的超参数调优。",
+            "能够使用TensorFlow/Keras或PyTorch框架搭建、训练和评估基础的深度学习模型（如MLP, CNN, RNN）。",
+            "能够理解并实现简单的强化学习场景（如使用基础RL库或自行编码）。",
+            "能够对模型结果进行解释，分析其合理性、局限性，并提出改进方向。",
+            "具备阅读和理解机器学习相关英文技术文档和简单研究论文的能力。",
+            "能够规范地使用Git进行机器学习项目代码的版本管理和协作。"
+        ],
+        "literacy": [
+            "培养数据驱动的思维方式、严谨的科学态度和模型思维。",
+            "提升算法理解、模型选择、结果评估和代码实现的综合能力。",
+            "培养良好的实验设计习惯、代码规范和文档编写能力。",
+            "增强对机器学习应用中伦理、偏见和社会影响的认识。",
+            "培养持续学习机器学习新知识、新技术（特别是深度学习和强化学习前沿）的意识和能力。"
+        ],
+        "objectives_mapping": [
+            {
+                "no": "1",
+                "objective_desc": "知识目标1, 7；能力目标1, 8；素养目标3",
+                "requirement_map": "毕业要求3：掌握大数据分析与建模方法，熟练运用R/Python"
+            },
+            {
+                "no": "2",
+                "objective_desc": "知识目标2, 3, 4；能力目标2, 3, 6；素养目标1",
+                "requirement_map": "毕业要求2：熟练掌握现代企业经营与信息管理理论，运用运筹学、统计学；毕业要求5：熟练运用数学建模、数据挖掘、决策支持系统方法。"
+            },
+            {
+                "no": "3",
+                "objective_desc": "知识目标5, 6；能力目标4, 5；素养目标2",
+                "requirement_map": "毕业要求2（智能数据处理部分）；毕业要求7：独立学习与持续更新专业知识的能力"
+            },
+            {
+                "no": "4",
+                "objective_desc": "能力目标7；素养目标4, 5",
+                "requirement_map": "毕业要求6：具备国际视野与跨文化交流能力；毕业要求9：职业规范与社会责任感；毕业要求10：创新实践与项目管理能力"
+            }
+        ]
+    },
+    "schedule": {
+        "table": [
+            {
+                "topic": "导论与Python机器学习生态",
+                "content": "机器学习定义、分类、应用。Python在机器学习中的地位。Scikit-learn, Numpy, Pandas, Matplotlib核心功能回顾与进阶。开发环境（Jupyter, VS Code等）。版本控制Git入门。",
+                "requirements": "理解ML基本概念，熟悉核心库，搭建实验环境。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、演示、环境配置、Git练习",
+                "objective_refs": "知1, 知7, 能1, 能8, 素3"
+            },
+            {
+                "topic": "监督学习（一）：回归与线性模型",
+                "content": "回归问题。简单线性回归，多元线性回归。损失函数与优化（梯度下降）。正则化（L1, L2）。多项式回归。Scikit-learn实现。",
+                "requirements": "理解线性回归原理，掌握梯度下降和正则化，能用Scikit-learn实现。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、公式推导、编程实践",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "topic": "监督学习（二）：分类与逻辑回归、KNN",
+                "content": "分类问题。逻辑回归原理与实现。K近邻（KNN）算法原理、距离度量、K值选择。Scikit-learn实现。",
+                "requirements": "掌握逻辑回归和KNN原理及应用。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、案例分析、编程实践",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "topic": "监督学习（三）：支持向量机（SVM）",
+                "content": "SVM基本思想（最大间隔、支持向量）。线性可分与线性不可分SVM。核函数（多项式核、高斯核）。软间隔。Scikit-learn实现。",
+                "requirements": "理解SVM核心原理和核技巧的应用。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、图示、编程实践",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "topic": "监督学习（四）：决策树与集成学习",
+                "content": "决策树原理（信息熵、基尼指数、剪枝）。集成学习思想。Bagging（随机森林）。Boosting（AdaBoost, Gradient Boosting, XGBoost简介）。Scikit-learn实现。",
+                "requirements": "掌握决策树和常用集成学习算法原理及应用。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、案例分析、编程实践",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "topic": "无监督学习：聚类与降维",
+                "content": "聚类任务。K-Means算法原理与实现。DBSCAN算法。聚类评估指标。降维思想。主成分分析（PCA）原理与应用。Scikit-learn实现。",
+                "requirements": "掌握K-Means、DBSCAN和PCA的原理及应用。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、编程实践",
+                "objective_refs": "知3, 能2"
+            },
+            {
+                "topic": "模型评估与选择、特征工程",
+                "content": "评估指标（准确率、精确率、召回率、F1、ROC、AUC等）。交叉验证。超参数调优（网格搜索、随机搜索）。特征选择与特征提取。数据不平衡问题处理。",
+                "requirements": "掌握模型评估方法和基本调优技巧，理解特征工程的重要性。",
+                "hours_desc": "理论2 + 实验2",
+                "teaching_method": "讲授、讨论、编程实践",
+                "objective_refs": "知4, 能1, 能3, 能6"
+            },
+            {
+                "topic": "深度学习基础与神经网络",
+                "content": "从机器学习到深度学习。生物神经元与人工神经元。感知机。多层感知机（MLP）。激活函数。损失函数。反向传播算法核心思想。深度学习框架介绍（TensorFlow/Keras或PyTorch）。",
+                "requirements": "理解神经网络基本原理和反向传播思想，熟悉至少一个深度学习框架。",
+                "hours_desc": "理论2 + 实验4 (框架入门)",
+                "teaching_method": "讲授、图示、框架基本操作演示",
+                "objective_refs": "知5, 知7, 能4, 素2"
+            },
+            {
+                "topic": "卷积神经网络（CNN）及其应用",
+                "content": "CNN的动机与核心思想（局部连接、权值共享、池化）。卷积层、池化层、全连接层。经典CNN架构简介（如LeNet, AlexNet）。CNN在图像识别、目标检测等领域的应用。框架实现。",
+                "requirements": "理解CNN的核心组件和工作原理，能用框架搭建简单CNN模型。",
+                "hours_desc": "理论4 + 实验4 (图像分类)",
+                "teaching_method": "讲授、架构图分析、编程实践",
+                "objective_refs": "知5, 能4"
+            },
+            {
+                "topic": "循环神经网络（RNN）及其变体",
+                "content": "序列数据与RNN的动机。简单RNN结构与梯度消失/爆炸问题。长短期记忆网络（LSTM）与门控循环单元（GRU）的核心思想。RNN/LSTM在自然语言处理（如文本分类、情感分析）、时间序列预测中的应用。框架实现。",
+                "requirements": "理解RNN/LSTM处理序列数据的原理，能用框架搭建简单RNN/LSTM模型。",
+                "hours_desc": "理论2 + 实验4 (文本情感分析)",
+                "teaching_method": "讲授、结构图分析、编程实践",
+                "objective_refs": "知5, 能4"
+            },
+            {
+                "topic": "深度学习进阶与前沿简介",
+                "content": "优化器（Adam等）。正则化（Dropout等）。迁移学习。生成对抗网络（GAN）概念。Transformer与自注意力机制概念。AutoML简介。负责任的AI与深度学习伦理。",
+                "requirements": "了解深度学习中的高级技巧和前沿方向，培养AI伦理意识。",
+                "hours_desc": "理论4",
+                "teaching_method": "讲授、前沿进展介绍、案例讨论",
+                "objective_refs": "知5, 素4, 素5"
+            },
+            {
+                "topic": "强化学习基础与应用",
+                "content": "强化学习基本概念（智能体Agent, 环境Environment, 状态State, 动作Action, 奖励Reward, 策略Policy）。马尔可夫决策过程（MDP）。价值函数与Q函数。Q-Learning算法。Policy Gradient思想简介。强化学习应用场景（游戏、机器人、推荐系统等）。Python RL库（如Gymnasium, Stable Baselines3）简单体验。",
+                "requirements": "理解强化学习的核心概念和Q-Learning算法，了解其应用前景。",
+                "hours_desc": "理论4 + 实验2 (简单RL环境体验)",
+                "teaching_method": "讲授、案例分析、RL环境演示与简单交互",
+                "objective_refs": "知6, 能5, 素5"
+            },
+            {
+                "topic": "机器学习项目实战流程与总结",
+                "content": "回顾完整机器学习/深度学习项目流程。数据集选择与获取。模型部署初步概念。课程知识体系梳理。未来学习路径建议。",
+                "requirements": "整合所学知识，能够独立完成一个小型机器学习项目，明确未来学习方向。",
+                "hours_desc": "理论2 + 实验4 (小型综合项目或Kaggle入门)",
+                "teaching_method": "串讲、项目指导、讨论",
+                "objective_refs": "所有能力和素养目标"
+            }
+        ]
+    },
+    "labs": {
+        "table": [
+            {
+                "no": "1",
+                "name": "Python ML生态与Git环境实践",
+                "content": "配置Anaconda, Jupyter/VS Code。练习Numpy, Pandas进行数据加载、清洗、转换、可视化。Scikit-learn预处理模块（标准化、归一化、编码）。Git基本操作：创建仓库、提交、分支、合并。",
+                "requirements": "熟练掌握ML开发环境配置，核心库的基本操作和Git版本控制。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "验证/设计",
+                "objective_refs": "知1, 知7, 能1, 能8, 素3"
+            },
+            {
+                "no": "2",
+                "name": "线性回归模型实践",
+                "content": "使用Scikit-learn实现简单线性回归和多元线性回归。应用L1、L2正则化。尝试多项式回归，并观察模型复杂度对结果的影响。分析回归系数，评估模型性能。",
+                "requirements": "能够使用Scikit-learn构建、训练和评估线性回归模型，理解正则化的作用。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/验证",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "no": "3",
+                "name": "逻辑回归与KNN分类实践",
+                "content": "使用Scikit-learn实现逻辑回归进行二分类或多分类。实现KNN算法，探讨不同K值和距离度量对分类结果的影响。比较两种算法在特定数据集上的表现。",
+                "requirements": "掌握用Scikit-learn实现逻辑回归和KNN，并能进行参数调整和结果比较。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/验证",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "no": "4",
+                "name": "支持向量机（SVM）分类实践",
+                "content": "使用Scikit-learn实现线性SVM和非线性SVM（使用不同核函数）。调整SVM的关键参数（如C、gamma），观察其对分类边界和性能的影响。",
+                "requirements": "理解SVM参数的意义，并能通过调参优化模型性能。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/验证",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "no": "5",
+                "name": "决策树与集成学习模型实践",
+                "content": "使用Scikit-learn构建决策树模型，并进行可视化。实现随机森林。尝试使用AdaBoost或Gradient Boosting，比较单个决策树与集成学习模型的性能差异。",
+                "requirements": "掌握决策树和至少一种集成学习算法的实现，理解集成学习的优势。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/验证",
+                "objective_refs": "知2, 能2"
+            },
+            {
+                "no": "6",
+                "name": "K-Means聚类与PCA降维实践",
+                "content": "使用Scikit-learn实现K-Means聚类，尝试不同K值，并使用轮廓系数等指标评估聚类效果。实现PCA降维，并可视化降维前后的数据。",
+                "requirements": "掌握K-Means和PCA的实现及结果评估，理解其在数据分析中的应用。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/验证",
+                "objective_refs": "知3, 能2"
+            },
+            {
+                "no": "7",
+                "name": "模型评估、调优与特征工程实践",
+                "content": "针对特定分类或回归任务，练习使用交叉验证进行模型评估。运用网格搜索或随机搜索进行超参数调优。尝试不同的特征选择和特征提取方法，观察其对模型性能的影响。",
+                "requirements": "熟练运用模型评估和调优技术，理解特征工程在模型性能提升中的作用。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "综合/设计",
+                "objective_refs": "知4, 能1, 能3, 能6"
+            },
+            {
+                "no": "8",
+                "name": "深度学习框架入门（TensorFlow/Keras或PyTorch）",
+                "content": "安装并配置所选深度学习框架。学习框架的基本张量操作、自动求导机制。构建并训练一个简单的多层感知机（MLP）模型进行分类或回归。",
+                "requirements": "熟悉所选深度学习框架的基本操作，能用框架搭建和训练简单的神经网络。",
+                "hours": 4,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "验证/设计",
+                "objective_refs": "知5, 知7, 能4, 素2"
+            },
+            {
+                "no": "9",
+                "name": "卷积神经网络（CNN）图像分类实践",
+                "content": "使用深度学习框架（TensorFlow/Keras或PyTorch）搭建一个简单的CNN模型（如包含卷积层、池化层、全连接层）。在标准图像数据集（如CIFAR-10或MNIST的子集）上进行训练和评估。",
+                "requirements": "能够使用框架实现一个基础的CNN模型完成图像分类任务。",
+                "hours": 4,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/应用",
+                "objective_refs": "知5, 能4"
+            },
+            {
+                "no": "10",
+                "name": "循环神经网络（RNN/LSTM）文本情感分析实践",
+                "content": "使用深度学习框架（TensorFlow/Keras或PyTorch）搭建一个简单的RNN或LSTM模型。在文本情感分析数据集（如IMDb电影评论的子集）上进行训练和评估。",
+                "requirements": "能够使用框架实现一个基础的RNN/LSTM模型完成文本分类任务。",
+                "hours": 4,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "设计/应用",
+                "objective_refs": "知5, 能4"
+            },
+            {
+                "no": "11",
+                "name": "强化学习入门体验",
+                "content": "熟悉强化学习Python库（如Gymnasium）。运行预定义的RL环境（如CartPole）。尝试理解Q-Learning或简单策略梯度算法的实现（若时间允许，可基于示例代码修改或运行）。",
+                "requirements": "了解RL基本环境交互，对Q-Learning等算法有初步的感性认识。",
+                "hours": 2,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "探索/验证",
+                "objective_refs": "知6, 能5, 素5"
+            },
+            {
+                "no": "12",
+                "name": "小型机器学习/深度学习综合项目",
+                "content": "选择一个小规模的公开数据集（或教师提供），完整经历数据预处理、特征工程、模型选择、训练、评估、调优的全过程。可以是一个分类、回归或简单的图像/文本处理任务。提交项目报告和代码。",
+                "requirements": "综合运用课程所学知识和技能，独立完成一个端到端的机器学习项目。",
+                "hours": 4,
+                "group_size": 1,
+                "is_required": "必做",
+                "type": "综合/设计",
+                "objective_refs": "所有能力和素养目标"
+            }
+        ],
+        "type_note": "实验项目类型包括验证型（验证理论）、设计型（应用知识解决问题）、综合型（多知识点结合）和探索型（尝试新技术）。",
+        "equipment": "已安装Python (Anaconda发行版)、Scikit-learn, TensorFlow/Keras或PyTorch, Pandas, Numpy, Matplotlib, Git等软件的计算机。能够访问互联网查阅资料和下载数据集。"
+    },
+    "assessment": {
+        "desc": "本课程为考试课，总评成绩由平时考核和期末考试组成。考核重点在于机器学习、深度学习、强化学习基本理论的理解、核心算法的掌握、使用Python进行模型构建与评估的实践能力，以及分析解决实际问题的综合能力。总评成绩 = 平时考核成绩 * 50% + 期末考试成绩 * 50%。",
+        "regular": {
+            "total_weight": "50%",
+            "table": [
+                {
+                    "method": "实验报告/代码/Git提交",
+                    "weight_percent": 35,
+                    "criteria": "根据实验完成度、代码质量（规范性、可读性、逻辑正确性、效率）、模型选择与评估的合理性、Git提交记录规范性、报告（或Jupyter Notebook）的分析深度与清晰度评分。",
+                    "objective_refs": "所有能力目标, 素1, 素3"
+                },
+                {
+                    "method": "课堂参与/小测/课程项目阶段性检查",
+                    "weight_percent": 15,
+                    "criteria": "根据课堂表现、提问回答、参与讨论情况、阶段性小测验或编程作业完成质量、以及课程大作业（若有）的阶段性进展进行评分。",
+                    "objective_refs": "所有目标"
+                }
+            ]
+        },
+        "final": {
+            "total_weight": "50%",
+            "method": "期末考试（闭卷/开卷，含理论与编程/分析题）",
+            "criteria": "考试内容覆盖课程核心概念、算法原理（传统ML、DL、RL）、模型比较、结果分析与解释。可能包含：1) 理论题（选择、填空、简答、论述）；2) 基于Python和相关库的编程题（模型实现、评估、调优）；3) 案例分析题（针对特定场景选择合适模型并阐述理由、分析潜在问题）。重点考察学生对核心知识的理解深度、综合运用知识解决问题的能力以及一定的编程实践能力。",
+            "objective_refs": "所有知识目标，部分能力目标（如算法选择、结果分析、简单编程），素养目标（批判性思维、伦理意识的间接考察）"
+        }
+    },
+    "meta": {
+        "author": "陆海波",
+        "date": "2025-05-13"
+    }
+}

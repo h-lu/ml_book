@@ -1,0 +1,464 @@
+---
+title: "降维"
+jupyter: python3
+---
+
+## 学习目标
+
+::: {.callout-note appearance="simple"}
+**学习目标：**
+
+*   理解降维的基本概念、目标及其在机器学习中的重要性。
+*   区分特征选择与特征提取两类主要的降维方法。
+*   深入理解主成分分析 (PCA) 的核心思想、数学原理（包括协方差矩阵、特征值分解）。
+*   掌握 PCA 的步骤、优缺点以及对数据预处理（如标准化）的敏感性。
+*   能够使用 Scikit-learn 实现 PCA，包括 `n_components` 参数的选择、查看解释方差比例和主成分。
+*   理解如何利用 PCA 进行数据可视化和数据重构（逆变换）。
+*   了解 PCA 的主要应用场景。
+*   对其他降维技术如线性判别分析 (LDA)、t-分布随机邻域嵌入 (t-SNE) 和独立成分分析 (ICA) 有初步认识及其适用场景。
+*   能够根据数据特性和任务需求初步选择合适的降维方法。
+:::
+
+## 8.1 降维概述
+
+### 8.1.1 什么是降维？
+
+在高维数据中，许多维度之间可能存在相关性，或者某些维度对于特定任务而言是冗余的甚至包含噪声。**降维 (Dimensionality Reduction)** 是一系列技术，旨在通过保留数据中的重要结构或特征，同时减少特征的数量（即维度）来简化数据集。
+
+**降维的主要益处：**
+
+*   **降低计算复杂度与存储需求：** 更少的维度意味着模型训练和预测更快，所需内存更少。
+*   **缓解维度灾难 (Curse of Dimensionality)：** 在非常高维的空间中，数据点会变得异常稀疏，许多算法的性能会急剧下降，或者需要指数级增长的样本量才能获得可靠结果。降维有助于减轻此问题。
+*   **数据可视化：** 将高维数据降至2维或3维，使得我们可以直观地观察数据的分布、结构和潜在的簇。
+*   **去除噪声与冗余：** 消除不相关的特征或合并高度相关的特征可以提高模型的泛化能力和鲁棒性。
+*   **特征工程：** 降维产生的低维特征可以作为后续机器学习模型的输入。
+
+### 8.1.2 降维的主要方法
+
+降维方法通常可以分为两大类：
+
+1.  **特征选择 (Feature Selection)：**
+    *   **思想：** 直接从原始特征集中选择一个最优的特征子集，而不改变原始特征的表示。
+    *   **目标：** 选出对模型性能贡献最大、冗余度最低的特征。
+    *   **常用方法：**
+        *   **过滤法 (Filter Methods)：** 根据特征本身的统计特性（如方差、与目标变量的相关系数、互信息等）进行评分和排序，独立于后续的学习算法。例如：方差选择法、卡方检验、F检验。
+        *   **包裹法 (Wrapper Methods)：** 将特征子集的选择过程视为一个搜索问题，使用后续学习算法的性能作为评估标准来指导搜索。例如：递归特征消除 (RFE)、前向选择、后向剔除。
+        *   **嵌入法 (Embedded Methods)：** 将特征选择过程嵌入到学习算法的训练过程中，算法本身会自动进行特征权重的分配或特征的筛选。例如：L1正则化 (Lasso)、决策树的特征重要性。
+
+2.  **特征提取 (Feature Extraction)：**
+    *   **思想：** 通过某种映射函数将原始的高维特征空间转换为一个新的、维度更低的特征空间。新的特征是原始特征的某种组合或变换。
+    *   **目标：** 在新的低维空间中尽可能多地保留原始数据的信息或某种特定结构。
+    *   **常用方法：**
+        *   **线性方法：** 主成分分析 (PCA)、线性判别分析 (LDA)、独立成分分析 (ICA)。
+        *   **非线性方法 (流形学习 Manifold Learning)：** t-分布随机邻域嵌入 (t-SNE)、局部线性嵌入 (LLE)、Isomap、核PCA (Kernel PCA)。
+
+本章将重点介绍应用最广泛的特征提取方法之一：**主成分分析 (PCA)**。
+
+## 8.2 主成分分析 (PCA)
+
+主成分分析 (Principal Component Analysis, PCA) 是一种经典的、广泛应用的无监督线性降维技术，由 Karl Pearson 于1901年首次提出，后由 Harold Hotelling 在1930年代发展。
+
+### 8.2.1 PCA 的核心思想
+
+PCA 的核心思想是将数据投影到一个新的正交坐标系（由主成分构成），使得数据在这些新坐标轴上的方差得到最大化。具体来说：
+
+1.  **第一主成分 (PC1)：** 是原始数据中方差最大的方向。换句话说，数据点在 PC1 上的投影具有最大的散布。
+2.  **第二主成分 (PC2)：** 在与第一主成分正交的方向中，寻找数据方差次大的方向。
+3.  **第三主成分 (PC3)：** 在与前两个主成分都正交的方向中，寻找数据方差再次大的方向。
+4.  以此类推，直到找到与原始数据维度相同数量的主成分。
+
+通过选择方差最大的前 $k$ 个主成分（$k$ 小于原始维度），我们可以构建一个 $k$ 维的子空间，并将原始数据投影到这个子空间上，从而实现在信息损失尽可能小的前提下降维。
+
+::: {.callout-tip appearance="simple"}
+**PCA的目标：** 最大化投影方差（等价于最小化重构误差）。
+:::
+
+### 8.2.2 PCA 的数学原理
+
+假设我们有一个包含 $m$ 个样本的数据集 $X \in \mathbb{R}^{m \times n}$，其中每行是一个 $n$ 维样本 $\mathbf{x}^{(i)}$。
+
+**步骤如下：**
+
+1.  **数据中心化 (Mean Centering)：**
+    对每个特征（列）减去其均值，使得每个特征的均值为0。这是PCA的一个必要步骤。
+    $$ X' = X - \text{mean}(X)_{\text{col-wise}} $$
+    令中心化后的数据仍记为 $X$ (为简洁起见，下文 $X$ 指中心化后的数据)。
+
+2.  **计算协方差矩阵 (Covariance Matrix)：**
+    协方差矩阵 $\Sigma \in \mathbb{R}^{n \times n}$ 描述了原始 $n$ 个特征之间的线性相关性。
+    $$ \Sigma = \frac{1}{m-1} X^T X $$
+    或者，如果 $X$ 的每一行是一个样本，则 $\Sigma_{ij} = \text{cov}(X_{\cdot i}, X_{\cdot j})$。
+
+3.  **计算协方差矩阵的特征值和特征向量 (Eigenvalue Decomposition)：**
+    对协方差矩阵 $\Sigma$ 进行特征分解：
+    $$ \Sigma \mathbf{v}_j = \lambda_j \mathbf{v}_j $$
+    其中：
+    *   $\lambda_j$ 是第 $j$ 个特征值，表示数据在对应特征向量方向上的方差大小。
+    *   $\mathbf{v}_j \in \mathbb{R}^{n}$ 是与 $\lambda_j$ 对应的特征向量，它代表了第 $j$ 个主成分的方向。这些特征向量是正交的（如果特征值不同）或可以选择为正交的（如果特征值相同）。
+
+4.  **选择主成分：**
+    将特征值 $\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_n \ge 0$ 从大到小排序。选择前 $k$ 个最大的特征值对应的特征向量 $\{\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k\}$。这些特征向量构成了投影矩阵 $W \in \mathbb{R}^{n \times k}$，其中 $W = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_k]$。
+    $k$ 的选择可以基于：
+    *   **预设维度：** 直接指定降维后的目标维度 $k$。
+    *   **累计解释方差比例 (Cumulative Explained Variance Ratio)：** 选择最小的 $k$ 使得 $\frac{\sum_{j=1}^{k} \lambda_j}{\sum_{j=1}^{n} \lambda_j}$ 达到某个阈值（例如90%, 95%, 99%）。
+
+5.  **数据投影 (Transformation)：**
+    将中心化后的原始数据 $X \in \mathbb{R}^{m \times n}$ 投影到由选定的 $k$ 个主成分构成的子空间，得到降维后的数据 $Z \in \mathbb{R}^{m \times k}$：
+    $$ Z = XW $$
+    $Z$ 的每一行 $\mathbf{z}^{(i)}$ 是原始样本 $\mathbf{x}^{(i)}$ 在新的 $k$ 维主成分空间中的坐标。
+
+::: {.callout-note}
+## SVD 与 PCA
+
+实践中，PCA 更常通过对中心化数据矩阵 $X$ 进行奇异值分解 (Singular Value Decomposition, SVD) 来实现，而不是显式计算协方差矩阵。
+若 $X = U S V^T$ 是 $X$ 的SVD (经济版或截断版)，则：
+
+- $V$ 的列向量（右奇异向量）即为主成分方向（等同于协方差矩阵的特征向量）。
+- $S$ 的奇异值 $\sigma_j$ 与协方差矩阵的特征值 $\lambda_j$ 关系为 $\lambda_j = \frac{\sigma_j^2}{m-1}$。
+- 降维后的数据 $Z = X V_k = U_k S_k$ (其中 $V_k$ 是前 $k$ 个右奇异向量，$U_k S_k$ 是对应部分)。
+SVD在数值上更稳定，尤其当特征数量 $n$ 远大于样本数量 $m$ 时效率更高。
+:::
+
+### 8.2.3 PCA 的优缺点
+
+**优点：**
+
+*   **简单有效：** 算法原理清晰，易于实现，计算效率高（尤其基于SVD）。
+*   **无监督：** 不需要类别标签信息，完全依赖数据自身的方差。
+*   **去除线性相关性：** 转换后的主成分是两两正交的，消除了原始特征间的线性相关。
+*   **降噪：** 通过保留方差较大的主成分，可以滤除方差较小（可能对应噪声）的成分。
+*   **数据压缩与可视化：** 能够有效地减少数据维度，便于存储、处理和可视化。
+
+**缺点：**
+
+*   **线性假设：** PCA 是一种线性变换，它假设数据的主要变化可以用线性子空间来描述。对于具有复杂非线性结构的数据，PCA 可能无法有效捕捉其内在模式。
+*   **可解释性降低：** 新的主成分是原始特征的线性组合，其物理意义可能不如原始特征直观和清晰。
+*   **对数据缩放敏感：** 如果原始特征的尺度差异很大（例如，一个特征的范围是0-1，另一个是0-1000），那么方差较大的特征会在PCA中占据主导地位。因此，**在使用PCA之前通常强烈建议对数据进行标准化 (Standardization)**，例如Z-score标准化，使得所有特征具有相同的均值0和单位方差1。
+*   **信息损失：** 降维是一个有损压缩过程，必然会损失一部分信息。选择保留的主成分数量 $k$ 是一个权衡，需要在降维效果和信息保留量之间取得平衡。
+*   **未考虑类别信息（对于分类任务）：** PCA是无监督的，它只关注数据的方差，而不考虑类别标签。如果目标是最大化类别可分性，监督的降维方法（如LDA）可能更合适。
+
+## 8.3 在 Scikit-learn 中使用 PCA
+
+Scikit-learn 提供了 `sklearn.decomposition.PCA` 类来实现主成分分析。
+
+### 8.3.1 基本用法与参数
+
+```{python}
+#| echo: true
+#| fig-cap: "PCA降维示例：将3维数据降至2维并可视化。"
+#| label: fig-pca-basic
+
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+
+# 1. 生成示例数据 (3个特征，其中一些相关)
+np.random.seed(42)
+X_orig = np.random.rand(100, 3) * np.array([10, 1, 5]) # 不同尺度的特征
+X_orig[:, 1] += X_orig[:, 0] * 0.5 + np.random.normal(0, 0.1, 100)
+X_orig[:, 2] -= X_orig[:, 0] * 0.3 + np.random.normal(0, 0.2, 100)
+
+# 2. 数据标准化 (PCA对尺度敏感，此步骤非常重要)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_orig)
+
+# 3. 初始化并拟合PCA
+# n_components:
+# - int: 保留的主成分数量。
+# - float (0 < n_components < 1): 保留能够解释至少这么多方差比例的主成分数量。
+# - 'mle': Minka's MLE 算法自动选择维度。
+# - None: 保留所有主成分, min(n_samples, n_features)。
+pca = PCA(n_components=2) # 目标是降到2维
+pca.fit(X_scaled) # 拟合PCA模型
+
+# 4. 应用降维 (transform)
+X_pca = pca.transform(X_scaled)
+# 也可以一步完成拟合和转换: X_pca = pca.fit_transform(X_scaled)
+
+print(f"原始数据维度: {X_scaled.shape}")
+print(f"降维后数据维度: {X_pca.shape}")
+
+# 5. 查看PCA的重要属性
+print(f"解释方差比例 (各主成分): {pca.explained_variance_ratio_}")
+print(f"累计解释方差比例: {np.sum(pca.explained_variance_ratio_):.4f}")
+print(f"主成分 (特征向量, components_):\n{pca.components_}")
+print(f"各主成分对应的方差 (explained_variance_):\n{pca.explained_variance_}") # 等于特征值 lambda * (m-1)/m 或者 lambda
+print(f"奇异值 (singular_values_):\n{pca.singular_values_}")
+print(f"估计的噪声协方差 (get_covariance()):\n{pca.get_covariance()}") # 原始特征空间的协方差矩阵
+
+# 6. 可视化降维后的数据 (如果降到2D)
+if X_pca.shape[1] == 2:
+    plt.figure(figsize=(8, 6))
+    plt.scatter(X_pca[:, 0], X_pca[:, 1], alpha=0.8)
+    plt.xlabel(f'First Principal Component (PC1) - {pca.explained_variance_ratio_[0]*100:.2f}% Variance')
+    plt.ylabel(f'Second Principal Component (PC2) - {pca.explained_variance_ratio_[1]*100:.2f}% Variance')
+    plt.title('PCA Dimensionality Reduction Result (2D)')
+    plt.grid(True)
+    # plt.savefig('images/08-dimensionality-reduction/pca_basic_2d.svg', format='svg')
+    plt.show()
+```
+
+**`PCA` 主要参数：**
+
+*   `n_components`: `int`, `float`, `str` 或 `None`。如上所述，用于指定降维的目标维度或保留的方差。
+*   `copy`: `bool`, 默认=True。如果为False，则传递给 `fit` 的数据将被覆盖。
+*   `whiten`: `bool`, 默认=False。如果为True，则主成分向量会被乘以样本数量的平方根，然后除以奇异值，以确保输出具有单位方差。白化可以去除一些算法（如SVM）中特征尺度依赖性，但也会丢失一些信息（相对方差大小）。
+*   `svd_solver`: `{'auto', 'full', 'arpack', 'randomized'}`, 默认='auto'。
+    *   `'auto'` : 根据 `X.shape` 和 `n_components` 自动选择求解器。
+    *   `'full'` : 运行精确的完整SVD，然后选择主成分。
+    *   `'arpack'` : 运行ARPACK（Arnoldi迭代）SVD，通常用于 `n_components` 远小于特征数的情况，计算更高效。
+    *   `'randomized'` : 运行随机SVD，对于大规模高维数据非常高效。
+*   `tol`: `float`, 默认=0.0。`svd_solver='arpack'` 时的容忍度。
+*   `iterated_power`: `int` 或 `'auto'`, 默认='auto'。`svd_solver='randomized'` 时的幂迭代次数。
+*   `random_state`: `int`, `RandomState instance` 或 `None`。用于 `svd_solver` 为 'arpack' 或 'randomized' 时的随机数种子。
+
+### 8.3.2 选择主成分数量 `n_components`
+
+如何确定保留多少个主成分 (`n_components`) 是PCA应用中的一个关键问题。
+
+**方法1：基于累计解释方差比例**
+这是最常用的方法。我们希望选择足够少的主成分，同时保留原始数据中足够多的信息（方差）。
+
+```{python}
+#| echo: true
+#| fig-cap: "通过累计解释方差比例选择PCA的主成分数量。"
+#| label: fig-pca-explained-variance
+
+# 使用上一节的 X_scaled 数据
+pca_explorer = PCA(n_components=None) # 保留所有主成分
+pca_explorer.fit(X_scaled)
+
+explained_variance_ratio = pca_explorer.explained_variance_ratio_
+cumulative_explained_variance = np.cumsum(explained_variance_ratio)
+
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, len(cumulative_explained_variance) + 1), cumulative_explained_variance, marker='o', linestyle='--')
+plt.xlabel('Number of Principal Components')
+plt.ylabel('Cumulative Explained Variance Ratio')
+plt.title('Cumulative Explained Variance Ratio vs. Number of Principal Components')
+plt.grid(True)
+# 常见阈值
+plt.axhline(y=0.90, color='g', linestyle=':', label='90% Variance')
+plt.axhline(y=0.95, color='r', linestyle=':', label='95% Variance')
+plt.axhline(y=0.99, color='b', linestyle=':', label='99% Variance')
+plt.legend(loc='best')
+# plt.savefig('images/08-dimensionality-reduction/pca_cumulative_variance.svg', format='svg')
+plt.show()
+
+# 找到达到例如95%方差所需的最小组件数
+n_components_95_variance = np.argmax(cumulative_explained_variance >= 0.95) + 1
+print(f"保留约95%方差所需的主成分数量: {n_components_95_variance}")
+```
+上图显示了随着主成分数量的增加，累计解释的方差比例如何变化。我们可以根据业务需求或经验选择一个阈值（如90%, 95%, 99%），然后找到达到该阈值所需的最小主成分数量。
+
+**方法2：Minka's MLE**
+当 `n_components='mle'` 时，Scikit-learn 使用 Minka (2000) 提出的最大似然估计方法来自动推断最佳的潜在维度。
+
+**方法3：根据应用需求**
+例如，如果PCA用于数据可视化，通常选择 `n_components=2` 或 `n_components=3`。
+
+### 8.3.3 PCA 用于数据可视化
+
+PCA 最直观的应用之一就是将高维数据集降至2维或3维，以便进行可视化，帮助我们理解数据的结构、簇的分布等。
+
+**示例：在鸢尾花 (Iris) 数据集上应用 PCA 并可视化**
+
+```{python}
+#| echo: true
+#| fig-cap: "使用PCA将4维鸢尾花数据集降至2维进行可视化。"
+#| label: fig-pca-iris
+
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X_iris = iris.data
+y_iris = iris.target
+target_names_iris = iris.target_names
+
+# 1. 标准化数据
+scaler_iris = StandardScaler()
+X_iris_scaled = scaler_iris.fit_transform(X_iris)
+
+# 2. PCA 降至2维
+pca_iris = PCA(n_components=2)
+X_iris_pca = pca_iris.fit_transform(X_iris_scaled)
+
+# 3. 可视化
+plt.figure(figsize=(10, 7))
+colors = ['navy', 'turquoise', 'darkorange']
+lw = 2
+
+for color, i, target_name in zip(colors, [0, 1, 2], target_names_iris):
+    plt.scatter(X_iris_pca[y_iris == i, 0], X_iris_pca[y_iris == i, 1],
+                color=color, alpha=.8, lw=lw, label=target_name)
+
+plt.legend(loc='best', shadow=False, scatterpoints=1)
+plt.title('PCA of IRIS dataset (2D)')
+plt.xlabel(f'PC1 ({pca_iris.explained_variance_ratio_[0]*100:.2f}%)')
+plt.ylabel(f'PC2 ({pca_iris.explained_variance_ratio_[1]*100:.2f}%)')
+plt.grid(True)
+# plt.savefig('images/08-dimensionality-reduction/pca_iris_2d.svg', format='svg')
+plt.show()
+
+print(f"Iris: PCA保留的总方差 (2D): {np.sum(pca_iris.explained_variance_ratio_)*100:.2f}%")
+```
+从图中可以看出，即使只使用两个主成分（保留了约95.81%的原始方差），不同种类的鸢尾花在2D空间中也表现出较好的可分性。
+
+### 8.3.4 PCA 的逆变换 (Reconstruction)
+
+PCA不仅可以将数据从高维投影到低维，还可以通过 `inverse_transform()` 方法将降维后的数据近似地恢复（重构）到原始的高维空间。由于降维是有损的，重构后的数据与原始数据之间通常存在一定的**重构误差 (Reconstruction Error)**。
+
+```{python}
+#| echo: true
+#| label: code-pca-inverse
+
+# 使用之前在 Iris 数据集上训练的 pca_iris (降到2D)
+X_iris_reconstructed = pca_iris.inverse_transform(X_iris_pca)
+
+# 计算重构误差 (例如，均方误差 MSE)
+mse_reconstruction = np.mean((X_iris_scaled - X_iris_reconstructed)**2)
+print(f"PCA (2D) 重构 Iris 数据集的均方误差 (MSE): {mse_reconstruction:.4f}")
+
+# 如果我们保留更多主成分，重构误差会更小
+pca_iris_3d = PCA(n_components=3)
+X_iris_pca_3d = pca_iris_3d.fit_transform(X_iris_scaled)
+X_iris_reconstructed_3d = pca_iris_3d.inverse_transform(X_iris_pca_3d)
+mse_reconstruction_3d = np.mean((X_iris_scaled - X_iris_reconstructed_3d)**2)
+print(f"PCA (3D) 重构 Iris 数据集的均方误差 (MSE): {mse_reconstruction_3d:.4f} (应小于2D的MSE)")
+```
+逆变换可以用于评估降维的信息损失程度，或者在某些应用（如数据压缩后解压）中恢复数据的近似表示。
+
+## 8.4 PCA 的应用场景总结
+
+*   **数据压缩：** 如前所述，减少存储和传输开销。
+*   **加速机器学习算法：** 在维度较低的数据上训练模型通常更快。
+*   **数据可视化：** 将高维数据投影到2D或3D空间进行直观展示。
+*   **噪声过滤/平滑：** 通过丢弃方差较小（可能对应噪声）的主成分来实现。
+*   **特征工程/特征提取：** 提取出的主成分可以作为新的、不相关的特征输入到其他机器学习模型中，有时能提高模型性能，尤其是在原始特征高度相关时。
+*   **多重共线性处理：** 在回归分析中，如果自变量之间存在高度相关性（多重共线性），PCA可以用来生成一组不相关的预测因子。
+
+## 8.5 其他重要降维技术简介
+
+除了PCA，还有许多其他有价值的降维技术，它们各有特点和适用场景。
+
+*   **线性判别分析 (Linear Discriminant Analysis, LDA)：**
+    *   **类型：** 监督学习，线性降维。
+    *   **核心思想：** 与PCA最大化数据方差不同，LDA的目标是找到一个投影方向（子空间），使得不同类别之间的分离度最大化，同时同一类别内部的方差最小化。它利用了类别标签信息。
+    *   **应用：** 主要用于分类任务的预处理，尤其当类别可分性是关键时。降维后的维度最多为 `n_classes - 1`。
+    *   **论文时间：** 1936年由Ronald Fisher提出
+    *   Scikit-learn: `sklearn.discriminant_analysis.LinearDiscriminantAnalysis`
+
+*   **t-分布随机邻域嵌入 (t-Distributed Stochastic Neighbor Embedding, t-SNE)：**
+    *   **类型：** 无监督学习，非线性降维（流形学习）。
+    *   **核心思想：** 旨在将高维空间中数据点之间的局部相似性结构保留到低维空间（通常是2D或3D）中。它将高维空间中数据点对的相似性转换为条件概率，然后在低维空间中构建相似的概率分布，并最小化这两个分布之间的KL散度。
+    *   **特点：** 非常擅长于高维数据的可视化，能够揭示复杂的非线性结构和簇。计算成本较高（尤其对于大数据集），结果对参数（如 `perplexity`, `learning_rate`）敏感，且低维嵌入的全局结构可能不完全可靠（主要关注局部结构）。
+    *   **论文时间：** 2008年由Laurens van der Maaten和Geoffrey Hinton提出
+    *   Scikit-learn: `sklearn.manifold.TSNE`
+
+*   **独立成分分析 (Independent Component Analysis, ICA)：**
+    *   **类型：** 无监督学习，线性降维。
+    *   **核心思想：** 旨在将观察到的多变量信号分解为一组统计上相互独立的潜在源信号的线性混合。与PCA寻找不相关的成分（二阶统计量）不同，ICA试图找到统计上独立的成分（高阶统计量）。
+    *   **应用：** 常用于盲源分离问题，例如从混合的脑电图(EEG)信号中分离出不同的神经活动源，或从混合音频中分离出单个说话人的声音。
+    *   **论文时间：** 1994年由Pierre Comon提出
+    *   Scikit-learn: `sklearn.decomposition.FastICA`
+
+*   **核PCA (Kernel PCA, kPCA)：**
+    *   **类型：** 无监督学习，非线性降维。
+    *   **核心思想：** PCA的非线性扩展。通过核技巧 (Kernel Trick)，首先将原始数据隐式地映射到一个非常高维（甚至无限维）的特征空间，然后在这个高维空间中执行标准的PCA。
+    *   **特点：** 能够有效地处理原始空间中线性不可分的数据结构。需要选择合适的核函数（如高斯核RBF、多项式核）及其参数。
+    *   **论文时间：** 1998年由Bernhard Schölkopf等人提出
+    *   Scikit-learn: `sklearn.decomposition.KernelPCA`
+
+*   **均匀流形逼近与投影 (Uniform Manifold Approximation and Projection, UMAP)：**
+    *   **类型：** 无监督学习，非线性降维（流形学习）。
+    *   **核心思想：** 与t-SNE类似，也是一种流形学习算法，旨在保留数据的拓扑结构。它基于黎曼几何和代数拓扑的理论构建。
+    *   **特点：** 通常比t-SNE运行速度更快，且在某些情况下能更好地保留数据的全局结构。也主要用于可视化。
+    *   **论文时间：** 2018年由Leland McInnes等人提出
+    *   UMAP不是Scikit-learn的一部分，但有独立的Python库 `umap-learn`。
+
+## 8.6 本章总结
+
+本章我们深入探讨了降维技术，特别是主成分分析 (PCA)。
+
+*   **降维**是处理高维数据的关键步骤，有助于克服维度灾难、提高计算效率、可视化数据和去除噪声。
+*   主要的降维方法分为**特征选择**（选择原始特征子集）和**特征提取**（创建新的低维特征）。
+*   **PCA** 是一种无监督的线性特征提取方法，它通过将数据投影到最大化方差的正交主成分上，来实现降维。
+    *   PCA的实现依赖于数据中心化和协方差矩阵的特征分解（或SVD）。
+    *   **数据标准化**在使用PCA前通常是必要的，以避免尺度大的特征主导结果。
+    *   选择保留的**主成分数量**是一个重要环节，可以基于累计解释方差比例。
+    *   PCA可用于数据压缩、可视化、噪声过滤和特征工程。
+*   我们还简要介绍了其他重要的降维技术：
+    *   **LDA (监督, 线性):** 最大化类别可分性。
+    *   **t-SNE (无监督, 非线性):** 优秀的可视化工具，保留局部结构。
+    *   **ICA (无监督, 线性):** 分离独立信号源。
+    *   **Kernel PCA (无监督, 非线性):** PCA的非线性扩展。
+    *   **UMAP (无监督, 非线性):** 另一种强大的可视化和降维工具。
+
+选择合适的降维方法取决于数据的特性（线性/非线性、是否有标签）、任务目标（可视化、分类预处理、特征提取等）以及计算资源的限制。
+
+## 8.7 思考与练习
+
+### 8.7.1 基础练习
+
+1.  **核心概念回顾：**
+    *   什么是"维度灾难"？降维如何帮助缓解这个问题？
+    *   特征选择和特征提取的主要区别是什么？请各举一个例子。
+    *   PCA的目标是最大化投影数据的什么统计量？为什么数据中心化是PCA的前提？
+    *   解释"解释方差比例"在PCA中的含义和作用。
+    *   为什么在使用PCA之前通常需要对数据进行标准化？如果不进行标准化，可能会发生什么？
+
+2.  **PCA 理解：**
+    *   PCA找到的主成分之间有什么数学关系？
+    *   如果一个数据集的原始特征之间几乎不相关，应用PCA的效果会怎样？
+    *   PCA的逆变换是否能完美恢复原始数据？为什么？重构误差代表什么？
+    *   描述至少两种选择PCA中主成分数量 `k` 的方法。
+
+3.  **PCA vs. 其他方法：**
+    *   PCA和LDA在目标和方法上的主要区别是什么？在什么情况下你会选择LDA而不是PCA？
+    *   PCA和t-SNE都可用于数据可视化，它们的主要区别是什么？各自的优缺点是什么？
+
+### 8.7.2 编码与实践
+
+1.  **数据集准备与探索：**
+    *   加载 `sklearn.datasets.load_digits()` 手写数字数据集。该数据集包含64个特征（8x8像素图像）。
+    *   对数据进行标准化处理。
+
+2.  **PCA 应用与分析：**
+    *   对标准化的手写数字数据应用PCA。
+    *   绘制累计解释方差比例随主成分数量变化的曲线图。确定保留例如90%、95%和99%方差所需的主成分数量。
+    *   选择一个合适的 `n_components`（例如，保留95%方差的数量，或者直接选择一个较小的整数如10或20），得到降维后的数据。
+
+3.  **PCA 用于可视化：**
+    *   使用PCA将手写数字数据降至2维。
+    *   绘制2D散点图，并用不同颜色标记不同的数字类别（0-9）。观察不同数字在2D PCA空间中的分布和可分性。
+    *   在图中标注每个主成分解释的方差比例。
+
+4.  **PCA 重构与可视化：**
+    *   选择几个原始的数字图像（例如，数字0、1、2各一个）。
+    *   将这些图像通过你训练好的PCA模型（例如，保留了 `N` 个主成分）进行降维，然后再通过逆变换重构回原始的64维空间。
+    *   将原始图像和重构后的图像并排显示出来。比较它们之间的差异。
+    *   尝试使用不同数量的主成分（例如，`N`=5, 10, 20, 50）进行重构，观察重构图像的质量如何随主成分数量变化。
+
+5.  **PCA 与分类器结合：**
+    *   选择一个简单的分类器（如逻辑回归或KNN）。
+    *   在原始的64维手写数字数据上训练分类器，并在测试集上评估其性能。
+    *   在PCA降维后的数据（例如，保留95%方差的主成分）上训练相同的分类器，并在测试集上评估其性能。
+    *   比较两种情况下的模型性能和训练时间。讨论PCA在这种情况下的作用。
+
+6.  **尝试非线性降维方法：**
+    *   对标准化的手写数字数据应用t-SNE，将其降至2维。可视化结果并讨论t-SNE的参数选择（如 `perplexity`）。
+    *   对相同数据应用UMAP，同样降至2维并进行可视化。
+    *   将t-SNE、UMAP和PCA的2D可视化结果进行对比分析，讨论它们在计算效率、保留局部/全局结构、参数敏感性等方面的异同。
+
+### 8.7.3 推荐阅读
+
+1.  **Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer. (Chapter 12: Continuous Latent Variables)** - 对PCA有深入的概率解释。
+2.  **Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The Elements of Statistical Learning: Data Mining, Inference, and Prediction*. Springer. (Chapter 3.5, Chapter 14.5 for PCA, Chapter 4.3 for LDA, Chapter 14.8 for Manifold Learning)** - 统计学习的经典教材。
+3.  **Scikit-learn User Guide - Decomposition:** (<https://scikit-learn.org/stable/modules/decomposition.html>) - 包含PCA, ICA, KernelPCA等算法的详细文档和示例。
+4.  **Scikit-learn User Guide - Manifold learning:** (<https://scikit-learn.org/stable/modules/manifold.html>) - 包含t-SNE, Isomap, LLE等算法的介绍。
+5.  **"A Tutorial on Principal Component Analysis" by Jonathon Shlens.** - 一份非常清晰易懂的PCA数学原理教程。
+6.  **StatQuest with Josh Starmer - YouTube频道:** 搜索 "PCA", "t-SNE", "LDA" 等关键词，有非常直观的视频讲解。
+7.  **Van der Maaten, L., & Hinton, G. (2008). Visualizing data using t-SNE. *Journal of Machine Learning Research*, 9(Nov), 2579-2605.** - t-SNE的原始论文。
+
+通过这些练习和阅读，你将能更全面地掌握降维技术，并能在实际项目中灵活应用。

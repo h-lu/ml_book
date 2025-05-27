@@ -1,0 +1,42 @@
+<svg width="400" height="450" xmlns="http://www.w3.org/2000/svg">
+    <style>
+      .title { font: bold 20px sans-serif; text-anchor: middle; }
+      .state-label { font: bold 18px sans-serif; text-anchor: middle; dominant-baseline: middle; }
+      .q-value-text { font: 14px sans-serif; text-anchor: middle; }
+      .grid-cell { fill: #f9f9f9; stroke: #333; stroke-width: 2; }
+      .highlight-cell { fill: #e6f3ff; stroke: #007bff; stroke-width: 2; }
+    </style>
+  
+    <text x="200" y="40" class="title">Q-Table Example: 3x3 Grid World</text>
+  
+    <!-- Grid Cells -->
+    <rect x="50" y="70" width="100" height="100" class="grid-cell" />
+    <rect x="150" y="70" width="100" height="100" class="grid-cell" />
+    <rect x="250" y="70" width="100" height="100" class="grid-cell" />
+    <rect x="50" y="170" width="100" height="100" class="grid-cell" />
+    <rect x="150" y="170" width="100" height="100" class="highlight-cell" /> <!-- S5 Highlighted -->
+    <rect x="250" y="170" width="100" height="100" class="grid-cell" />
+    <rect x="50" y="270" width="100" height="100" class="grid-cell" />
+    <rect x="150" y="270" width="100" height="100" class="grid-cell" />
+    <rect x="250" y="270" width="100" height="100" class="grid-cell" />
+  
+    <!-- State Labels -->
+    <text x="100" y="120" class="state-label">S1</text>
+    <text x="200" y="120" class="state-label">S2</text>
+    <text x="300" y="120" class="state-label">S3</text>
+    <text x="100" y="220" class="state-label">S4</text>
+    <text x="300" y="220" class="state-label">S6</text>
+    <text x="100" y="320" class="state-label">S7</text>
+    <text x="200" y="320" class="state-label">S8</text>
+    <text x="300" y="320" class="state-label">S9</text>
+  
+    <!-- Q-Values for S5 -->
+    <text x="200" y="195" class="state-label">S5</text>
+    <text x="200" y="220" class="q-value-text">Q(Up): 0.7</text>
+    <text x="170" y="245" class="q-value-text" text-anchor="end">Q(Left): -0.5</text>
+    <text x="230" y="245" class="q-value-text" text-anchor="start">Q(Right): 0.3</text>
+    <text x="200" y="260" class="q-value-text">Q(Down): 0.1</text>
+    
+    <text x="200" y="400" font-size="12" text-anchor="middle">(For state S5, example Q-values for actions are shown)</text>
+  
+  </svg>

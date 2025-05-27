@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>模型评估、优化与特征工程 – 机器学习：从理论到Python实践</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./10-deep-learning-basics.html" rel="next">
+<link href="./08-dimensionality-reduction.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-model-evaluation-feature-engineering.html">第四部分：模型评估、优化与特征工程</a></li><li class="breadcrumb-item"><a href="./09-model-evaluation-feature-engineering.html"><span class="chapter-title">模型评估、优化与特征工程</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">机器学习：从理论到Python实践</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">欢迎学习《机器学习：从理论到Python实践》</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">第一部分：机器学习基石与Python生态</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习导论</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Python机器学习环境与核心库</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">第二部分：监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">回归与线性模型</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-classification-logreg-knn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">分类与逻辑回归、KNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-svm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">支持向量机 (SVM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-decision-trees-ensemble-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">决策树与集成学习</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">第三部分：无监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clustering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">聚类分析</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-dimensionality-reduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">降维</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">第四部分：模型评估、优化与特征工程</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-model-evaluation-feature-engineering.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">模型评估、优化与特征工程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">第五部分：深度学习初探</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-deep-learning-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习基础</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-cnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">卷积神经网络 (CNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-rnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">循环神经网络 (RNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-deep-learning-advanced.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习进阶</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">第六部分：强化学习入门</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-reinforcement-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">强化学习基础与应用</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">第七部分：综合项目与展望</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-ml-project-workflow-summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习项目实战流程与总结</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-summary-outlook.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">课程总结与展望</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">附录</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#学习目标" id="toc-学习目标" class="nav-link active" data-scroll-target="#学习目标">学习目标</a></li>
+  <li><a href="#模型评估" id="toc-模型评估" class="nav-link" data-scroll-target="#模型评估">9.1 模型评估</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要模型评估" id="toc-为什么需要模型评估" class="nav-link" data-scroll-target="#为什么需要模型评估">9.1.1 为什么需要模型评估？</a></li>
+  <li><a href="#训练集验证集与测试集" id="toc-训练集验证集与测试集" class="nav-link" data-scroll-target="#训练集验证集与测试集">9.1.2 训练集、验证集与测试集</a></li>
+  <li><a href="#分类模型评估指标" id="toc-分类模型评估指标" class="nav-link" data-scroll-target="#分类模型评估指标">9.1.3 分类模型评估指标</a></li>
+  <li><a href="#回归模型评估指标" id="toc-回归模型评估指标" class="nav-link" data-scroll-target="#回归模型评估指标">9.1.4 回归模型评估指标</a></li>
+  </ul></li>
+  <li><a href="#模型优化过拟合欠拟合与验证" id="toc-模型优化过拟合欠拟合与验证" class="nav-link" data-scroll-target="#模型优化过拟合欠拟合与验证">9.2 模型优化：过拟合、欠拟合与验证</a>
+  <ul class="collapse">
+  <li><a href="#过拟合-overfitting-与欠拟合-underfitting" id="toc-过拟合-overfitting-与欠拟合-underfitting" class="nav-link" data-scroll-target="#过拟合-overfitting-与欠拟合-underfitting">9.2.1 过拟合 (Overfitting) 与欠拟合 (Underfitting)</a></li>
+  <li><a href="#交叉验证-cross-validation" id="toc-交叉验证-cross-validation" class="nav-link" data-scroll-target="#交叉验证-cross-validation">9.2.2 交叉验证 (Cross-Validation)</a></li>
+  <li><a href="#偏差-bias-与方差-variance" id="toc-偏差-bias-与方差-variance" class="nav-link" data-scroll-target="#偏差-bias-与方差-variance">9.2.3 偏差 (Bias) 与方差 (Variance)</a></li>
+  <li><a href="#超参数调优-hyperparameter-tuning" id="toc-超参数调优-hyperparameter-tuning" class="nav-link" data-scroll-target="#超参数调优-hyperparameter-tuning">9.2.4 超参数调优 (Hyperparameter Tuning)</a></li>
+  </ul></li>
+  <li><a href="#特征工程-feature-engineering" id="toc-特征工程-feature-engineering" class="nav-link" data-scroll-target="#特征工程-feature-engineering">9.3 特征工程 (Feature Engineering)</a>
+  <ul class="collapse">
+  <li><a href="#特征工程的重要性" id="toc-特征工程的重要性" class="nav-link" data-scroll-target="#特征工程的重要性">9.3.1 特征工程的重要性</a></li>
+  <li><a href="#主要任务" id="toc-主要任务" class="nav-link" data-scroll-target="#主要任务">9.3.2 主要任务</a></li>
+  <li><a href="#特征预处理" id="toc-特征预处理" class="nav-link" data-scroll-target="#特征预处理">9.3.3 特征预处理</a></li>
+  <li><a href="#特征编码-feature-encoding" id="toc-特征编码-feature-encoding" class="nav-link" data-scroll-target="#特征编码-feature-encoding">9.3.4 特征编码 (Feature Encoding)</a></li>
+  </ul></li>
+  <li><a href="#本章总结" id="toc-本章总结" class="nav-link" data-scroll-target="#本章总结">9.4 本章总结</a></li>
+  <li><a href="#思考与练习" id="toc-思考与练习" class="nav-link" data-scroll-target="#思考与练习">9.5 思考与练习</a>
+  <ul class="collapse">
+  <li><a href="#基础练习" id="toc-基础练习" class="nav-link" data-scroll-target="#基础练习">9.5.1 基础练习</a></li>
+  <li><a href="#编码与实践-综合项目型练习" id="toc-编码与实践-综合项目型练习" class="nav-link" data-scroll-target="#编码与实践-综合项目型练习">9.5.2 编码与实践 (综合项目型练习)</a></li>
+  <li><a href="#推荐阅读" id="toc-推荐阅读" class="nav-link" data-scroll-target="#推荐阅读">9.5.3 推荐阅读</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-model-evaluation-feature-engineering.html">第四部分：模型评估、优化与特征工程</a></li><li class="breadcrumb-item"><a href="./09-model-evaluation-feature-engineering.html"><span class="chapter-title">模型评估、优化与特征工程</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">模型评估、优化与特征工程</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="学习目标" class="level2">
+<h2 class="anchored" data-anchor-id="学习目标">学习目标</h2>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>学习目标：</strong></p>
+<ul>
+<li>理解模型评估在机器学习流程中的重要性及其基本原则。</li>
+<li>掌握分类模型常用的评估指标：准确率、精确率、召回率、F1分数、ROC曲线、AUC值，并理解它们的计算方法和适用场景。</li>
+<li>掌握回归模型常用的评估指标：均方误差 (MSE)、均方根误差 (RMSE)、平均绝对误差 (MAE)、R方 (R-squared)，并理解它们的含义。</li>
+<li>理解过拟合与欠拟合的概念、产生原因以及常见的解决方法。</li>
+<li>掌握验证集和交叉验证（K折交叉验证、留一交叉验证）的原理和应用，以进行更可靠的模型评估和选择。</li>
+<li>理解偏差 (Bias) 与方差 (Variance) 的概念，以及它们与模型复杂度和拟合程度的关系（偏差-方差权衡）。</li>
+<li>掌握超参数调优的基本方法：网格搜索 (Grid Search) 和随机搜索 (Randomized Search)。</li>
+<li>理解特征工程的基本概念、重要性及其主要任务。</li>
+<li>掌握常见的特征预处理技术：数据清洗（缺失值处理、异常值处理）、特征缩放（标准化、归一化）。</li>
+<li>了解特征编码技术：独热编码 (One-Hot Encoding)、标签编码 (Label Encoding)。</li>
+<li>初步了解特征选择和特征提取的基本方法（回顾降维章节）。</li>
+<li>能够使用 Scikit-learn 实现上述模型评估指标计算、交叉验证、超参数调优及特征工程方法。</li>
+<li>能够构建一个相对完整的机器学习项目流程，包括数据预处理、特征工程、模型训练、模型评估和参数调优。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="模型评估" class="level2">
+<h2 class="anchored" data-anchor-id="模型评估">9.1 模型评估</h2>
+<p>在机器学习中，仅仅构建一个模型是不够的，我们还需要评估其性能，了解它在未知数据上的表现如何。模型评估是选择最佳模型、调整模型参数以及最终确定模型是否可用的关键步骤。</p>
+<section id="为什么需要模型评估" class="level3">
+<h3 class="anchored" data-anchor-id="为什么需要模型评估">9.1.1 为什么需要模型评估？</h3>
+<ul>
+<li><strong>模型选择：</strong> 对于一个特定问题，我们可能会尝试多种不同的算法或模型。评估指标可以帮助我们比较这些模型，并选择表现最好的那一个。</li>
+<li><strong>超参数调优：</strong> 许多模型都有超参数（例如KNN中的K值，SVM中的C和gamma参数）。通过在验证集上评估不同超参数组合的性能，我们可以找到最优的超参数设置。</li>
+<li><strong>泛化能力判断：</strong> 我们关心的是模型在新的、未见过的数据上的表现能力（即泛化能力），而不是它在训练数据上拟合得有多好。模型评估帮助我们估计这种泛化能力。</li>
+<li><strong>避免过拟合与欠拟合：</strong> 通过比较模型在训练集和测试集上的性能，我们可以判断模型是否存在过拟合（在训练集上表现好，在测试集上表现差）或欠拟合（在训练集和测试集上表现都差）的问题。</li>
+<li><strong>业务决策：</strong> 模型的评估结果直接关系到它是否能满足实际业务需求。例如，一个欺诈检测模型的精确率和召回率会直接影响银行的风险控制和用户体验。</li>
+</ul>
+</section>
+<section id="训练集验证集与测试集" class="level3">
+<h3 class="anchored" data-anchor-id="训练集验证集与测试集">9.1.2 训练集、验证集与测试集</h3>
+<p>为了得到对模型泛化能力的可靠评估，我们通常会将数据集划分为三个互不相交的部分：</p>
+<ul>
+<li><strong>训练集 (Training Set)：</strong> 用于训练模型，即调整模型的参数（例如，线性回归中的权重）。</li>
+<li><strong>验证集 (Validation Set)：</strong> 用于调整模型的超参数和进行模型选择。模型在训练集上训练完成后，在验证集上评估性能，根据评估结果来选择最佳的模型架构或超参数组合。</li>
+<li><strong>测试集 (Test Set)：</strong> 用于在模型最终选定（包括超参数也已确定）后，评估其最终的、无偏的泛化性能。测试集的数据不应以任何形式参与模型的训练或超参数调优过程，以保证评估的客观性。</li>
+</ul>
+<p><strong>划分比例：</strong> 常见的划分比例是 60% 训练集、20% 验证集、20% 测试集，或者 70% 训练集、15% 验证集、15% 测试集。具体比例取决于数据集的大小和特性。如果数据集较小，可能会使用交叉验证代替简单的验证集划分。</p>
+<div id="code-train-val-test-split" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 假设我们有一个特征矩阵 X 和目标向量 y</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>X_example <span class="op">=</span> np.random.rand(<span class="dv">100</span>, <span class="dv">10</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>y_example <span class="op">=</span> np.random.randint(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">100</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 第一次划分：将数据分为训练集+验证集 和 测试集</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>X_train_val, X_test, y_train_val, y_test <span class="op">=</span> train_test_split(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    X_example, y_example, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_example</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 第二次划分：将训练集+验证集 分为 训练集 和 验证集</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 例如，如果希望原始训练集占60%，验证集占20%，测试集占20%</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 那么 X_train_val 占了80%的原始数据，我们需要从中分出 20% / 80% = 25% 作为验证集</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>X_train, X_val, y_train, y_val <span class="op">=</span> train_test_split(</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    X_train_val, y_train_val, test_size<span class="op">=</span><span class="fl">0.25</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y_train_val <span class="co"># 0.25 * 0.8 = 0.2</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"原始数据量: </span><span class="sc">{</span><span class="bu">len</span>(X_example)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"训练集数量: </span><span class="sc">{</span><span class="bu">len</span>(X_train)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"验证集数量: </span><span class="sc">{</span><span class="bu">len</span>(X_val)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"测试集数量: </span><span class="sc">{</span><span class="bu">len</span>(X_test)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>原始数据量: 100
+训练集数量: 60
+验证集数量: 20
+测试集数量: 20</code></pre>
+</div>
+</div>
+</section>
+<section id="分类模型评估指标" class="level3">
+<h3 class="anchored" data-anchor-id="分类模型评估指标">9.1.3 分类模型评估指标</h3>
+<section id="混淆矩阵-confusion-matrix" class="level4">
+<h4 class="anchored" data-anchor-id="混淆矩阵-confusion-matrix">9.1.3.1 混淆矩阵 (Confusion Matrix)</h4>
+<p>混淆矩阵是评估分类模型性能的一个非常直观和基础的工具。对于一个二分类问题，混淆矩阵如下：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 38%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">预测为正类 (Predicted Positive)</th>
+<th style="text-align: left;">预测为负类 (Predicted Negative)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>实际为正类 (Actual Positive)</strong></td>
+<td style="text-align: left;">真阳性 (True Positive, TP)</td>
+<td style="text-align: left;">假阴性 (False Negative, FN)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>实际为负类 (Actual Negative)</strong></td>
+<td style="text-align: left;">假阳性 (False Positive, FP)</td>
+<td style="text-align: left;">真阴性 (True Negative, TN)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>TP (True Positive)：</strong> 实际为正类，模型也预测为正类。</li>
+<li><strong>FN (False Negative)：</strong> 实际为正类，但模型错误地预测为负类 (漏报)。</li>
+<li><strong>FP (False Positive)：</strong> 实际为负类，但模型错误地预测为正类 (误报)。</li>
+<li><strong>TN (True Negative)：</strong> 实际为负类，模型也预测为负类。</li>
+</ul>
+<div id="cell-code-confusion-matrix" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix, ConfusionMatrixDisplay</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression <span class="co"># 举例用</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 假设 y_true 是真实标签，y_pred 是模型预测标签</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>model_example <span class="op">=</span> LogisticRegression()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>model_example.fit(X_train, y_train)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>y_pred_val <span class="op">=</span> model_example.predict(X_val)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>cm <span class="op">=</span> confusion_matrix(y_val, y_pred_val)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"混淆矩阵:</span><span class="ch">\n</span><span class="st">"</span>, cm)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 可视化混淆矩阵</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>disp <span class="op">=</span> ConfusionMatrixDisplay(confusion_matrix<span class="op">=</span>cm, display_labels<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>]) <span class="co"># display_labels根据实际类别</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>disp.plot(cmap<span class="op">=</span>plt.cm.Blues)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Confusion Matrix for Validation Set"</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig('images/09-model-evaluation/confusion_matrix_val.svg', format='svg')</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>混淆矩阵:
+ [[5 5]
+ [6 4]]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09-model-evaluation-feature-engineering_files/figure-html/code-confusion-matrix-output-2.png" id="code-confusion-matrix" width="509" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="准确率-accuracy" class="level4">
+<h4 class="anchored" data-anchor-id="准确率-accuracy">9.1.3.2 准确率 (Accuracy)</h4>
+<p>准确率是指模型正确预测的样本数占总样本数的比例。 <span class="math display">\[ \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} \]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+准确率的优缺点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>优点</strong><br>
+- 非常直观，易于理解<br>
+- 计算简单，解释性强</p>
+<p><strong>缺点</strong><br>
+- 在类别不平衡的数据集上会产生误导<br>
+- 无法反映模型对不同类别的识别能力</p>
+<p><strong>示例</strong><br>
+如果数据集中95%的样本是负类，一个将所有样本都预测为负类的”愚蠢”模型也能达到95%的准确率，但实际上该模型完全无法识别正类样本。</p>
+</div>
+</div>
+<div id="code-accuracy" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> accuracy_score(y_val, y_pred_val)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"准确率 (Accuracy): </span><span class="sc">{</span>accuracy<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 手动计算 (来自混淆矩阵cm)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># TP = cm[1, 1]</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># TN = cm[0, 0]</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># FP = cm[0, 1]</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># FN = cm[1, 0]</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># accuracy_manual = (TP + TN) / (TP + TN + FP + FN)</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># print(f"手动计算准确率: {accuracy_manual:.4f}")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>准确率 (Accuracy): 0.4500</code></pre>
+</div>
+</div>
+</section>
+<section id="精确率-precision" class="level4">
+<h4 class="anchored" data-anchor-id="精确率-precision">9.1.3.3 精确率 (Precision)</h4>
+<p>精确率（也称查准率）是指在所有被模型预测为正类的样本中，实际为正类的样本所占的比例。 <span class="math display">\[ \text{Precision} = \frac{TP}{TP + FP} \]</span> 它衡量的是模型预测为正类的结果有多”准”。高精确率意味着模型预测为正类的样本中，很少有误报。</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>精确率的应用场景</strong></p>
+<p>当我们非常关注误报(False Positive)的成本时，精确率是一个关键指标。例如：</p>
+<ul>
+<li><strong>垃圾邮件检测</strong>：不希望将正常邮件错误标记为垃圾邮件</li>
+<li><strong>金融风控</strong>：不希望错误拒绝正常交易(造成客户体验下降)</li>
+<li><strong>医疗诊断</strong>：不希望将健康人误诊为患病(避免不必要的治疗)</li>
+</ul>
+<p>在这些场景中，我们需要尽可能降低FP(误报)，保持高精确率。</p>
+</div>
+</div>
+</div>
+</section>
+<section id="召回率-recall" class="level4">
+<h4 class="anchored" data-anchor-id="召回率-recall">9.1.3.4 召回率 (Recall)</h4>
+<p>召回率（也称查全率、敏感度 Sensitivity）是指在所有实际为正类的样本中，被模型成功预测为正类的样本所占的比例。 <span class="math display">\[ \text{Recall} = \frac{TP}{TP + FN} \]</span> 它衡量的是模型能找出多少”真正”的正类。高召回率意味着模型很少漏掉正类样本。</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>召回率的应用场景</strong></p>
+<p>当我们非常关注漏报(False Negative)的成本时，召回率是一个关键指标。例如：</p>
+<ul>
+<li><strong>疾病诊断</strong>：不希望漏掉任何一个真正患病的病人（避免延误治疗）</li>
+<li><strong>安全检测</strong>：不希望漏掉任何真正的安全威胁（如机场安检）</li>
+<li><strong>缺陷检测</strong>：不希望漏掉任何有缺陷的产品（如生产线质检）</li>
+</ul>
+<p>在这些场景中，我们需要尽可能降低FN(漏报)，保持高召回率。</p>
+</div>
+</div>
+</div>
+</section>
+<section id="f1-分数-f1-score" class="level4">
+<h4 class="anchored" data-anchor-id="f1-分数-f1-score">9.1.3.5 F1 分数 (F1-Score)</h4>
+<p>F1分数是精确率和召回率的调和平均数，它综合了这两个指标。 <span class="math display">\[ F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} \]</span> F1分数在精确率和召回率都较高时才会较高。</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>F1分数的应用场景</strong></p>
+<p>当我们希望同时关注精确率和召回率，或者当它们之间存在权衡时，F1分数是一个很好的综合评估指标。例如：</p>
+<ul>
+<li><strong>信息检索</strong>：需要平衡返回结果的相关性(精确率)和覆盖率(召回率)</li>
+<li><strong>异常检测</strong>：需要平衡误报(FP)和漏报(FN)的成本</li>
+<li><strong>分类任务中的类别不平衡</strong>：当正负样本比例悬殊时，F1比准确率更能反映模型性能</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="code-precision-recall-f1" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> precision_score, recall_score, f1_score, classification_report</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>precision <span class="op">=</span> precision_score(y_val, y_pred_val, zero_division<span class="op">=</span><span class="dv">0</span>) <span class="co"># zero_division处理分母为0的情况</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>recall <span class="op">=</span> recall_score(y_val, y_pred_val, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>f1 <span class="op">=</span> f1_score(y_val, y_pred_val, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"精确率 (Precision): </span><span class="sc">{</span>precision<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"召回率 (Recall): </span><span class="sc">{</span>recall<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"F1 分数 (F1-Score): </span><span class="sc">{</span>f1<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># classification_report 可以一次性输出多个指标</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">分类报告 (Classification Report):</span><span class="ch">\n</span><span class="st">"</span>, classification_report(y_val, y_pred_val, zero_division<span class="op">=</span><span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>精确率 (Precision): 0.4444
+召回率 (Recall): 0.4000
+F1 分数 (F1-Score): 0.4211
+
+分类报告 (Classification Report):
+               precision    recall  f1-score   support
+
+           0       0.45      0.50      0.48        10
+           1       0.44      0.40      0.42        10
+
+    accuracy                           0.45        20
+   macro avg       0.45      0.45      0.45        20
+weighted avg       0.45      0.45      0.45        20
+</code></pre>
+</div>
+</div>
+</section>
+<section id="roc-曲线与-auc-值" class="level4">
+<h4 class="anchored" data-anchor-id="roc-曲线与-auc-值">9.1.3.6 ROC 曲线与 AUC 值</h4>
+<p><strong>ROC 曲线 (Receiver Operating Characteristic Curve)</strong>： ROC曲线描述了在不同分类阈值下，分类器的真正类率 (TPR, True Positive Rate，即召回率) 与假正类率 (FPR, False Positive Rate) 之间的关系。 * <strong>TPR (召回率)</strong>: <span class="math inline">\(TPR = \frac{TP}{TP + FN}\)</span> * <strong>FPR (误报率)</strong>: <span class="math inline">\(FPR = \frac{FP}{FP + TN}\)</span></p>
+<p>ROC曲线的横轴是FPR，纵轴是TPR。曲线越靠近左上角（TPR高，FPR低），模型的性能越好。完全随机猜测的模型，其ROC曲线是一条从(0,0)到(1,1)的对角线。</p>
+<p><strong>AUC (Area Under the ROC Curve)</strong>： AUC是ROC曲线下的面积。AUC值介于0到1之间，值越大表示模型性能越好。 * AUC = 1：完美分类器。 * AUC = 0.5：随机猜测。 * AUC &lt; 0.5：比随机猜测还差（可能模型学反了，或者数据标签有问题）。</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>AUC指标的特点</strong></p>
+<p>AUC (Area Under the ROC Curve) 是评估二分类模型性能的常用指标，具有以下优势：</p>
+<ul>
+<li><strong>阈值无关性</strong>：不依赖于特定的分类阈值，能够综合评估模型在所有可能阈值下的表现</li>
+<li><strong>类别不平衡鲁棒性</strong>：对类别分布不敏感，适用于正负样本比例悬殊的情况</li>
+<li><strong>综合评估</strong>：同时考虑了模型对正负样本的区分能力</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="cell-fig-roc-auc" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> roc_curve, auc, roc_auc_score</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 获取模型预测为正类的概率 (很多分类器有 predict_proba 方法)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># LogisticRegression 默认用 decision_function 来确定阈值，这里用 predict_proba 获取概率</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>y_pred_proba_val <span class="op">=</span> model_example.predict_proba(X_val)[:, <span class="dv">1</span>] <span class="co"># 取正类的概率</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>fpr, tpr, thresholds <span class="op">=</span> roc_curve(y_val, y_pred_proba_val)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>roc_auc <span class="op">=</span> auc(fpr, tpr)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 或者直接计算 roc_auc_score(y_val, y_pred_proba_val)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.plot(fpr, tpr, color<span class="op">=</span><span class="st">'darkorange'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="ss">f'ROC curve (AUC = </span><span class="sc">{</span>roc_auc<span class="sc">:.2f}</span><span class="ss">)'</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'navy'</span>, lw<span class="op">=</span><span class="dv">2</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, label<span class="op">=</span><span class="st">'Random Chance'</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>plt.xlim([<span class="fl">0.0</span>, <span class="fl">1.0</span>])</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>plt.ylim([<span class="fl">0.0</span>, <span class="fl">1.05</span>])</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'False Positive Rate (FPR)'</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'True Positive Rate (TPR)'</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Receiver Operating Characteristic (ROC) Curve'</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">"lower right"</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig('images/09-model-evaluation/roc_auc_curve.svg', format='svg')</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"AUC 值: </span><span class="sc">{</span>roc_auc<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 直接计算 AUC</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>auc_score_direct <span class="op">=</span> roc_auc_score(y_val, y_pred_proba_val)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"直接计算的 AUC 值: </span><span class="sc">{</span>auc_score_direct<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="fig-roc-auc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-roc-auc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="09-model-evaluation-feature-engineering_files/figure-html/fig-roc-auc-output-1.png" width="674" height="523" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-auc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.1: ROC曲线示例及其AUC值。
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>AUC 值: 0.3500
+直接计算的 AUC 值: 0.3500</code></pre>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>如何选择分类指标？</strong></p>
+<p>选择哪个指标取决于具体的应用场景和业务需求：</p>
+<ul>
+<li><strong>准确率 (Accuracy)</strong>：适用于类别平衡且误分类代价相同的情况</li>
+<li><strong>精确率 (Precision)</strong>：关注”不要错杀好人”的场景（如垃圾邮件过滤）</li>
+<li><strong>召回率 (Recall)</strong>：关注”不要放过坏人”的场景（如疾病诊断）<br>
+</li>
+<li><strong>F1分数</strong>：当需要平衡精确率和召回率时使用</li>
+<li><strong>AUC</strong>：评估模型整体性能或处理类别不平衡问题</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="回归模型评估指标" class="level3">
+<h3 class="anchored" data-anchor-id="回归模型评估指标">9.1.4 回归模型评估指标</h3>
+<section id="平均绝对误差-mean-absolute-error-mae" class="level4">
+<h4 class="anchored" data-anchor-id="平均绝对误差-mean-absolute-error-mae">9.1.4.1 平均绝对误差 (Mean Absolute Error, MAE)</h4>
+<p>MAE 计算的是预测值与真实值之间绝对误差的平均值。 <span class="math display">\[ \text{MAE} = \frac{1}{m} \sum_{i=1}^{m} |y^{(i)} - \hat{y}^{(i)}| \]</span> 其中 <span class="math inline">\(m\)</span> 是样本数量，<span class="math inline">\(y^{(i)}\)</span> 是真实值，<span class="math inline">\(\hat{y}^{(i)}\)</span> 是预测值。</p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>MAE 特点：</strong></p>
+<ul>
+<li><strong>优点：</strong>
+<ul>
+<li>易于理解</li>
+<li>对异常值不那么敏感（相比MSE）</li>
+</ul></li>
+<li><strong>缺点：</strong>
+<ul>
+<li>绝对值函数在零点不可导，可能给某些优化算法带来问题（虽然在评估时这不是主要问题）</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="均方误差-mean-squared-error-mse" class="level4">
+<h4 class="anchored" data-anchor-id="均方误差-mean-squared-error-mse">9.1.4.2 均方误差 (Mean Squared Error, MSE)</h4>
+<p>MSE 计算的是预测值与真实值之间误差平方的平均值。 <span class="math display">\[ \text{MSE} = \frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2 \]</span></p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>MSE 特点：</strong></p>
+<ul>
+<li><strong>优点：</strong>
+<ul>
+<li>对误差进行平方，可以放大较大的误差，因此对大误差更敏感</li>
+<li>数学上易于处理（可导）</li>
+</ul></li>
+<li><strong>缺点：</strong>
+<ul>
+<li>量纲与原始目标变量的平方相同，不易直观解释</li>
+<li>对异常值非常敏感</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="均方根误差-root-mean-squared-error-rmse" class="level4">
+<h4 class="anchored" data-anchor-id="均方根误差-root-mean-squared-error-rmse">9.1.4.3 均方根误差 (Root Mean Squared Error, RMSE)</h4>
+<p>RMSE 是 MSE 的平方根。 <span class="math display">\[ \text{RMSE} = \sqrt{\text{MSE}} = \sqrt{\frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2} \]</span></p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>RMSE 特点：</strong></p>
+<ul>
+<li><strong>优点：</strong>
+<ul>
+<li>与原始目标变量具有相同的量纲，更易于解释</li>
+<li>仍然对大误差敏感（通过平方运算放大误差）</li>
+</ul></li>
+<li><strong>缺点：</strong>
+<ul>
+<li>仍然对异常值敏感（继承了MSE的特性）</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="r-方-r-squared决定系数" class="level4">
+<h4 class="anchored" data-anchor-id="r-方-r-squared决定系数">9.1.4.4 R 方 (R-squared，决定系数)</h4>
+<p>R方（也称决定系数 Coefficient of Determination）衡量的是模型对数据变异性的解释程度。它的取值范围通常在0到1之间（但在某些情况下可能为负）。 <span class="math display">\[ R^2 = 1 - \frac{\text{SS}_{\text{res}}}{\text{SS}_{\text{tot}}} = 1 - \frac{\sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2}{\sum_{i=1}^{m} (y^{(i)} - \bar{y})^2} \]</span> 其中：</p>
+<ul>
+<li><span class="math inline">\(\text{SS}_{\text{res}}\)</span> 是残差平方和 (Sum of Squares of Residuals)。</li>
+<li><span class="math inline">\(\text{SS}_{\text{tot}}\)</span> 是总平方和 (Total Sum of Squares)，即数据本身的方差。</li>
+<li><span class="math inline">\(\bar{y}\)</span> 是真实值的平均值。</li>
+</ul>
+<p><strong>解释：</strong></p>
+<ul>
+<li><span class="math inline">\(R^2 = 1\)</span>: 模型完美拟合数据。</li>
+<li><span class="math inline">\(R^2 = 0\)</span>: 模型等同于用均值进行预测，没有解释任何变异性。</li>
+<li><span class="math inline">\(R^2 &lt; 0\)</span>: 模型表现非常差，甚至不如用均值预测。</li>
+</ul>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>R方特点：</strong></p>
+<ul>
+<li><strong>优点：</strong>
+<ul>
+<li>提供了相对的性能度量，易于比较不同模型</li>
+<li>无量纲指标，便于跨数据集比较</li>
+</ul></li>
+<li><strong>缺点：</strong>
+<ul>
+<li>添加不相关特征时R方可能会虚假增加</li>
+<li>对于不同特征数量的模型比较，调整R方(Adjusted R-squared)更合适</li>
+<li>Scikit-learn中<code>score</code>方法默认返回的是R方而非调整R方</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="cell-code-regression-metrics" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_absolute_error, mean_squared_error, r2_score</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 生成一些回归数据示例</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">0</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>X_reg <span class="op">=</span> np.random.rand(<span class="dv">100</span>, <span class="dv">1</span>) <span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>y_reg <span class="op">=</span> <span class="fl">2.5</span> <span class="op">*</span> X_reg.squeeze() <span class="op">+</span> np.random.randn(<span class="dv">100</span>) <span class="op">*</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">5</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>X_reg_train, X_reg_test, y_reg_train, y_reg_test <span class="op">=</span> train_test_split(X_reg, y_reg, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>reg_model <span class="op">=</span> LinearRegression()</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>reg_model.fit(X_reg_train, y_reg_train)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>y_reg_pred <span class="op">=</span> reg_model.predict(X_reg_test)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(y_reg_test, y_reg_pred)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>mse <span class="op">=</span> mean_squared_error(y_reg_test, y_reg_pred)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>rmse <span class="op">=</span> np.sqrt(mse) <span class="co"># 或者 mean_squared_error(y_reg_test, y_reg_pred, squared=False)</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> r2_score(y_reg_test, y_reg_pred)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 对于回归器， .score() 方法通常返回 R^2</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co"># r2_from_score = reg_model.score(X_reg_test, y_reg_test)</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"回归模型在测试集上的评估指标:"</span>)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"平均绝对误差 (MAE): </span><span class="sc">{</span>mae<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"均方误差 (MSE): </span><span class="sc">{</span>mse<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"均方根误差 (RMSE): </span><span class="sc">{</span>rmse<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R方 (R-squared): </span><span class="sc">{</span>r2<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="co"># print(f"R方 (from .score()): {r2_from_score:.4f}")</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 可视化回归结果</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>plt.scatter(X_reg_test, y_reg_test, color<span class="op">=</span><span class="st">'blue'</span>, label<span class="op">=</span><span class="st">'Actual values'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>plt.plot(X_reg_test, y_reg_pred, color<span class="op">=</span><span class="st">'red'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Predicted values'</span>)</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Feature"</span>)</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Target"</span>)</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Regression Model: Actual vs. Predicted"</span>)</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig('images/09-model-evaluation/regression_actual_vs_predicted.svg', format='svg')</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>回归模型在测试集上的评估指标:
+平均绝对误差 (MAE): 1.6029
+均方误差 (MSE): 3.6710
+均方根误差 (RMSE): 1.9160
+R方 (R-squared): 0.8965</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09-model-evaluation-feature-engineering_files/figure-html/code-regression-metrics-output-2.png" id="code-regression-metrics" width="659" height="523" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="模型优化过拟合欠拟合与验证" class="level2">
+<h2 class="anchored" data-anchor-id="模型优化过拟合欠拟合与验证">9.2 模型优化：过拟合、欠拟合与验证</h2>
+<section id="过拟合-overfitting-与欠拟合-underfitting" class="level3">
+<h3 class="anchored" data-anchor-id="过拟合-overfitting-与欠拟合-underfitting">9.2.1 过拟合 (Overfitting) 与欠拟合 (Underfitting)</h3>
+<ul>
+<li><strong>欠拟合 (Underfitting)：</strong>
+<ul>
+<li><strong>现象：</strong> 模型在训练集和测试集（或验证集）上都表现不佳。</li>
+<li><strong>原因：</strong> 通常是因为模型过于简单，无法捕捉数据中的复杂模式和关系。也可能是因为特征不足。</li>
+<li><strong>解决方法：</strong>
+<ul>
+<li>尝试更复杂的模型（例如，从线性模型换到非线性模型，或增加神经网络的层数/单元数）。</li>
+<li>增加更多有用的特征（特征工程）。</li>
+<li>减少正则化强度。</li>
+<li>训练更长时间（对于迭代算法）。</li>
+</ul></li>
+</ul></li>
+<li><strong>过拟合 (Overfitting)：</strong>
+<ul>
+<li><strong>现象：</strong> 模型在训练集上表现非常好，但在测试集（或验证集）上表现显著较差。模型学习了训练数据中的噪声和细节，而不是潜在的通用模式，导致其泛化能力差。</li>
+<li><strong>原因：</strong> 通常是因为模型过于复杂（相对于数据量而言），或者训练数据量太小，或者训练时间过长。</li>
+<li><strong>解决方法：</strong>
+<ul>
+<li>获取更多训练数据。</li>
+<li>使用更简单的模型或降低模型复杂度。</li>
+<li><strong>正则化 (Regularization)：</strong> 在损失函数中加入惩罚项，限制模型参数的大小（如L1、L2正则化）。</li>
+<li><strong>数据增强 (Data Augmentation)：</strong> 对于图像、文本等数据，通过变换生成新的训练样本。</li>
+<li><strong>Dropout (常用于神经网络)：</strong> 在训练过程中随机丢弃一部分神经元。</li>
+<li><strong>早停 (Early Stopping)：</strong> 在验证集上性能不再提升时停止训练。</li>
+<li>特征选择，减少特征数量。</li>
+<li><strong>交叉验证：</strong> 用于更可靠地评估模型性能和选择超参数，间接帮助避免过拟合。</li>
+</ul></li>
+</ul></li>
+</ul>
+<p><strong>理想情况：</strong> 模型在训练集和测试集上都表现良好，并且两者性能接近。</p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>诊断技巧：</strong> 绘制学习曲线 (Learning Curves)，观察模型在训练集和验证集上的性能随训练样本数量或训练轮数的变化情况，有助于诊断过拟合和欠拟合。</p>
+</div>
+</div>
+</div>
+</section>
+<section id="交叉验证-cross-validation" class="level3">
+<h3 class="anchored" data-anchor-id="交叉验证-cross-validation">9.2.2 交叉验证 (Cross-Validation)</h3>
+<p>当数据集较小时，简单地划分为训练集、验证集和测试集可能会导致验证集或测试集过小，使得模型评估结果偶然性太大，不够可靠。交叉验证是一种更稳健的模型评估和选择方法。</p>
+<section id="k-折交叉验证-k-fold-cross-validation" class="level4">
+<h4 class="anchored" data-anchor-id="k-折交叉验证-k-fold-cross-validation">9.2.2.1 K 折交叉验证 (K-Fold Cross-Validation)</h4>
+<p>K折交叉验证是最常用的交叉验证方法。步骤如下：</p>
+<ol type="1">
+<li>将原始训练数据随机划分为 <span class="math inline">\(K\)</span> 个大小相似的、互不相交的子集（称为”折”，fold）。</li>
+<li>进行 <span class="math inline">\(K\)</span> 轮迭代：
+<ul>
+<li>在每一轮中，选择其中一个折作为验证集，其余 <span class="math inline">\(K-1\)</span> 个折合并作为训练集。</li>
+<li>在训练集上训练模型，在验证集上评估模型性能。</li>
+</ul></li>
+<li>最终的模型性能是 <span class="math inline">\(K\)</span> 轮评估结果的平均值（例如，平均准确率、平均MSE）。</li>
+</ol>
+<p><strong>优点：</strong> * 所有数据都参与了训练和验证，评估结果更稳定、更可靠。 * 减少了因特定划分方式带来的偶然性。</p>
+<p><strong>选择K值：</strong> 常见的K值为5或10。K值越大，计算成本越高，但评估结果的方差通常越小。</p>
+<div id="code-kfold-cv" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> KFold, cross_val_score</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> SVC</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用鸢尾花数据集示例</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>iris <span class="op">=</span> load_iris()</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>X_iris_full <span class="op">=</span> iris.data</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>y_iris_full <span class="op">=</span> iris.target</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 数据标准化</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>scaler_cv <span class="op">=</span> StandardScaler()</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>X_iris_scaled_full <span class="op">=</span> scaler_cv.fit_transform(X_iris_full)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 初始化模型 (这里用SVM作为例子)</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>svm_model_cv <span class="op">=</span> SVC(kernel<span class="op">=</span><span class="st">'linear'</span>, C<span class="op">=</span><span class="dv">1</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 定义 KFold</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>kf <span class="op">=</span> KFold(n_splits<span class="op">=</span>k, shuffle<span class="op">=</span><span class="va">True</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 手动进行 K-Fold 交叉验证 (理解过程)</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>fold_accuracies <span class="op">=</span> []</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> fold_idx, (train_index, val_index) <span class="kw">in</span> <span class="bu">enumerate</span>(kf.split(X_iris_scaled_full)):</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    X_train_fold, X_val_fold <span class="op">=</span> X_iris_scaled_full[train_index], X_iris_scaled_full[val_index]</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    y_train_fold, y_val_fold <span class="op">=</span> y_iris_full[train_index], y_iris_full[val_index]</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    svm_model_cv.fit(X_train_fold, y_train_fold)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    fold_accuracy <span class="op">=</span> svm_model_cv.score(X_val_fold, y_val_fold)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    fold_accuracies.append(fold_accuracy)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Fold </span><span class="sc">{</span>fold_idx<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> 验证集准确率: </span><span class="sc">{</span>fold_accuracy<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">K-Fold (</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">-折) 交叉验证平均准确率 (手动): </span><span class="sc">{</span>np<span class="sc">.</span>mean(fold_accuracies)<span class="sc">:.4f}</span><span class="ss"> (+/- </span><span class="sc">{</span>np<span class="sc">.</span>std(fold_accuracies)<span class="sc">:.4f}</span><span class="ss">)"</span>)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用 cross_val_score 简化 K-Fold 交叉验证</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="co"># cross_val_score 内部会克隆模型并在每个fold上重新训练</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="co"># scoring 参数可以选择不同的评估指标，如 'accuracy', 'precision', 'recall', 'f1', 'roc_auc' (分类)</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="co"># 'neg_mean_squared_error', 'r2' (回归)</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a><span class="co"># 注意：Scikit-learn的约定是评估指标越大越好，所以MSE等会返回负值</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>cv_scores <span class="op">=</span> cross_val_score(svm_model_cv, X_iris_scaled_full, y_iris_full, cv<span class="op">=</span>k, scoring<span class="op">=</span><span class="st">'accuracy'</span>)</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">cross_val_score (</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">-折) 准确率列表: </span><span class="sc">{</span>cv_scores<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"cross_val_score 平均准确率: </span><span class="sc">{</span>cv_scores<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss"> (+/- </span><span class="sc">{</span>cv_scores<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fold 1 验证集准确率: 0.9667
+Fold 2 验证集准确率: 0.9667
+Fold 3 验证集准确率: 0.9667
+Fold 4 验证集准确率: 0.9667
+Fold 5 验证集准确率: 1.0000
+
+K-Fold (5-折) 交叉验证平均准确率 (手动): 0.9733 (+/- 0.0133)
+
+cross_val_score (5-折) 准确率列表: [0.96666667 1.         0.93333333 0.93333333 1.        ]
+cross_val_score 平均准确率: 0.9667 (+/- 0.0298)</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>cross_val_score</code> 返回的是每次验证折上的得分。通常我们会关心这些得分的均值和标准差，以了解模型性能的稳定性和平均水平。</p>
+</div>
+</div>
+</section>
+<section id="其他交叉验证策略" class="level4">
+<h4 class="anchored" data-anchor-id="其他交叉验证策略">9.2.2.2 其他交叉验证策略</h4>
+<ul>
+<li><p><strong>留一交叉验证 (Leave-One-Out Cross-Validation, LOOCV)：</strong> <span class="math inline">\(K\)</span> 等于样本数量 <span class="math inline">\(m\)</span>。每次迭代中，只留下一个样本作为验证集，其余 <span class="math inline">\(m-1\)</span> 个样本作为训练集。计算成本非常高，但对于小数据集，可以得到近乎无偏的性能估计。 Scikit-learn: <code>LeaveOneOut</code></p></li>
+<li><p><strong>分层 K 折交叉验证 (Stratified K-Fold Cross-Validation)：</strong> 在分类问题中，如果数据类别不平衡，普通的K折交叉验证可能会导致某些折中某个类别的样本非常少甚至没有。分层K折交叉验证在划分数据时会保持每个折中类别比例与原始数据集中的类别比例大致相同。这对于类别不平衡的数据集尤为重要。 Scikit-learn: <code>StratifiedKFold</code>, <code>cross_val_score</code> 在分类任务中默认会尝试使用分层划分。</p></li>
+<li><p><strong>带分组的交叉验证 (Group K-Fold, etc.)：</strong> 当数据中存在分组结构时（例如，同一个病人的多次测量数据，这些数据不是独立的），需要确保来自同一组的样本不会同时出现在训练集和验证集中，以避免信息泄露。 Scikit-learn: <code>GroupKFold</code>, <code>LeaveOneGroupOut</code>, <code>LeavePGroupsOut</code></p></li>
+</ul>
+</section>
+</section>
+<section id="偏差-bias-与方差-variance" class="level3">
+<h3 class="anchored" data-anchor-id="偏差-bias-与方差-variance">9.2.3 偏差 (Bias) 与方差 (Variance)</h3>
+<p>理解偏差和方差有助于我们诊断模型的问题并选择合适的优化策略。 假设模型的期望预测为 <span class="math inline">\(E[\hat{f}(x)]\)</span>，真实函数为 <span class="math inline">\(f(x)\)</span>，则模型的期望误差可以分解： <span class="math display">\[E[(y - \hat{f}(x))^2] = \underbrace{(E[\hat{f}(x)] - f(x))^2}_{Bias^2} + \underbrace{E[(\hat{f}(x) - E[\hat{f}(x)])^2]}_{Variance} + \underbrace{\sigma^2_{\epsilon}}_{Irreducible\ Error}\]</span></p>
+<ul>
+<li><strong>偏差 (Bias)：</strong>
+<ul>
+<li>描述的是模型预测值的期望与真实值之间的差距。高偏差意味着模型系统性地偏离了真实目标。</li>
+<li>通常由模型过于简单（欠拟合）导致，无法捕捉数据的真实规律。</li>
+<li><strong>高偏差模型的特点：</strong> 在训练集和测试集上性能都较差。</li>
+</ul></li>
+<li><strong>方差 (Variance)：</strong>
+<ul>
+<li>描述的是模型预测值对于不同训练数据集的敏感程度，即模型预测结果的波动性。高方差意味着模型对训练数据的微小变化非常敏感。</li>
+<li>通常由模型过于复杂（过拟合）导致，学习了训练数据中的噪声。</li>
+<li><strong>高方差模型的特点：</strong> 在训练集上性能很好，但在测试集上性能显著下降。</li>
+</ul></li>
+<li><strong>不可约误差 (Irreducible Error)：</strong>
+<ul>
+<li>数据本身固有的噪声导致的误差，任何模型都无法消除。</li>
+</ul></li>
+</ul>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>偏差-方差权衡 (Bias-Variance Trade-off)</strong></p>
+<p>通常情况下，偏差和方差是相互制约的：</p>
+<ul>
+<li><strong>简单的模型</strong>（如线性回归）通常具有高偏差和低方差。</li>
+<li><strong>复杂的模型</strong>（如高阶多项式回归、深度神经网络）通常具有低偏差和高方差。</li>
+</ul>
+<p>模型优化的目标是在偏差和方差之间找到一个平衡点，使得总误差最小。</p>
+</div>
+</div>
+</div>
+<div id="fig-bias-variance-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bias-Variance Tradeoff">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-variance-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://towardsdatascience.com/wp-content/uploads/2022/06/1_6iqpYUskXGWctfWEfppEg.png" class="img-fluid figure-img" alt="Bias-Variance Tradeoff" width="600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-variance-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.2: 偏差-方差权衡示意图
+</figcaption>
+</figure>
+</div>
+<p><em>图片来源：<a href="https://towardsdatascience.com/understanding-the-bias-variance-tradeoff-165e6942b229">Understanding the Bias-Variance Tradeoff by Seema Singh</a></em></p>
+</section>
+<section id="超参数调优-hyperparameter-tuning" class="level3">
+<h3 class="anchored" data-anchor-id="超参数调优-hyperparameter-tuning">9.2.4 超参数调优 (Hyperparameter Tuning)</h3>
+<p>模型的超参数是在训练开始之前设置的参数，它们控制着学习过程的某些方面（例如，SVM 的 <code>C</code> 和 <code>kernel</code>，决策树的 <code>max_depth</code>）。找到最优的超参数组合对于提升模型性能至关重要。</p>
+<section id="网格搜索-grid-search" class="level4">
+<h4 class="anchored" data-anchor-id="网格搜索-grid-search">9.2.4.1 网格搜索 (Grid Search)</h4>
+<p>网格搜索是最简单也是最常用的超参数调优方法。它会尝试所有给定的超参数值的组合。</p>
+<ol type="1">
+<li><strong>定义超参数空间：</strong> 为每个你想要调优的超参数指定一个候选值列表。</li>
+<li><strong>构建网格：</strong> 所有超参数候选值的笛卡尔积构成一个”网格”。</li>
+<li><strong>遍历评估：</strong> 对于网格中的每一个超参数组合：
+<ul>
+<li>使用该组合配置模型。</li>
+<li>通过交叉验证（例如K折）在训练数据上评估模型性能。</li>
+</ul></li>
+<li><strong>选择最佳参数：</strong> 选择在交叉验证中表现最好的超参数组合。</li>
+<li><strong>最终模型训练：</strong> 使用找到的最佳超参数组合，在整个训练数据上重新训练模型。</li>
+</ol>
+<p><strong>优点：</strong> 简单，能找到指定范围内的最优组合。</p>
+<p><strong>缺点：</strong> 当超参数数量较多或每个超参数的候选值较多时，计算成本会呈指数级增长（维度灾难）。</p>
+<div id="code-grid-search-cv" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> GridSearchCV</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> SVC</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用之前定义的 X_iris_scaled_full, y_iris_full</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 定义要调优的超参数及其候选值</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>param_grid_svm <span class="op">=</span> {</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'C'</span>: [<span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>],</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'gamma'</span>: [<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>], <span class="co"># 'rbf' 或 'poly' 核的参数</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'kernel'</span>: [<span class="st">'rbf'</span>, <span class="st">'linear'</span>] <span class="co"># 尝试不同的核函数</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 初始化 GridSearchCV</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co"># estimator: 要调优的模型</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># param_grid: 超参数网格</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co"># cv: 交叉验证折数</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co"># scoring: 评估指标</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co"># n_jobs: 并行运行的作业数 (-1 表示使用所有可用的处理器)</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>grid_search_svm <span class="op">=</span> GridSearchCV(</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    estimator<span class="op">=</span>SVC(random_state<span class="op">=</span><span class="dv">42</span>),</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    param_grid<span class="op">=</span>param_grid_svm,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span><span class="dv">3</span>, <span class="co"># 使用3折交叉验证以加快示例速度，实际可使用5或10</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">'accuracy'</span>,</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="dv">1</span>, <span class="co"># verbose &gt; 0 会输出一些日志信息</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    n_jobs<span class="op">=-</span><span class="dv">1</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 在数据上执行网格搜索</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 注意：GridSearchCV 会自动在最佳参数组合下用整个训练数据重新训练模型 (refit=True 默认)</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"开始网格搜索..."</span>)</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>grid_search_svm.fit(X_iris_scaled_full, y_iris_full) <span class="co"># 在整个可用数据上搜索 (实际中应在训练集上搜索)</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 查看最佳参数和最佳得分</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">最佳超参数组合: </span><span class="sc">{</span>grid_search_svm<span class="sc">.</span>best_params_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"交叉验证最佳准确率: </span><span class="sc">{</span>grid_search_svm<span class="sc">.</span>best_score_<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 获取最佳模型</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>best_svm_model <span class="op">=</span> grid_search_svm.best_estimator_</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a><span class="co"># (可选) 查看所有结果</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="co"># results_df = pd.DataFrame(grid_search_svm.cv_results_)</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="co"># print("\n网格搜索详细结果:\n", results_df[['param_C', 'param_gamma', 'param_kernel', 'mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False).head())</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>开始网格搜索...
+Fitting 3 folds for each of 32 candidates, totalling 96 fits
+
+最佳超参数组合: {'C': 1, 'gamma': 0.001, 'kernel': 'linear'}
+交叉验证最佳准确率: 0.9800</code></pre>
+</div>
+</div>
+</section>
+<section id="随机搜索-randomized-search" class="level4">
+<h4 class="anchored" data-anchor-id="随机搜索-randomized-search">9.2.4.2 随机搜索 (Randomized Search)</h4>
+<p>当超参数空间很大时，网格搜索可能不可行。随机搜索从指定的参数分布中随机采样固定数量的参数组合。</p>
+<ol type="1">
+<li><strong>定义参数分布：</strong> 为每个超参数指定一个分布（例如，均匀分布、离散列表等）。</li>
+<li><strong>采样评估：</strong>
+<ul>
+<li>指定采样次数 <code>n_iter</code>。</li>
+<li>进行 <code>n_iter</code> 次迭代，每次从参数分布中随机选择一组超参数。</li>
+<li>使用该组合配置模型，并通过交叉验证评估性能。</li>
+</ul></li>
+<li><strong>选择最佳参数：</strong> 选择表现最好的超参数组合。</li>
+</ol>
+<p><strong>优点：</strong></p>
+<ul>
+<li>比网格搜索更高效，尤其是在高维参数空间中。</li>
+<li>即使某些参数对性能影响不大，随机搜索也有机会找到好的组合，而网格搜索可能会在这些不重要参数的维度上浪费大量时间。</li>
+<li>可以更好地探索参数空间的边缘区域。</li>
+</ul>
+<p><strong>缺点：</strong> 不保证找到全局最优解（但通常能找到足够好的解）。</p>
+<div id="code-randomized-search-cv" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> RandomizedSearchCV</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> expon, uniform <span class="co"># 用于定义参数分布</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 定义参数分布</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 对于连续参数，可以指定一个分布，如 expon (指数分布), uniform (均匀分布)</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 对于离散参数，可以是一个列表</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>param_dist_svm <span class="op">=</span> {</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'C'</span>: expon(scale<span class="op">=</span><span class="dv">10</span>), <span class="co"># 从指数分布中采样，scale是均值</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'gamma'</span>: expon(scale<span class="op">=</span><span class="fl">0.1</span>),</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'kernel'</span>: [<span class="st">'rbf'</span>, <span class="st">'linear'</span>, <span class="st">'poly'</span>],</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'degree'</span>: [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>] <span class="co"># poly核的度数，仅当kernel='poly'时相关</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 初始化 RandomizedSearchCV</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co"># n_iter: 采样的参数组合数量</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>random_search_svm <span class="op">=</span> RandomizedSearchCV(</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    estimator<span class="op">=</span>SVC(random_state<span class="op">=</span><span class="dv">42</span>, probability<span class="op">=</span><span class="va">True</span>), <span class="co"># probability=True 如果后续需要用predict_proba</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    param_distributions<span class="op">=</span>param_dist_svm,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    n_iter<span class="op">=</span><span class="dv">20</span>, <span class="co"># 尝试20种不同的参数组合 (根据计算资源调整)</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    scoring<span class="op">=</span><span class="st">'accuracy'</span>,</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    n_jobs<span class="op">=-</span><span class="dv">1</span>,</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">42</span> <span class="co"># 为了结果可复现</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"开始随机搜索..."</span>)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>random_search_svm.fit(X_iris_scaled_full, y_iris_full)</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">最佳超参数组合: </span><span class="sc">{</span>random_search_svm<span class="sc">.</span>best_params_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"交叉验证最佳准确率: </span><span class="sc">{</span>random_search_svm<span class="sc">.</span>best_score_<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>best_svm_model_random <span class="op">=</span> random_search_svm.best_estimator_</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>开始随机搜索...
+Fitting 3 folds for each of 20 candidates, totalling 60 fits
+
+最佳超参数组合: {'C': 4.692680899768591, 'degree': 2, 'gamma': 0.02026485043181491, 'kernel': 'rbf'}
+交叉验证最佳准确率: 0.9733</code></pre>
+</div>
+</div>
+<p><strong>其他超参数调优方法：</strong></p>
+<ul>
+<li><strong>贝叶斯优化 (Bayesian Optimization)：</strong> 例如使用 <code>hyperopt</code>, <code>scikit-optimize (skopt)</code> 等库。它会根据先前的评估结果智能地选择下一组要尝试的超参数，通常比网格搜索和随机搜索更高效。</li>
+<li><strong>基于梯度的优化：</strong> 对于某些模型（如神经网络），可以直接优化超参数。</li>
+<li><strong>进化算法 (Evolutionary Algorithms)：</strong> 如遗传算法。</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="特征工程-feature-engineering" class="level2">
+<h2 class="anchored" data-anchor-id="特征工程-feature-engineering">9.3 特征工程 (Feature Engineering)</h2>
+<p>特征工程是从原始数据中提取或创建对模型预测有用的特征的过程。它是机器学习项目中非常关键且耗时的一环，好的特征往往能极大地提升模型性能，甚至比选择复杂的模型更重要。</p>
+<div class="callout callout-style-simple callout-important">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>“Garbage in, garbage out.” —— 特征的质量直接决定了模型性能的上限。</p>
+</div>
+</div>
+</div>
+<section id="特征工程的重要性" class="level3">
+<h3 class="anchored" data-anchor-id="特征工程的重要性">9.3.1 特征工程的重要性</h3>
+<ul>
+<li><strong>提升模型性能：</strong> 合适的特征能帮助模型更好地学习数据中的模式。</li>
+<li><strong>简化模型：</strong> 好的特征可以让简单的模型也能达到很好的效果。</li>
+<li><strong>提高模型可解释性：</strong> 有意义的特征更容易理解模型的决策过程。</li>
+<li><strong>减少计算开销：</strong> 通过特征选择或创建更有效的特征，可以减少模型的训练时间。</li>
+</ul>
+</section>
+<section id="主要任务" class="level3">
+<h3 class="anchored" data-anchor-id="主要任务">9.3.2 主要任务</h3>
+<p>特征工程包含多个方面：</p>
+<ol type="1">
+<li><strong>特征预处理 (Feature Preprocessing)：</strong>
+<ul>
+<li><strong>数据清洗 (Data Cleaning)：</strong> 处理缺失值、异常值、重复值等。</li>
+<li><strong>特征缩放 (Feature Scaling)：</strong> 将不同尺度的特征转换到相似的范围，如标准化、归一化。</li>
+</ul></li>
+<li><strong>特征创建/构造 (Feature Creation/Construction)：</strong>
+<ul>
+<li>从现有特征组合出新的特征（例如，多项式特征、交互特征）。</li>
+<li>结合领域知识创造有意义的特征。</li>
+</ul></li>
+<li><strong>特征转换 (Feature Transformation)：</strong>
+<ul>
+<li>对特征进行非线性变换（如对数变换、Box-Cox变换）以改善其分布或与目标变量的关系。</li>
+<li>处理类别型特征（如独热编码、标签编码）。</li>
+</ul></li>
+<li><strong>特征选择 (Feature Selection)：</strong>
+<ul>
+<li>从众多特征中选出与目标变量最相关、冗余度最低的特征子集（已在降维章节讨论）。</li>
+</ul></li>
+<li><strong>特征提取 (Feature Extraction)：</strong>
+<ul>
+<li>通过算法将原始特征转换为新的、维度更低的特征空间（如PCA，已在降维章节讨论）。</li>
+</ul></li>
+</ol>
+</section>
+<section id="特征预处理" class="level3">
+<h3 class="anchored" data-anchor-id="特征预处理">9.3.3 特征预处理</h3>
+<section id="处理缺失值-missing-values" class="level4">
+<h4 class="anchored" data-anchor-id="处理缺失值-missing-values">9.3.3.1 处理缺失值 (Missing Values)</h4>
+<p>真实世界的数据往往存在缺失值。处理缺失值的方法主要有：</p>
+<ul>
+<li><strong>删除：</strong>
+<ul>
+<li><strong>删除样本：</strong> 如果某个样本包含过多缺失值，或者缺失值发生在非常重要的特征上，可以考虑删除整个样本。</li>
+<li><strong>删除特征：</strong> 如果某个特征大部分值都缺失，或者该特征不重要，可以考虑删除整个特征。</li>
+</ul></li>
+<li><strong>填充/插补 (Imputation)：</strong>
+<ul>
+<li><strong>均值/中位数/众数填充：</strong> 用特征的均值（数值型）、中位数（数值型，对异常值更稳健）或众数（类别型或数值型）来填充缺失值。这是最简单的方法。</li>
+<li><strong>固定值填充：</strong> 用一个特定的值（如0, -1, “Unknown”）填充。</li>
+<li><strong>模型预测填充：</strong> 将含有缺失值的特征作为目标变量，用其他特征来训练一个模型（如KNN、回归模型）预测缺失值。计算成本较高，但可能更准确。</li>
+<li><strong>插值法：</strong> 对于时间序列数据，可以使用前一个值、后一个值或插值方法（如线性插值）填充。</li>
+</ul></li>
+</ul>
+<p>Scikit-learn 提供了 <code>sklearn.impute.SimpleImputer</code> (用于均值、中位数、众数、固定值填充) 和 <code>sklearn.impute.KNNImputer</code> (用KNN预测填充)。</p>
+<div id="code-missing-values" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.impute <span class="im">import</span> SimpleImputer, KNNImputer</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 示例数据，包含NaN</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>X_missing <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">2</span>, np.nan],</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                      [<span class="dv">3</span>, np.nan, <span class="dv">5</span>],</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                      [np.nan, <span class="dv">6</span>, <span class="dv">7</span>],</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                      [<span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>]])</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 使用 SimpleImputer 填充均值</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>imputer_mean <span class="op">=</span> SimpleImputer(missing_values<span class="op">=</span>np.nan, strategy<span class="op">=</span><span class="st">'mean'</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>X_imputed_mean <span class="op">=</span> imputer_mean.fit_transform(X_missing)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"均值填充结果:</span><span class="ch">\n</span><span class="st">"</span>, X_imputed_mean)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 使用 SimpleImputer 填充中位数</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>imputer_median <span class="op">=</span> SimpleImputer(missing_values<span class="op">=</span>np.nan, strategy<span class="op">=</span><span class="st">'median'</span>)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>X_imputed_median <span class="op">=</span> imputer_median.fit_transform(X_missing)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">中位数填充结果:</span><span class="ch">\n</span><span class="st">"</span>, X_imputed_median)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 使用 KNNImputer 填充</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co"># n_neighbors: 用于插补的邻居数量</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>imputer_knn <span class="op">=</span> KNNImputer(n_neighbors<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>X_imputed_knn <span class="op">=</span> imputer_knn.fit_transform(X_missing) <span class="co"># 注意：KNNImputer期望输入是数值型</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">KNN填充结果:</span><span class="ch">\n</span><span class="st">"</span>, X_imputed_knn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>均值填充结果:
+ [[ 1.          2.          7.33333333]
+ [ 3.          5.66666667  5.        ]
+ [ 4.          6.          7.        ]
+ [ 8.          9.         10.        ]]
+
+中位数填充结果:
+ [[ 1.  2.  7.]
+ [ 3.  6.  5.]
+ [ 3.  6.  7.]
+ [ 8.  9. 10.]]
+
+KNN填充结果:
+ [[ 1.   2.   6. ]
+ [ 3.   4.   5. ]
+ [ 5.5  6.   7. ]
+ [ 8.   9.  10. ]]</code></pre>
+</div>
+</div>
+</section>
+<section id="处理异常值-outliers" class="level4">
+<h4 class="anchored" data-anchor-id="处理异常值-outliers">9.3.3.2 处理异常值 (Outliers)</h4>
+<p>异常值是数据集中与其他观测值显著不同的数据点。它们可能是由于测量错误、数据输入错误或真实但罕见的事件造成的。异常值可能会对某些模型的训练（如线性回归、基于距离的模型）产生负面影响。</p>
+<p><strong>检测异常值的方法：</strong></p>
+<ul>
+<li><strong>统计方法：</strong>
+<ul>
+<li><strong>3σ法则 (3-Sigma Rule)：</strong> 对于近似正态分布的数据，约99.7%的数据点应落在均值加减3倍标准差的范围内。超出此范围的可视为异常值。</li>
+<li><strong>箱线图 (Box Plot) / IQR法则：</strong> IQR (Interquartile Range) = Q3 - Q1。通常将小于 Q1 - 1.5 * IQR 或大于 Q3 + 1.5 * IQR 的值视为异常值。</li>
+</ul></li>
+<li><strong>基于模型的检测：</strong> 如孤立森林 (Isolation Forest)、局部异常因子 (Local Outlier Factor, LOF)。</li>
+</ul>
+<p><strong>处理异常值的方法：</strong></p>
+<ul>
+<li><strong>删除：</strong> 如果确定是错误数据，可以删除。</li>
+<li><strong>转换：</strong> 对数据进行变换（如对数变换）可能减轻异常值的影响。</li>
+<li><strong>盖帽/缩尾 (Capping/Winsorizing)：</strong> 将超出某个阈值的异常值替换为该阈值（例如，将所有大于99百分位数的值替换为99百分位数的值）。</li>
+<li><strong>使用对异常值稳健的模型：</strong> 例如，使用MAE代替MSE作为损失函数，或者使用基于树的模型（它们通常对异常值不那么敏感）。</li>
+<li><strong>视为缺失值再进行插补。</strong></li>
+</ul>
+</section>
+<section id="特征缩放-feature-scaling" class="level4">
+<h4 class="anchored" data-anchor-id="特征缩放-feature-scaling">9.3.3.3 特征缩放 (Feature Scaling)</h4>
+<p>许多机器学习算法（如基于距离的算法KNN、SVM，梯度下降优化的算法如线性回归、逻辑回归、神经网络）的性能会受到输入特征尺度的影响。如果特征具有非常不同的取值范围，尺度较大的特征可能会主导模型的学习过程。特征缩放将所有特征调整到相似的范围。</p>
+<p><strong>常用的特征缩放方法：</strong></p>
+<ol type="1">
+<li><p><strong>标准化 (Standardization / Z-score Normalization)：</strong> 将特征缩放为均值为0，标准差为1。 <span class="math display">\[ x' = \frac{x - \mu}{\sigma} \]</span> 其中 <span class="math inline">\(\mu\)</span> 是特征的均值，<span class="math inline">\(\sigma\)</span> 是特征的标准差。</p>
+<p><strong>适用场景：</strong> 当数据近似高斯分布时效果较好，或者当算法对特征的方差敏感时（如PCA）。</p>
+<p><strong>Scikit-learn:</strong> <code>sklearn.preprocessing.StandardScaler</code></p></li>
+<li><p><strong>归一化 (Normalization / Min-Max Scaling)：</strong> 将特征缩放至给定的范围，通常是 [0, 1] 或 [-1, 1]。 <span class="math display">\[ x' = \frac{x - \text{min}(x)}{\text{max}(x) - \text{min}(x)} \]</span> (对于 [0, 1] 范围)</p>
+<p><strong>适用场景：</strong> 当数据分布不符合高斯分布，或者希望将特征值限制在特定边界内时（如图像像素值）。对异常值非常敏感。</p>
+<p><strong>Scikit-learn:</strong> <code>sklearn.preprocessing.MinMaxScaler</code></p></li>
+<li><p><strong>鲁棒缩放 (Robust Scaling)：</strong> 使用对异常值不敏感的统计量（如中位数和四分位距IQR）进行缩放。 <span class="math display">\[ x' = \frac{x - \text{median}(x)}{\text{IQR}} \]</span></p>
+<p><strong>适用场景：</strong> 当数据包含较多异常值时，StandardScaler 和 MinMaxScaler 的效果可能会受影响，此时 RobustScaler 是一个更好的选择。</p>
+<p><strong>Scikit-learn:</strong> <code>sklearn.preprocessing.RobustScaler</code></p></li>
+</ol>
+<div id="code-feature-scaling" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler, MinMaxScaler, RobustScaler</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 示例数据</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>data_scaling <span class="op">=</span> {<span class="st">'Feature1'</span>: [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">500</span>], <span class="co"># 包含一个异常值</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">'Feature2'</span>: [<span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>]}</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>df_scaling <span class="op">=</span> pd.DataFrame(data_scaling)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"原始数据:</span><span class="ch">\n</span><span class="st">"</span>, df_scaling)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. StandardScaler</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>scaler_standard <span class="op">=</span> StandardScaler()</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>df_standard_scaled <span class="op">=</span> scaler_standard.fit_transform(df_scaling)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">StandardScaler 结果:</span><span class="ch">\n</span><span class="st">"</span>, df_standard_scaled)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"均值: </span><span class="sc">{</span>df_standard_scaled<span class="sc">.</span>mean(axis<span class="op">=</span><span class="dv">0</span>)<span class="sc">}</span><span class="ss">, 标准差: </span><span class="sc">{</span>df_standard_scaled<span class="sc">.</span>std(axis<span class="op">=</span><span class="dv">0</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. MinMaxScaler (默认缩放到 [0, 1])</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>scaler_minmax <span class="op">=</span> MinMaxScaler()</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>df_minmax_scaled <span class="op">=</span> scaler_minmax.fit_transform(df_scaling)</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">MinMaxScaler 结果:</span><span class="ch">\n</span><span class="st">"</span>, df_minmax_scaled)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"最小值: </span><span class="sc">{</span>df_minmax_scaled<span class="sc">.</span><span class="bu">min</span>(axis<span class="op">=</span><span class="dv">0</span>)<span class="sc">}</span><span class="ss">, 最大值: </span><span class="sc">{</span>df_minmax_scaled<span class="sc">.</span><span class="bu">max</span>(axis<span class="op">=</span><span class="dv">0</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. RobustScaler</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>scaler_robust <span class="op">=</span> RobustScaler()</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>df_robust_scaled <span class="op">=</span> scaler_robust.fit_transform(df_scaling)</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">RobustScaler 结果 (对异常值更稳健):</span><span class="ch">\n</span><span class="st">"</span>, df_robust_scaled)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="co"># RobustScaler后的均值和标准差不一定是0和1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>原始数据:
+    Feature1  Feature2
+0        10       0.1
+1        20       0.2
+2        30       0.3
+3        40       0.4
+4       500       0.5
+
+StandardScaler 结果:
+ [[-0.57814716 -1.41421356]
+ [-0.52558833 -0.70710678]
+ [-0.4730295   0.        ]
+ [-0.42047066  0.70710678]
+ [ 1.99723566  1.41421356]]
+均值: [-4.44089210e-17  1.33226763e-16], 标准差: [1. 1.]
+
+MinMaxScaler 结果:
+ [[0.         0.        ]
+ [0.02040816 0.25      ]
+ [0.04081633 0.5       ]
+ [0.06122449 0.75      ]
+ [1.         1.        ]]
+最小值: [0. 0.], 最大值: [1. 1.]
+
+RobustScaler 结果 (对异常值更稳健):
+ [[-1.  -1. ]
+ [-0.5 -0.5]
+ [ 0.   0. ]
+ [ 0.5  0.5]
+ [23.5  1. ]]</code></pre>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>何时使用特征缩放？</strong></p>
+<ul>
+<li><strong>基于距离的算法</strong>：KNN, K-Means, SVM (带径向基核等) - 这些算法直接计算特征间的距离，需要特征在相同尺度上</li>
+<li><strong>梯度下降优化的算法</strong>：线性回归, 逻辑回归, 神经网络 - 特征尺度不同会导致优化路径震荡，收敛变慢</li>
+<li><strong>PCA</strong> - 主成分分析对特征方差敏感，需要先标准化</li>
+<li><strong>基于树的模型</strong>：决策树、随机森林、梯度提升树等通常对特征缩放不敏感，因为它们是基于规则的分裂而非距离计算</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-important">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<ul>
+<li>在训练集上 <code>fit</code> 或 <code>fit_transform</code> 缩放器，然后在验证集和测试集上只使用 <code>transform</code>。这是为了防止测试集的信息泄露到训练过程中，保证评估的公正性。</li>
+<li>如果使用交叉验证，特征缩放应该在每个交叉验证的折叠内部进行，或者使用 Pipeline 将缩放器和模型串联起来。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="特征编码-feature-encoding" class="level3">
+<h3 class="anchored" data-anchor-id="特征编码-feature-encoding">9.3.4 特征编码 (Feature Encoding)</h3>
+<p>机器学习模型通常只能处理数值型数据。类别型特征（如颜色：“红”、“蓝”、“绿”；城市：“北京”、“上海”）需要转换为数值表示。</p>
+<section id="独热编码-one-hot-encoding" class="level4">
+<h4 class="anchored" data-anchor-id="独热编码-one-hot-encoding">9.3.4.1 独热编码 (One-Hot Encoding)</h4>
+<p>对于名义类别特征（类别之间没有顺序关系），独热编码是一种常用的方法。它为每个类别创建一个新的二元特征（0或1）。</p>
+<p>例如，特征 “颜色” 有三个类别：红、蓝、绿。</p>
+<ul>
+<li>红 -&gt; <code>[1, 0, 0]</code></li>
+<li>蓝 -&gt; <code>[0, 1, 0]</code></li>
+<li>绿 -&gt; <code>[0, 0, 1]</code></li>
+</ul>
+<p><strong>优点：</strong> 避免了类别间引入不自然的顺序关系。</p>
+<p><strong>缺点：</strong> 如果类别数量非常多（高基数类别特征），会导致特征维度急剧增加，可能引发维度灾难。</p>
+<p><strong>Scikit-learn:</strong> <code>sklearn.preprocessing.OneHotEncoder</code>。Pandas 也有 <code>pd.get_dummies()</code> 函数可以方便地实现独热编码。</p>
+</section>
+<section id="标签编码-label-encoding" class="level4">
+<h4 class="anchored" data-anchor-id="标签编码-label-encoding">9.3.4.2 标签编码 (Label Encoding)</h4>
+<p>标签编码将每个类别映射为一个整数（例如，红 -&gt; 0, 蓝 -&gt; 1, 绿 -&gt; 2）。</p>
+<p><strong>优点：</strong> 实现简单，不会增加特征维度。</p>
+<p><strong>缺点：</strong> 对于名义类别特征，引入了人为的顺序关系（例如，模型可能会认为 绿(2) &gt; 蓝(1)），这可能误导某些模型（如线性模型、KNN）。</p>
+<p><strong>适用场景：</strong></p>
+<ul>
+<li>对于有序类别特征（例如，学历：“小学” -&gt; 0, “中学” -&gt; 1, “大学” -&gt;2 ），标签编码是合适的。</li>
+<li>对于基于树的模型（决策树、随机森林），它们可以处理这种整数编码的类别特征，因为它们是基于分裂的，不会假设数值大小有特定含义。</li>
+</ul>
+<p><strong>Scikit-learn:</strong> <code>sklearn.preprocessing.LabelEncoder</code>。</p>
+<div id="code-feature-encoding" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder, OneHotEncoder</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 示例数据</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>data_encoding <span class="op">=</span> {<span class="st">'Color'</span>: [<span class="st">'Red'</span>, <span class="st">'Blue'</span>, <span class="st">'Green'</span>, <span class="st">'Blue'</span>, <span class="st">'Red'</span>],</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'Size'</span>: [<span class="st">'S'</span>, <span class="st">'M'</span>, <span class="st">'L'</span>, <span class="st">'M'</span>, <span class="st">'S'</span>]} <span class="co"># Size 是有序类别</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>df_encoding <span class="op">=</span> pd.DataFrame(data_encoding)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"原始数据:</span><span class="ch">\n</span><span class="st">"</span>, df_encoding)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Label Encoding for 'Size' (有序类别)</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>label_encoder_size <span class="op">=</span> LabelEncoder()</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 可以先定义顺序，但LabelEncoder默认按字母顺序</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co"># size_mapping = {'S': 0, 'M': 1, 'L': 2}</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="co"># df_encoding['Size_Encoded'] = df_encoding['Size'].map(size_mapping)</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>df_encoding[<span class="st">'Size_LabelEncoded'</span>] <span class="op">=</span> label_encoder_size.fit_transform(df_encoding[<span class="st">'Size'</span>])</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">LabelEncoder 'Size' (默认按字母L,M,S -&gt; 0,1,2):</span><span class="ch">\n</span><span class="st">"</span>, df_encoding)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 查看映射关系</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># print("Size类别映射:", dict(zip(label_encoder_size.classes_, label_encoder_size.transform(label_encoder_size.classes_))))</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. One-Hot Encoding for 'Color' (名义类别)</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用 Pandas get_dummies</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>df_one_hot_color_pd <span class="op">=</span> pd.get_dummies(df_encoding[<span class="st">'Color'</span>], prefix<span class="op">=</span><span class="st">'Color'</span>)</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>df_encoded_pd <span class="op">=</span> pd.concat([df_encoding, df_one_hot_color_pd], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Pandas get_dummies 'Color':</span><span class="ch">\n</span><span class="st">"</span>, df_encoded_pd)</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用 Scikit-learn OneHotEncoder</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="co"># OneHotEncoder 需要二维输入，并且通常与 ColumnTransformer 一起使用来处理DataFrame</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 这里为了简单演示，先对 'Color' 进行 LabelEncoding，然后 OneHotEncode (这不是推荐做法，但能展示)</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>label_encoder_color <span class="op">=</span> LabelEncoder()</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>color_labels <span class="op">=</span> label_encoder_color.fit_transform(df_encoding[<span class="st">'Color'</span>]).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>one_hot_encoder_color <span class="op">=</span> OneHotEncoder(sparse_output<span class="op">=</span><span class="va">False</span>) <span class="co"># sparse_output=False 返回密集数组</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>color_one_hot_sklearn <span class="op">=</span> one_hot_encoder_color.fit_transform(color_labels)</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 获取编码后的特征名</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>feature_names_color <span class="op">=</span> one_hot_encoder_color.get_feature_names_out([<span class="st">'Color'</span>])</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>df_color_one_hot_sklearn <span class="op">=</span> pd.DataFrame(color_one_hot_sklearn, columns<span class="op">=</span>feature_names_color, index<span class="op">=</span>df_encoding.index)</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>df_encoded_sklearn <span class="op">=</span> pd.concat([df_encoding.drop(columns<span class="op">=</span>[<span class="st">'Color_Blue'</span>, <span class="st">'Color_Green'</span>, <span class="st">'Color_Red'</span>], errors<span class="op">=</span><span class="st">'ignore'</span>), df_color_one_hot_sklearn], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Scikit-learn OneHotEncoder 'Color':</span><span class="ch">\n</span><span class="st">"</span>, df_encoded_sklearn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>原始数据:
+    Color Size
+0    Red    S
+1   Blue    M
+2  Green    L
+3   Blue    M
+4    Red    S
+
+LabelEncoder 'Size' (默认按字母L,M,S -&gt; 0,1,2):
+    Color Size  Size_LabelEncoded
+0    Red    S                  2
+1   Blue    M                  1
+2  Green    L                  0
+3   Blue    M                  1
+4    Red    S                  2
+
+Pandas get_dummies 'Color':
+    Color Size  Size_LabelEncoded  Color_Blue  Color_Green  Color_Red
+0    Red    S                  2       False        False       True
+1   Blue    M                  1        True        False      False
+2  Green    L                  0       False         True      False
+3   Blue    M                  1        True        False      False
+4    Red    S                  2       False        False       True
+
+Scikit-learn OneHotEncoder 'Color':
+    Color Size  Size_LabelEncoded  Color_0  Color_1  Color_2
+0    Red    S                  2      0.0      0.0      1.0
+1   Blue    M                  1      1.0      0.0      0.0
+2  Green    L                  0      0.0      1.0      0.0
+3   Blue    M                  1      1.0      0.0      0.0
+4    Red    S                  2      0.0      0.0      1.0</code></pre>
+</div>
+</div>
+<p><strong>处理高基数类别特征的其他方法：</strong></p>
+<ul>
+<li><strong>特征哈希 (Feature Hashing)：</strong> 将类别特征哈希到一个固定大小的向量中，可以控制输出维度。</li>
+<li><strong>目标编码/均值编码 (Target Encoding / Mean Encoding)：</strong> 用该类别下目标变量的均值（或其他统计量）来编码类别。需要小心处理数据泄露问题（通常在交叉验证的每个折内计算）。</li>
+<li><strong>将不常见的类别合并为一个”Other”类别。</strong></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="本章总结" class="level2">
+<h2 class="anchored" data-anchor-id="本章总结">9.4 本章总结</h2>
+<p>本章我们系统地学习了机器学习流程中至关重要的三个环节：模型评估、模型优化和特征工程。</p>
+<ul>
+<li><strong>模型评估</strong>：
+<ul>
+<li>理解了训练集、验证集、测试集的划分和作用。</li>
+<li>掌握了分类模型的评估指标：混淆矩阵、准确率、精确率、召回率、F1分数、ROC曲线和AUC值，并了解了它们的适用场景，特别是在处理类别不平衡问题时。</li>
+<li>掌握了回归模型的评估指标：MAE、MSE、RMSE和R方。</li>
+</ul></li>
+<li><strong>模型优化</strong>：
+<ul>
+<li>深入理解了过拟合和欠拟合的概念、原因及解决方法。</li>
+<li>学习了交叉验证（特别是K折交叉验证和分层K折）作为更可靠的模型评估和选择工具。</li>
+<li>探讨了偏差与方差的权衡，以及它们如何指导模型优化。</li>
+<li>掌握了超参数调优的基本方法：网格搜索和随机搜索，并了解了更高级的调优策略。</li>
+</ul></li>
+<li><strong>特征工程</strong>：
+<ul>
+<li>认识到特征工程在提升模型性能方面的核心地位。</li>
+<li>学习了特征预处理的关键技术：处理缺失值（删除、填充）、处理异常值、特征缩放（标准化、归一化、鲁棒缩放）。</li>
+<li>学习了类别型特征的编码方法：独热编码和标签编码，以及它们的优缺点和适用场景。</li>
+<li>特征选择和特征提取作为特征工程的重要组成部分，在降维章节已有涉及。</li>
+</ul></li>
+</ul>
+<p>一个成功的机器学习项目离不开细致的数据准备、有效的特征工程、合理的模型选择、可靠的性能评估以及持续的模型优化。这些技能的熟练运用是成为一名优秀数据科学家的基石。</p>
+</section>
+<section id="思考与练习" class="level2">
+<h2 class="anchored" data-anchor-id="思考与练习">9.5 思考与练习</h2>
+<section id="基础练习" class="level3">
+<h3 class="anchored" data-anchor-id="基础练习">9.5.1 基础练习</h3>
+<ol type="1">
+<li><strong>模型评估概念：</strong>
+<ul>
+<li>为什么需要将数据划分为训练集、验证集和测试集？它们各自的作用是什么？</li>
+<li>在类别极不平衡的数据集上（例如，99%的样本属于类别A，1%属于类别B），为什么准确率不是一个好的评估指标？你会推荐使用哪些指标？为什么？</li>
+<li>解释精确率和召回率之间的权衡关系。在哪些场景下你更看重精确率？哪些场景下更看重召回率？</li>
+<li>ROC曲线是如何绘制的？AUC值代表什么？为什么AUC通常被认为是一个比准确率更稳健的分类模型评估指标？</li>
+<li>对于回归问题，RMSE和MAE有什么区别？哪个对异常值更敏感？</li>
+</ul></li>
+<li><strong>模型优化概念：</strong>
+<ul>
+<li>什么是过拟合？什么是欠拟合？它们各自的典型表现是什么？</li>
+<li>列举至少三种防止过拟合的方法，并简要说明其原理。</li>
+<li>K折交叉验证是如何工作的？它相比简单的训练集/验证集划分有什么优势？</li>
+<li>解释偏差和方差的含义。一个高偏差低方差的模型通常是什么样的？一个低偏差高方差的模型呢？</li>
+<li>网格搜索和随机搜索在超参数调优方面有什么区别？各自的优缺点是什么？</li>
+</ul></li>
+<li><strong>特征工程概念：</strong>
+<ul>
+<li>为什么说特征工程在机器学习中非常重要？</li>
+<li>列举至少两种处理缺失值的方法，并说明其适用场景。</li>
+<li>特征缩放（如标准化和归一化）的目的是什么？哪些类型的算法通常需要特征缩放？哪些不太需要？</li>
+<li>独热编码和标签编码有什么区别？它们分别适用于什么类型的类别特征？</li>
+</ul></li>
+</ol>
+</section>
+<section id="编码与实践-综合项目型练习" class="level3">
+<h3 class="anchored" data-anchor-id="编码与实践-综合项目型练习">9.5.2 编码与实践 (综合项目型练习)</h3>
+<p><strong>项目目标：</strong> 构建一个分类模型来预测泰坦尼克号乘客的生还情况。</p>
+<p><strong>数据集：</strong> 使用经典的泰坦尼克号数据集。你可以从Kaggle下载 (<code>train.csv</code>)，或者使用Seaborn库内置的数据集 (<code>seaborn.load_dataset('titanic')</code>)。</p>
+<p><strong>任务步骤：</strong></p>
+<ol type="1">
+<li><strong>数据加载与初步探索 (EDA)：</strong>
+<ul>
+<li>加载数据集。</li>
+<li>查看数据的基本信息 (<code>.info()</code>, <code>.describe()</code>, <code>.head()</code>)。</li>
+<li>识别特征类型（数值型、类别型）。</li>
+<li>进行初步的可视化分析，例如：
+<ul>
+<li>生还与否的比例 (目标变量分布)。</li>
+<li>不同特征（如性别 <code>Sex</code>、船舱等级 <code>Pclass</code>、年龄 <code>Age</code>、登船港口 <code>Embarked</code>）与生还率的关系（例如，使用条形图、箱线图）。</li>
+</ul></li>
+</ul></li>
+<li><strong>特征工程与数据预处理：</strong>
+<ul>
+<li><strong>处理缺失值：</strong>
+<ul>
+<li>识别哪些列有缺失值 (例如 <code>Age</code>, <code>Embarked</code>, <code>Cabin</code>)。</li>
+<li>为每个有缺失值的特征选择合适的填充策略（例如，<code>Age</code>可以用中位数填充，<code>Embarked</code>可以用众数填充，<code>Cabin</code>缺失较多，可以考虑创建一个新特征表示是否有船舱信息，或者直接删除该列）。</li>
+</ul></li>
+<li><strong>特征创建/转换：</strong>
+<ul>
+<li>从 <code>Name</code> 中提取乘客的称谓 (Title, 如 Mr, Miss, Mrs)，并将其转换为数值型或独热编码。</li>
+<li>创建家庭大小特征 (<code>FamilySize = SibSp + Parch + 1</code>)。</li>
+<li>将类别型特征（如 <code>Sex</code>, <code>Embarked</code>, <code>Title</code>）转换为数值型表示（使用独热编码或标签编码，注意选择合适的方法）。</li>
+<li><code>Age</code> 和 <code>Fare</code> 可以考虑进行分箱 (binning) 处理，将其转换为类别特征，然后再编码。</li>
+</ul></li>
+<li><strong>特征选择：</strong>
+<ul>
+<li>删除不必要的特征（如 <code>PassengerId</code>, <code>Name</code> (原始), <code>Ticket</code>, <code>Cabin</code> (如果决定删除)）。</li>
+</ul></li>
+<li><strong>特征缩放：</strong>
+<ul>
+<li>对数值型特征（如 <code>Age</code> (如果未分箱), <code>Fare</code>, <code>FamilySize</code>）进行标准化或归一化。</li>
+</ul></li>
+</ul></li>
+<li><strong>数据划分：</strong>
+<ul>
+<li>将预处理后的数据划分为训练集和测试集（例如，80%训练，20%测试）。确保目标变量 <code>Survived</code> 在划分时保持分层。</li>
+</ul></li>
+<li><strong>模型选择与训练：</strong>
+<ul>
+<li>选择至少两种不同的分类模型进行尝试，例如：
+<ul>
+<li>逻辑回归 (Logistic Regression)</li>
+<li>K近邻 (KNN)</li>
+<li>支持向量机 (SVM)</li>
+<li>决策树 (Decision Tree)</li>
+<li>随机森林 (Random Forest)</li>
+</ul></li>
+<li>在训练集上训练这些模型。</li>
+</ul></li>
+<li><strong>模型评估：</strong>
+<ul>
+<li>在<strong>测试集</strong>上评估每个模型的性能。</li>
+<li>计算并比较以下指标：准确率、精确率、召回率、F1分数、AUC值。</li>
+<li>绘制ROC曲线。</li>
+<li>生成并分析混淆矩阵。</li>
+</ul></li>
+<li><strong>超参数调优：</strong>
+<ul>
+<li>选择你认为表现较好或有潜力提升的模型（例如，随机森林、XGBoost、或SVM）。</li>
+<li>使用网格搜索 (<code>GridSearchCV</code>) 或随机搜索 (<code>RandomizedSearchCV</code>) 结合交叉验证（在训练集上进行）来调优其重要超参数。</li>
+<li>用找到的最佳超参数重新训练模型，并在测试集上评估其最终性能。</li>
+</ul></li>
+<li><strong>结果分析与总结：</strong>
+<ul>
+<li>比较不同模型和不同超参数下的性能。</li>
+<li>讨论特征工程步骤对模型性能的可能影响。</li>
+<li>总结你的发现，以及哪些特征似乎对预测生还最重要。</li>
+</ul></li>
+</ol>
+<p><strong>提示与注意事项：</strong></p>
+<ul>
+<li>使用 <code>sklearn.pipeline.Pipeline</code> 可以将预处理步骤（如缺失值填充、缩放、编码）和模型训练串联起来，使代码更整洁，并能正确地在交叉验证中应用预处理。</li>
+<li>对于类别特征的编码，<code>ColumnTransformer</code> 是一个非常有用的工具，可以对DataFrame中的不同列应用不同的转换器。</li>
+<li>仔细思考每个特征工程决策的理由。</li>
+<li>记录你的实验过程和结果。</li>
+</ul>
+</section>
+<section id="推荐阅读" class="level3">
+<h3 class="anchored" data-anchor-id="推荐阅读">9.5.3 推荐阅读</h3>
+<ol type="1">
+<li><strong>Gereron, A. (2019). <em>Hands-On Machine Learning with Scikit-Learn, Keras &amp; TensorFlow</em> (2nd ed.). O’Reilly. (Chapters 2, 3, 4, Appendix A)</strong> - 实践性强，包含大量代码示例。</li>
+<li><strong>Kuhn, M., &amp; Johnson, K. (2013). <em>Applied Predictive Modeling</em>. Springer.</strong> - 深入讲解了模型评估、特征工程和许多建模技术。</li>
+<li><strong>Zheng, A., &amp; Casari, A. (2018). <em>Feature Engineering for Machine Learning: Principles and Techniques for Data Scientists</em>. O’Reilly.</strong> - 专门讨论特征工程的优秀书籍。</li>
+<li><strong>Scikit-learn User Guide:</strong>
+<ul>
+<li>Model evaluation: <a href="https://scikit-learn.org/stable/modules/model_evaluation.html" class="uri">https://scikit-learn.org/stable/modules/model_evaluation.html</a></li>
+<li>Cross-validation: <a href="https://scikit-learn.org/stable/modules/cross_validation.html" class="uri">https://scikit-learn.org/stable/modules/cross_validation.html</a></li>
+<li>Preprocessing data: <a href="https://scikit-learn.org/stable/modules/preprocessing.html" class="uri">https://scikit-learn.org/stable/modules/preprocessing.html</a></li>
+<li>Feature selection: <a href="https://scikit-learn.org/stable/modules/feature_selection.html" class="uri">https://scikit-learn.org/stable/modules/feature_selection.html</a></li>
+</ul></li>
+<li><strong>博客和文章：</strong>
+<ul>
+<li><a href="https://machinelearningmastery.com/k-fold-cross-validation/">“A Gentle Introduction to K-Fold Cross-Validation” by Jason Brownlee.</a></li>
+<li><a href="https://towardsdatascience.com/overcome-the-biggest-obstacle-in-machine-learning-overfitting-cca026873970/">“Overcome the Biggest Obstacle in Machine Learning: Overfitting” by Jason Brownlee.</a></li>
+<li><a href="https://www.analyticsvidhya.com/blog/2020/08/bias-and-variance-tradeoff-machine-learning/">“Bias-Variance Trade-Off in Machine Learning – A Fantastic Guide for Beginners” on Analytics Vidhya.</a></li>
+<li><a href="https://medium.com/@jaberi.mohamedhabib/a-comprehensive-guide-to-feature-engineering-definition-importance-and-example-ccab74a5f83a">“A Comprehensive Guide to Feature Engineering: Definition, Importance, and Example” by Mohamed Habib Jaberi.</a></li>
+</ul></li>
+</ol>
+<p>通过这些练习和阅读，你将能更深入地理解并熟练应用模型评估、优化和特征工程的各项技术，为构建高性能的机器学习系统打下坚实的基础。</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./08-dimensionality-reduction.html" class="pagination-link" aria-label="降维">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">降维</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./10-deep-learning-basics.html" class="pagination-link" aria-label="深度学习基础">
+        <span class="nav-page-text"><span class="chapter-title">深度学习基础</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

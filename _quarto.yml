@@ -1,0 +1,57 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "机器学习：从理论到Python实践"
+  author: "陆海波"
+  subtitle: "一本为大数据管理与应用专业学生量身打造的机器学习指南"
+  date: "today"
+  version: "0.1"
+  chapters:
+    - index.qmd
+    - part: "第一部分：机器学习基石与Python生态"
+      chapters:
+        - 01-introduction.qmd
+        - 02-environment.qmd
+    - part: "第二部分：监督学习"
+      chapters:
+        - 03-regression.qmd
+        - 04-classification-logreg-knn.qmd
+        - 05-svm.qmd
+        - 06-decision-trees-ensemble-learning.qmd
+    - part: "第三部分：无监督学习"
+      chapters:
+        - 07-clustering.qmd
+        - 08-dimensionality-reduction.qmd
+    - part: "第四部分：模型评估、优化与特征工程"
+      chapters:
+        - 09-model-evaluation-feature-engineering.qmd
+    - part: "第五部分：深度学习初探"
+      chapters:
+        - 10-deep-learning-basics.qmd
+        - 11-cnn.qmd
+        - 12-rnn.qmd
+        - 13-deep-learning-advanced.qmd
+    - part: "第六部分：强化学习入门"
+      chapters:
+        - 14-reinforcement-learning.qmd
+    - part: "第七部分：综合项目与展望"
+      chapters:
+        - 15-ml-project-workflow-summary.qmd
+        - 16-summary-outlook.qmd
+    - appendices.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    number-sections: false
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    code-fold: false
+    code-overflow: scroll
+    code-copy: true
+    link-external-icon: true
+    link-external-newwindow: true

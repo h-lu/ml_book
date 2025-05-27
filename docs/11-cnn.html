@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>卷积神经网络 (CNN) – 机器学习：从理论到Python实践</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./12-rnn.html" rel="next">
+<link href="./10-deep-learning-basics.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10-deep-learning-basics.html">第五部分：深度学习初探</a></li><li class="breadcrumb-item"><a href="./11-cnn.html"><span class="chapter-title">卷积神经网络 (CNN)</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">机器学习：从理论到Python实践</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">欢迎学习《机器学习：从理论到Python实践》</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">第一部分：机器学习基石与Python生态</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习导论</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Python机器学习环境与核心库</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">第二部分：监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-regression.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">回归与线性模型</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-classification-logreg-knn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">分类与逻辑回归、KNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-svm.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">支持向量机 (SVM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-decision-trees-ensemble-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">决策树与集成学习</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">第三部分：无监督学习</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clustering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">聚类分析</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-dimensionality-reduction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">降维</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">第四部分：模型评估、优化与特征工程</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-model-evaluation-feature-engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">模型评估、优化与特征工程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">第五部分：深度学习初探</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-deep-learning-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习基础</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-cnn.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">卷积神经网络 (CNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-rnn.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">循环神经网络 (RNN)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-deep-learning-advanced.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">深度学习进阶</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">第六部分：强化学习入门</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-reinforcement-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">强化学习基础与应用</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">第七部分：综合项目与展望</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-ml-project-workflow-summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">机器学习项目实战流程与总结</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-summary-outlook.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">课程总结与展望</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">附录</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#学习目标" id="toc-学习目标" class="nav-link active" data-scroll-target="#学习目标">学习目标</a></li>
+  <li><a href="#cnn-简介" id="toc-cnn-简介" class="nav-link" data-scroll-target="#cnn-简介">11.1 CNN 简介</a></li>
+  <li><a href="#cnn-的核心组成部分" id="toc-cnn-的核心组成部分" class="nav-link" data-scroll-target="#cnn-的核心组成部分">11.2 CNN 的核心组成部分</a>
+  <ul class="collapse">
+  <li><a href="#卷积层-convolutional-layer" id="toc-卷积层-convolutional-layer" class="nav-link" data-scroll-target="#卷积层-convolutional-layer">11.2.1 卷积层 (Convolutional Layer)</a></li>
+  <li><a href="#激活函数" id="toc-激活函数" class="nav-link" data-scroll-target="#激活函数">11.2.2 激活函数</a></li>
+  <li><a href="#池化层-pooling-layer" id="toc-池化层-pooling-layer" class="nav-link" data-scroll-target="#池化层-pooling-layer">11.2.3 池化层 (Pooling Layer)</a></li>
+  <li><a href="#全连接层-fully-connected-layer" id="toc-全连接层-fully-connected-layer" class="nav-link" data-scroll-target="#全连接层-fully-connected-layer">11.2.4 全连接层 (Fully Connected Layer)</a></li>
+  </ul></li>
+  <li><a href="#典型cnn架构-lenet-5-示例" id="toc-典型cnn架构-lenet-5-示例" class="nav-link" data-scroll-target="#典型cnn架构-lenet-5-示例">11.3 典型CNN架构 (LeNet-5 示例)</a></li>
+  <li><a href="#使用keras构建简单cnn-mnist示例" id="toc-使用keras构建简单cnn-mnist示例" class="nav-link" data-scroll-target="#使用keras构建简单cnn-mnist示例">11.4 使用Keras构建简单CNN (MNIST示例)</a>
+  <ul class="collapse">
+  <li><a href="#数据准备" id="toc-数据准备" class="nav-link" data-scroll-target="#数据准备">11.4.1 数据准备</a></li>
+  <li><a href="#模型定义" id="toc-模型定义" class="nav-link" data-scroll-target="#模型定义">11.4.2 模型定义</a></li>
+  <li><a href="#模型编译" id="toc-模型编译" class="nav-link" data-scroll-target="#模型编译">11.4.3 模型编译</a></li>
+  <li><a href="#模型训练" id="toc-模型训练" class="nav-link" data-scroll-target="#模型训练">11.4.4 模型训练</a></li>
+  <li><a href="#模型评估" id="toc-模型评估" class="nav-link" data-scroll-target="#模型评估">11.4.5 模型评估</a></li>
+  </ul></li>
+  <li><a href="#cnn的优势" id="toc-cnn的优势" class="nav-link" data-scroll-target="#cnn的优势">11.5 CNN的优势</a></li>
+  <li><a href="#知名cnn架构简介-选读" id="toc-知名cnn架构简介-选读" class="nav-link" data-scroll-target="#知名cnn架构简介-选读">11.6 知名CNN架构简介 (选读)</a></li>
+  <li><a href="#本章总结" id="toc-本章总结" class="nav-link" data-scroll-target="#本章总结">11.7 本章总结</a></li>
+  <li><a href="#思考与练习" id="toc-思考与练习" class="nav-link" data-scroll-target="#思考与练习">11.8 思考与练习</a>
+  <ul class="collapse">
+  <li><a href="#基础概念回顾" id="toc-基础概念回顾" class="nav-link" data-scroll-target="#基础概念回顾">11.8.1 基础概念回顾</a></li>
+  <li><a href="#keras实践与探索-mnistcifar-10" id="toc-keras实践与探索-mnistcifar-10" class="nav-link" data-scroll-target="#keras实践与探索-mnistcifar-10">11.8.2 Keras实践与探索 (MNIST/CIFAR-10)</a></li>
+  <li><a href="#深入思考与挑战" id="toc-深入思考与挑战" class="nav-link" data-scroll-target="#深入思考与挑战">11.8.3 深入思考与挑战</a></li>
+  <li><a href="#推荐阅读" id="toc-推荐阅读" class="nav-link" data-scroll-target="#推荐阅读">11.8.4 推荐阅读</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10-deep-learning-basics.html">第五部分：深度学习初探</a></li><li class="breadcrumb-item"><a href="./11-cnn.html"><span class="chapter-title">卷积神经网络 (CNN)</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">卷积神经网络 (CNN)</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="学习目标" class="level2">
+<h2 class="anchored" data-anchor-id="学习目标">学习目标</h2>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>学习目标：</strong></p>
+<ul>
+<li>理解卷积神经网络 (CNN) 的基本原理及其在计算机视觉等领域的应用。</li>
+<li>掌握CNN的核心组成部分：卷积层、池化层和全连接层。</li>
+<li>理解卷积操作中的关键概念：滤波器（核心）、步长、填充、特征图。</li>
+<li>了解不同类型的池化操作（如最大池化、平均池化）及其作用。</li>
+<li>能够描述一个典型的CNN架构。</li>
+<li>能够使用Keras构建、编译、训练和评估一个简单的CNN模型进行图像分类。</li>
+<li>了解CNN相比传统全连接网络在处理图像数据时的主要优势（如参数共享、平移不变性）。</li>
+<li>对一些经典的CNN架构（如LeNet-5, AlexNet, VGG, ResNet）有初步的认识。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="cnn-简介" class="level2">
+<h2 class="anchored" data-anchor-id="cnn-简介">11.1 CNN 简介</h2>
+<p>在前面的章节中，我们学习了全连接神经网络 (Dense Neural Networks 或 Multilayer Perceptrons, MLP)。虽然MLP在很多任务上表现良好，但它们在处理高维数据，特别是像图像这样的数据时，会遇到一些挑战：</p>
+<ol type="1">
+<li><strong>参数过多：</strong> 对于一个28x28像素的灰度图像，如果输入层直接连接到一个包含100个神经元的隐藏层，那么仅这一层就需要 <code>28*28*100 = 78,400</code> 个权重。对于更大的彩色图像，参数数量会急剧增加，导致模型难以训练且容易过拟合。</li>
+<li><strong>空间结构丢失：</strong> MLP将输入图像展平 (flatten) 为一维向量，这会丢失像素之间的空间局部性信息。例如，图像中相邻的像素通常是相关的，但展平操作会破坏这种关系。</li>
+</ol>
+<p><strong>卷积神经网络 (Convolutional Neural Network, CNN 或 ConvNet)</strong> 是一类特殊的深度神经网络，其设计灵感来源于生物视觉皮层的结构。CNN能够有效地处理具有网格状拓扑结构的数据（例如，图像可以看作是2D像素网格，时间序列数据可以看作是1D网格）。</p>
+<p>CNN通过引入<strong>卷积层 (Convolutional Layer)</strong> 和<strong>池化层 (Pooling Layer)</strong> 来解决上述问题，它们能够：</p>
+<ul>
+<li><strong>利用局部连接 (Local Connectivity) 和参数共享 (Parameter Sharing)</strong> 来显著减少模型参数数量。</li>
+<li><strong>提取空间层级特征 (Spatial Hierarchy of Features)</strong>，从低级的边缘、角点到高级的物体部件和完整物体。</li>
+<li><strong>具有一定程度的平移不变性 (Translation Invariance)</strong>，即物体在图像中的位置发生轻微变化时，CNN仍能识别它。</li>
+</ul>
+<div id="fig-cnn-perspective" class="quarto-float quarto-figure quarto-figure-center anchored" alt="CNN与全连接网络对比示意图">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cnn-perspective-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/11-cnn/cnn-perspective.webp" class="img-fluid figure-img" style="width:80.0%" alt="CNN与全连接网络对比示意图">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cnn-perspective-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.1: 从神经网络视角看CNN (Y.LeCun,Y.Bengio,andG.Hinton,“Deeplearning”)
+</figcaption>
+</figure>
+</div>
+<p>由于这些特性，CNN在<strong>计算机视觉 (Computer Vision)</strong> 领域取得了巨大的成功，例如：</p>
+<ul>
+<li>图像分类 (Image Classification)</li>
+<li>物体检测 (Object Detection)</li>
+<li>图像分割 (Image Segmentation)</li>
+<li>人脸识别 (Face Recognition)</li>
+<li>图像生成 (Image Generation)</li>
+</ul>
+<p>此外，CNN也被成功应用于自然语言处理 (NLP) 中的文本分类、语音识别等任务。</p>
+</section>
+<section id="cnn-的核心组成部分" class="level2">
+<h2 class="anchored" data-anchor-id="cnn-的核心组成部分">11.2 CNN 的核心组成部分</h2>
+<p>一个典型的CNN通常由以下几种类型的层堆叠而成：</p>
+<ol type="1">
+<li><strong>卷积层 (Convolutional Layer)</strong></li>
+<li><strong>激活函数 (Activation Function)</strong> (通常是ReLU)</li>
+<li><strong>池化层 (Pooling Layer)</strong></li>
+<li><strong>全连接层 (Fully Connected Layer)</strong></li>
+</ol>
+<p>下面我们将详细介绍这些核心组件。</p>
+<section id="卷积层-convolutional-layer" class="level3">
+<h3 class="anchored" data-anchor-id="卷积层-convolutional-layer">11.2.1 卷积层 (Convolutional Layer)</h3>
+<p>卷积层是CNN的核心。它通过在输入数据上滑动一个或多个<strong>滤波器 (Filter)</strong> (也称为<strong>核心/卷积核, Kernel</strong>) 来进行卷积操作，从而生成<strong>特征图 (Feature Map)</strong>。</p>
+<div id="fig-cnn-convolution" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Convolution Operation">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cnn-convolution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/11-cnn/2D_Convolution_Animation.gif" class="img-fluid figure-img" alt="Convolution Operation" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cnn-convolution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.2: 卷积操作示意图 (来源: Wikimedia Commons)
+</figcaption>
+</figure>
+</div>
+<p><strong>主要概念：</strong></p>
+<ul>
+<li><strong>输入 (Input)：</strong> 通常是图像数据，可以有多个通道 (例如，灰度图像有1个通道，RGB彩色图像有3个通道)。输入数据的维度通常是 <code>(height, width, channels)</code>。</li>
+<li><strong>滤波器/核心 (Filter/Kernel)：</strong>
+<ul>
+<li>一个小型的、学习到的权重矩阵。滤波器的深度必须与输入数据的深度（通道数）相同。例如，如果输入是RGB图像（3通道），则滤波器也必须是3通道的。</li>
+<li>滤波器的大小 (kernel size) 是一个超参数，例如 <code>3x3</code>、<code>5x5</code>。</li>
+<li>一个卷积层通常包含多个滤波器，每个滤波器学习检测输入数据中的不同特征（如边缘、角点、纹理等）。</li>
+</ul></li>
+<li><strong>卷积操作 (Convolution Operation)：</strong>
+<ul>
+<li>滤波器在输入数据的空间维度上滑动。</li>
+<li>在每个位置，计算滤波器权重与对应输入数据区域的点积 (element-wise multiplication and sum)。</li>
+<li>这个点积的结果（加上一个偏置项）构成了输出特征图中的一个像素值。</li>
+</ul></li>
+<li><strong>特征图/激活图 (Feature Map/Activation Map)：</strong>
+<ul>
+<li>每个滤波器对输入数据进行卷积后生成的2D数组。</li>
+<li>特征图的深度等于该卷积层中滤波器的数量。</li>
+<li>特征图代表了输入数据中特定特征（由滤波器学习得到）的空间分布。</li>
+</ul></li>
+<li><strong>步长 (Stride)：</strong>
+<ul>
+<li>滤波器在输入数据上滑动的步长（像素数）。</li>
+<li>默认步长通常是1。步长越大，输出特征图的空间维度越小。</li>
+<li>例如，步长为 <code>(1, 1)</code> 表示在高度和宽度方向上每次移动1个像素。</li>
+</ul></li>
+<li><strong>填充 (Padding)：</strong>
+<ul>
+<li>在输入数据的边缘周围添加额外的像素（通常是0）。</li>
+<li><strong>目的：</strong>
+<ol type="1">
+<li><strong>保持空间维度：</strong> 如果不使用填充，每次卷积操作后，特征图的空间维度会缩小。填充可以帮助维持特征图的大小，从而构建更深的网络。</li>
+<li><strong>处理边缘信息：</strong> 填充使得滤波器可以更好地处理输入数据的边缘像素。</li>
+</ol></li>
+<li><strong>常用填充类型：</strong>
+<ul>
+<li><strong>Valid Padding (无填充)：</strong> 不使用填充。输出特征图的尺寸会缩小。</li>
+<li><strong>Same Padding (相同填充)：</strong> 添加适量的零填充，使得输出特征图的空间维度与输入特征图的空间维度相同（假设步长为1）。</li>
+</ul></li>
+</ul></li>
+</ul>
+<p><strong>卷积层输出尺寸计算：</strong></p>
+<p>假设输入特征图的尺寸为 <span class="math inline">\(W \times H \times D\)</span>（宽度、高度、深度/通道数），卷积层有 <span class="math inline">\(K\)</span> 个滤波器，每个滤波器的大小为 <span class="math inline">\(F \times F\)</span>，步长为 <span class="math inline">\(S\)</span>，填充为 <span class="math inline">\(P\)</span>。 则输出特征图的尺寸为 <span class="math inline">\(W_{out} \times H_{out} \times K\)</span>，其中：</p>
+<p><span class="math display">\[ W_{out} = \frac{W - F + 2P}{S} + 1 \]</span> <span class="math display">\[ H_{out} = \frac{H - F + 2P}{S} + 1 \]</span></p>
+<p>(注意：如果 <span class="math inline">\((W - F + 2P)\)</span> 或 <span class="math inline">\((H - F + 2P)\)</span> 不能被 <span class="math inline">\(S\)</span> 整除，则需要根据具体框架的实现方式进行处理，通常是向下取整或向上取整，或者不允许这样的参数组合。)</p>
+<p><strong>参数共享 (Parameter Sharing)：</strong></p>
+<p>这是CNN的一个关键特性。在一个特征图的计算中，卷积核内的所有权重是共享的。这意味着，一个滤波器在输入数据的不同位置检测相同的特征。这大大减少了模型的参数数量，并使得模型对特征的平移具有一定的不变性。</p>
+<p>例如，如果一个滤波器学会了检测水平边缘，那么它会在输入图像的任何位置检测到水平边缘，而不需要为每个位置单独学习一个检测器。</p>
+</section>
+<section id="激活函数" class="level3">
+<h3 class="anchored" data-anchor-id="激活函数">11.2.2 激活函数</h3>
+<p>与全连接网络类似，卷积层的输出通常也会经过一个非线性激活函数，最常用的是 <strong>ReLU (Rectified Linear Unit)</strong>。</p>
+<p><span class="math display">\[ \text{ReLU}(x) = \max(0, x) \]</span></p>
+<p>ReLU的引入使得CNN能够学习更复杂的非线性模式。</p>
+</section>
+<section id="池化层-pooling-layer" class="level3">
+<h3 class="anchored" data-anchor-id="池化层-pooling-layer">11.2.3 池化层 (Pooling Layer)</h3>
+<p>池化层（也称为下采样层）通常在连续的卷积层之后插入，其主要作用是：</p>
+<ol type="1">
+<li><strong>降低特征图的空间维度 (宽度和高度)</strong>：减少后续层的计算量和参数数量。</li>
+<li><strong>使特征表示具有更强的平移不变性</strong>：使得模型对特征在输入图像中的微小位置变化不那么敏感。</li>
+<li><strong>减少过拟合</strong>：通过降维和信息聚合，一定程度上抑制过拟合。</li>
+</ol>
+<p>池化操作是在每个特征图上独立进行的，并且不涉及可学习的参数。</p>
+<p><strong>常见的池化类型：</strong></p>
+<ul>
+<li><strong>最大池化 (Max Pooling)：</strong>
+<ul>
+<li>在一个局部区域（池化窗口，例如 <code>2x2</code>）内，取该区域的最大值作为输出。</li>
+<li>这是最常用的池化方法，因为它能有效地保留最显著的特征。</li>
+</ul>
+<div id="fig-cnn-maxpool" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Max Pooling Operation">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cnn-maxpool-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/11-cnn/Max_pooling.png" class="img-fluid figure-img" alt="Max Pooling Operation" width="300">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cnn-maxpool-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.3: 最大池化操作 (来源: Wikimedia Commons)
+</figcaption>
+</figure>
+</div></li>
+<li><strong>平均池化 (Average Pooling)：</strong>
+<ul>
+<li>在一个局部区域内，取该区域所有值的平均值作为输出。</li>
+<li>它平滑了特征表示。</li>
+</ul></li>
+</ul>
+<p>池化层也有<strong>池化窗口大小 (pool size)</strong> 和 <strong>步长 (stride)</strong> 这两个超参数。通常，池化窗口大小为 <code>2x2</code>，步长为 <code>2</code>，这会将特征图的宽度和高度减半。</p>
+</section>
+<section id="全连接层-fully-connected-layer" class="level3">
+<h3 class="anchored" data-anchor-id="全连接层-fully-connected-layer">11.2.4 全连接层 (Fully Connected Layer)</h3>
+<p>在经过几轮卷积和池化操作后，CNN通常会使用一个或多个全连接层（与我们在前面章节学习的MLP中的Dense层相同）来进行最终的分类或回归任务。</p>
+<p>在将卷积/池化层的输出送入全连接层之前，通常需要将其<strong>展平 (Flatten)</strong> 为一维向量。</p>
+<ul>
+<li><strong>展平层 (Flatten Layer)：</strong> 将多维的特征图（例如，<code>height x width x channels</code>）转换为一维向量，以便作为全连接层的输入。</li>
+<li><strong>全连接层 (Dense Layer)：</strong> 负责根据从卷积和池化层提取的特征进行高级推理。</li>
+<li><strong>输出层：</strong> 最后一层全连接层，其神经元数量和激活函数取决于具体的任务（例如，对于K类分类问题，通常使用K个神经元和Softmax激活函数）。</li>
+</ul>
+</section>
+</section>
+<section id="典型cnn架构-lenet-5-示例" class="level2">
+<h2 class="anchored" data-anchor-id="典型cnn架构-lenet-5-示例">11.3 典型CNN架构 (LeNet-5 示例)</h2>
+<p>LeNet-5 是 Yann LeCun 等人在1998年提出的早期卷积神经网络之一，主要用于手写数字识别。它奠定了现代CNN架构的基础。</p>
+<p>一个简化的LeNet-5架构可以描述为：</p>
+<ol type="1">
+<li><strong>输入层：</strong> 例如 <code>32x32x1</code> 的灰度图像。</li>
+<li><strong>C1: 卷积层：</strong> 6个 <code>5x5</code> 滤波器，步长1。输出 <code>28x28x6</code>。</li>
+<li><strong>S2: 池化层 (下采样)：</strong> 平均池化，<code>2x2</code> 窗口，步长2。输出 <code>14x14x6</code>。</li>
+<li><strong>C3: 卷积层：</strong> 16个 <code>5x5</code> 滤波器，步长1。输出 <code>10x10x16</code>。</li>
+<li><strong>S4: 池化层 (下采样)：</strong> 平均池化，<code>2x2</code> 窗口，步长2。输出 <code>5x5x16</code>。</li>
+<li><strong>C5: 卷积层 (实为全连接)：</strong> 120个 <code>5x5</code> 滤波器 (如果输入是 <code>5x5</code>，则这等效于全连接)。输出 <code>1x1x120</code>。</li>
+<li><strong>F6: 全连接层：</strong> 84个神经元。</li>
+<li><strong>输出层：</strong> 10个神经元 (对应10个数字类别)，通常使用Softmax。</li>
+</ol>
+<div id="fig-cnn-lenet5" class="quarto-float quarto-figure quarto-figure-center anchored" alt="LeNet-5 Architecture">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cnn-lenet5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/11-cnn/lenet-5.webp" class="img-fluid figure-img" alt="LeNet-5 Architecture" width="600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cnn-lenet5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.4: LeNet-5 架构 (来源: Yann LeCun’s original paper)
+</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>现代CNN架构的发展：</strong></p>
+<p>虽然现代CNN架构（如ResNet、Inception等）通常比LeNet-5更深更复杂，但核心思想仍然保持一致：</p>
+<ul>
+<li>使用ReLU等现代激活函数替代传统的Sigmoid/Tanh</li>
+<li>普遍采用最大池化(Max Pooling)而非平均池化</li>
+<li>引入更复杂的模块设计，如：
+<ul>
+<li>残差连接(Residual Connections)</li>
+<li>Inception模块</li>
+<li>注意力机制</li>
+<li>深度可分离卷积等</li>
+</ul></li>
+</ul>
+<p>但基本架构模式仍遵循： 1. 通过卷积层提取局部特征 2. 通过池化层进行下采样 3. 最后使用全连接层进行分类</p>
+</div>
+</div>
+</div>
+</section>
+<section id="使用keras构建简单cnn-mnist示例" class="level2">
+<h2 class="anchored" data-anchor-id="使用keras构建简单cnn-mnist示例">11.4 使用Keras构建简单CNN (MNIST示例)</h2>
+<p>我们将构建一个简单的CNN来对MNIST手写数字数据集进行分类。</p>
+<section id="数据准备" class="level3">
+<h3 class="anchored" data-anchor-id="数据准备">11.4.1 数据准备</h3>
+<div id="cell-code-cnn-mnist-data-prep" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> keras</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.datasets <span class="im">import</span> mnist</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.utils <span class="im">import</span> to_categorical</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载MNIST数据集</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>(X_train_full, y_train_full), (X_test, y_test) <span class="op">=</span> mnist.load_data()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 数据预处理</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 归一化像素值到 [0, 1]</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>X_train_full <span class="op">=</span> X_train_full.astype(<span class="st">'float32'</span>) <span class="op">/</span> <span class="fl">255.0</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>X_test <span class="op">=</span> X_test.astype(<span class="st">'float32'</span>) <span class="op">/</span> <span class="fl">255.0</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 增加通道维度 (MNIST是灰度图，通道数为1)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># CNN的Conv2D层期望输入的形状是 (batch_size, height, width, channels)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>X_train_full <span class="op">=</span> np.expand_dims(X_train_full, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>X_test <span class="op">=</span> np.expand_dims(X_test, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 对标签进行One-Hot编码</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>y_train_full <span class="op">=</span> to_categorical(y_train_full, num_classes<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>y_test_cat <span class="op">=</span> to_categorical(y_test, num_classes<span class="op">=</span><span class="dv">10</span>) <span class="co"># 保存原始测试标签用于后续分析</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 划分训练集和验证集</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>X_train, X_val <span class="op">=</span> X_train_full[:<span class="op">-</span><span class="dv">5000</span>], X_train_full[<span class="op">-</span><span class="dv">5000</span>:]</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>y_train, y_val <span class="op">=</span> y_train_full[:<span class="op">-</span><span class="dv">5000</span>], y_train_full[<span class="op">-</span><span class="dv">5000</span>:]</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"X_train shape: </span><span class="sc">{</span>X_train<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>) <span class="co"># (55000, 28, 28, 1)</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"y_train shape: </span><span class="sc">{</span>y_train<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>) <span class="co"># (55000, 10)</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"X_val shape: </span><span class="sc">{</span>X_val<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)     <span class="co"># (5000, 28, 28, 1)</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"y_val shape: </span><span class="sc">{</span>y_val<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)     <span class="co"># (5000, 10)</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"X_test shape: </span><span class="sc">{</span>X_test<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)   <span class="co"># (10000, 28, 28, 1)</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"y_test_cat shape: </span><span class="sc">{</span>y_test_cat<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>) <span class="co"># (10000, 10)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 可视化一些样本</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    plt.subplot(<span class="dv">2</span>, <span class="dv">5</span>, i <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    plt.imshow(X_train[i].reshape(<span class="dv">28</span>, <span class="dv">28</span>), cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"Label: </span><span class="sc">{</span>np<span class="sc">.</span>argmax(y_train[i])<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig("images/11-cnn/mnist_samples.svg")</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>X_train shape: (55000, 28, 28, 1)
+y_train shape: (55000, 10)
+X_val shape: (5000, 28, 28, 1)
+y_val shape: (5000, 10)
+X_test shape: (10000, 28, 28, 1)
+y_test_cat shape: (10000, 10)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="11-cnn_files/figure-html/code-cnn-mnist-data-prep-output-2.png" id="code-cnn-mnist-data-prep" width="763" height="369" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="模型定义" class="level3">
+<h3 class="anchored" data-anchor-id="模型定义">11.4.2 模型定义</h3>
+<p>我们将构建一个包含两个卷积层、两个池化层和一个全连接输出层的简单CNN。</p>
+<div id="code-cnn-mnist-model-define" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.models <span class="im">import</span> Sequential</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras.layers <span class="im">import</span> Conv2D, MaxPooling2D, Flatten, Dense, Dropout</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 设置随机种子</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>tf.random.set_seed(<span class="dv">42</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Sequential([</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 第一个卷积块</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    Conv2D(filters<span class="op">=</span><span class="dv">32</span>, kernel_size<span class="op">=</span>(<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>, padding<span class="op">=</span><span class="st">'same'</span>, input_shape<span class="op">=</span>(<span class="dv">28</span>, <span class="dv">28</span>, <span class="dv">1</span>)),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 第二个卷积块</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    Conv2D(filters<span class="op">=</span><span class="dv">64</span>, kernel_size<span class="op">=</span>(<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>, padding<span class="op">=</span><span class="st">'same'</span>),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 展平并连接到全连接层</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    Flatten(),</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    Dense(units<span class="op">=</span><span class="dv">100</span>, activation<span class="op">=</span><span class="st">'relu'</span>),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    Dropout(<span class="fl">0.5</span>), <span class="co"># 添加Dropout层防止过拟合</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    Dense(units<span class="op">=</span><span class="dv">10</span>, activation<span class="op">=</span><span class="st">'softmax'</span>) <span class="co"># 输出层，10个类别</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>model.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="code-cnn-mnist-model-define-1" class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "sequential_2"</span>
+</pre>
+</div>
+<div id="code-cnn-mnist-model-define-2" class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape           </span>┃<span style="font-weight: bold">       Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ conv2d_4 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">28</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)     │           <span style="color: #00af00; text-decoration-color: #00af00">320</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling2d_4 (<span style="color: #0087ff; text-decoration-color: #0087ff">MaxPooling2D</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">32</span>)     │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_5 (<span style="color: #0087ff; text-decoration-color: #0087ff">Conv2D</span>)               │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">14</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)     │        <span style="color: #00af00; text-decoration-color: #00af00">18,496</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling2d_5 (<span style="color: #0087ff; text-decoration-color: #0087ff">MaxPooling2D</span>)  │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">7</span>, <span style="color: #00af00; text-decoration-color: #00af00">7</span>, <span style="color: #00af00; text-decoration-color: #00af00">64</span>)       │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Flatten</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">3136</span>)           │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_4 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">100</span>)            │       <span style="color: #00af00; text-decoration-color: #00af00">313,700</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_2 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dropout</span>)             │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">100</span>)            │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_5 (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                 │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">10</span>)             │         <span style="color: #00af00; text-decoration-color: #00af00">1,010</span> │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+</pre>
+</div>
+<div id="code-cnn-mnist-model-define-3" class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">333,526</span> (1.27 MB)
+</pre>
+</div>
+<div id="code-cnn-mnist-model-define-4" class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">333,526</span> (1.27 MB)
+</pre>
+</div>
+<div id="code-cnn-mnist-model-define-5" class="cell-output cell-output-display">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre>
+</div>
+</div>
+<p><strong>解释：</strong></p>
+<ul>
+<li><code>Conv2D</code>: 2D卷积层。
+<ul>
+<li><code>filters</code>: 滤波器的数量（即输出特征图的深度）。</li>
+<li><code>kernel_size</code>: 滤波器的大小 (e.g., <code>(3,3)</code> or <code>3</code>)。</li>
+<li><code>activation</code>: 激活函数。</li>
+<li><code>padding='same'</code>: 使得输出特征图的空间尺寸与输入相同（假设步长为1）。</li>
+<li><code>input_shape</code>: 只在第一层需要，对于28x28x1的MNIST图像，它是 <code>(28, 28, 1)</code>。</li>
+</ul></li>
+<li><code>MaxPooling2D</code>: 2D最大池化层。
+<ul>
+<li><code>pool_size</code>: 池化窗口的大小 (e.g., <code>(2,2)</code> or <code>2</code>)。</li>
+</ul></li>
+<li><code>Flatten</code>: 将多维张量展平为一维向量。</li>
+<li><code>Dense</code>: 全连接层。</li>
+<li><code>Dropout</code>: Dropout层，以一定的概率随机丢弃神经元，用于正则化，防止过拟合。</li>
+</ul>
+</section>
+<section id="模型编译" class="level3">
+<h3 class="anchored" data-anchor-id="模型编译">11.4.3 模型编译</h3>
+<div id="code-cnn-mnist-model-compile" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model.<span class="bu">compile</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    loss<span class="op">=</span><span class="st">'categorical_crossentropy'</span>, <span class="co"># 多分类交叉熵</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[<span class="st">'accuracy'</span>]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="模型训练" class="level3">
+<h3 class="anchored" data-anchor-id="模型训练">11.4.4 模型训练</h3>
+<div id="cell-code-cnn-mnist-model-train" class="cell" data-results="hold" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 训练模型</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>history <span class="op">=</span> model.fit(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    X_train, y_train,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    epochs<span class="op">=</span><span class="dv">20</span>, <span class="co"># 为了快速演示，只训练20轮</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">128</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    validation_data<span class="op">=</span>(X_val, y_val),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 绘制学习曲线</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(history.history).plot(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>plt.gca().set_ylim(<span class="dv">0</span>, <span class="fl">1.1</span>) <span class="co"># 调整y轴范围以更好地显示准确率</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"CNN Model Training History (MNIST)"</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Epoch"</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig("images/11-cnn/mnist_cnn_training_history.svg")</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="11-cnn_files/figure-html/code-cnn-mnist-model-train-output-1.png" id="code-cnn-mnist-model-train" width="645" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="模型评估" class="level3">
+<h3 class="anchored" data-anchor-id="模型评估">11.4.5 模型评估</h3>
+<div id="cell-code-cnn-mnist-model-evaluate" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>loss, accuracy <span class="op">=</span> model.evaluate(X_test, y_test_cat, verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">测试集损失 (Test Loss): </span><span class="sc">{</span>loss<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"测试集准确率 (Test Accuracy): </span><span class="sc">{</span>accuracy<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 进行预测</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>y_pred_proba <span class="op">=</span> model.predict(X_test, verbose<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>y_pred_classes <span class="op">=</span> np.argmax(y_pred_proba, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 显示一些预测错误的样本</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># (需要原始的y_test标签，而不是one-hot编码的y_test_cat)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 我们在数据准备阶段没有保存原始y_test，这里重新加载一下仅用于此处的错误分析</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>(_, y_test_orig) <span class="op">=</span> mnist.load_data()[<span class="dv">1</span>]</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>misclassified_indices <span class="op">=</span> np.where(y_pred_classes <span class="op">!=</span> y_test_orig)[<span class="dv">0</span>]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, idx <span class="kw">in</span> <span class="bu">enumerate</span>(misclassified_indices[:<span class="dv">15</span>]): <span class="co"># 显示前15个错误分类</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">&gt;=</span> <span class="dv">15</span>: <span class="cf">break</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    plt.subplot(<span class="dv">3</span>, <span class="dv">5</span>, i <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    plt.imshow(X_test[idx].reshape(<span class="dv">28</span>, <span class="dv">28</span>), cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"True: </span><span class="sc">{</span>y_test_orig[idx]<span class="sc">}</span><span class="ss">, Pred: </span><span class="sc">{</span>y_pred_classes[idx]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co"># plt.savefig("images/11-cnn/mnist_misclassified.svg")</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+测试集损失 (Test Loss): 0.0311
+测试集准确率 (Test Accuracy): 0.9925</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="11-cnn_files/figure-html/code-cnn-mnist-model-evaluate-output-2.png" id="code-cnn-mnist-model-evaluate" width="1142" height="748" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="cnn的优势" class="level2">
+<h2 class="anchored" data-anchor-id="cnn的优势">11.5 CNN的优势</h2>
+<p>相比于传统的前馈神经网络（如MLP），CNN在处理图像等网格状数据时具有显著优势：</p>
+<ol type="1">
+<li><strong>参数共享 (Parameter Sharing)：</strong>
+<ul>
+<li>卷积核在整个输入图像上滑动，其权重在所有位置共享。这意味着模型学习到的特征（如边缘、角点）可以在图像的任何位置被检测到，而无需为每个位置单独学习检测器。</li>
+<li>这极大地减少了模型中的参数数量，使得模型更易于训练，降低了过拟合的风险，并且减少了内存需求。</li>
+</ul></li>
+<li><strong>局部连接 (Local Connectivity)：</strong>
+<ul>
+<li>卷积层的每个神经元只与输入数据的一个局部区域（感受野，receptive field）相连接。</li>
+<li>这利用了图像数据中像素之间的局部相关性（相邻像素通常更相关）。</li>
+</ul></li>
+<li><strong>平移不变性/等变性 (Translation Invariance/Equivariance)：</strong>
+<ul>
+<li>由于参数共享和池化操作，CNN对输入图像中的目标位置变化具有一定的鲁棒性。</li>
+<li><strong>等变性 (Equivariance)：</strong> 如果输入发生平移，特征图中的激活也会相应平移。</li>
+<li><strong>不变性 (Invariance)：</strong> 池化操作使得即使特征的位置发生微小变化，输出仍然保持不变或变化很小，从而使模型对目标的精确位置不那么敏感。</li>
+</ul></li>
+<li><strong>层次化特征学习 (Hierarchical Feature Learning)：</strong>
+<ul>
+<li>CNN的多个层级结构能够自动学习从低级到高级的特征表示。</li>
+<li>例如，在图像识别中：
+<ul>
+<li>浅层卷积层可能学习检测简单的边缘、角点和颜色块。</li>
+<li>中层卷积层可能将这些低级特征组合成更复杂的模式，如纹理、物体的局部部件（如眼睛、鼻子）。</li>
+<li>深层卷积层可能将这些部件组合成完整的物体概念。</li>
+</ul></li>
+</ul></li>
+</ol>
+</section>
+<section id="知名cnn架构简介-选读" class="level2">
+<h2 class="anchored" data-anchor-id="知名cnn架构简介-选读">11.6 知名CNN架构简介 (选读)</h2>
+<p>自AlexNet在2012年ImageNet竞赛中取得突破以来，研究人员提出了许多更深、更有效的CNN架构。了解这些经典架构有助于理解CNN领域的发展和设计思想。</p>
+<ul>
+<li><strong>LeNet-5 (1998):</strong>
+<ul>
+<li>Yann LeCun等人提出，用于手写数字识别，是CNN的早期成功应用。</li>
+<li>奠定了”卷积层-池化层-全连接层”的基本结构。</li>
+</ul></li>
+<li><strong>AlexNet (2012):</strong>
+<ul>
+<li>Alex Krizhevsky, Ilya Sutskever, Geoffrey Hinton 提出。</li>
+<li>在ImageNet大规模视觉识别挑战赛 (ILSVRC) 中取得冠军，大幅超越传统方法，引爆了深度学习在计算机视觉领域的热潮。</li>
+<li>主要贡献：使用了ReLU激活函数、Dropout、数据增强、多GPU训练。网络比LeNet更深更宽。</li>
+</ul></li>
+<li><strong>VGGNet (VGG-16, VGG-19) (2014):</strong>
+<ul>
+<li>牛津大学视觉几何组 (Visual Geometry Group) 提出。</li>
+<li>特点是结构非常简洁和统一：只使用 <code>3x3</code> 的小卷积核和 <code>2x2</code> 的最大池化层，通过堆叠更多的小卷积核来增加网络深度和感受野。</li>
+<li>证明了网络深度是提升性能的关键因素之一。</li>
+</ul></li>
+<li><strong>GoogLeNet / Inception (2014):</strong>
+<ul>
+<li>谷歌团队提出，ILSVRC 2014冠军。</li>
+<li>引入了 <strong>Inception模块</strong>，该模块并行使用不同大小的卷积核（如 <code>1x1</code>, <code>3x3</code>, <code>5x5</code>）和池化操作，然后将它们的输出拼接起来。</li>
+<li>目标是在增加网络深度和宽度的同时，保持计算效率。<code>1x1</code> 卷积被用来降维和升维。</li>
+</ul></li>
+<li><strong>ResNet (Residual Networks) (2015):</strong>
+<ul>
+<li>微软研究院何恺明等人提出，ILSVRC 2015冠军。</li>
+<li>通过引入 <strong>残差学习 (Residual Learning)</strong> 和 <strong>快捷连接 (Shortcut Connections / Skip Connections)</strong> 成功训练了非常深的网络（例如152层，甚至超过1000层），解决了深度网络中的梯度消失和训练退化问题。</li>
+<li>残差块允许网络学习恒等映射，使得增加网络深度更容易。</li>
+</ul></li>
+</ul>
+<p>这些架构（及其变种）通常作为预训练模型在新任务上进行迁移学习的基础。</p>
+</section>
+<section id="本章总结" class="level2">
+<h2 class="anchored" data-anchor-id="本章总结">11.7 本章总结</h2>
+<p>本章我们深入探讨了卷积神经网络 (CNN)：</p>
+<ul>
+<li><strong>核心动机：</strong> 解决了全连接网络在处理图像等高维数据时参数过多和空间结构丢失的问题。</li>
+<li><strong>关键组件：</strong>
+<ul>
+<li><strong>卷积层：</strong> 通过滤波器（核心）进行特征提取，利用参数共享和局部连接。关键概念包括滤波器大小、步长、填充。</li>
+<li><strong>激活函数：</strong> 通常使用ReLU引入非线性。</li>
+<li><strong>池化层：</strong>（如最大池化）用于降低空间维度，增强平移不变性。</li>
+<li><strong>全连接层：</strong> 通常在网络末端用于分类或回归。</li>
+</ul></li>
+<li><strong>典型架构：</strong> 我们了解了LeNet-5这样的早期架构，并看到了如何堆叠这些组件。</li>
+<li><strong>Keras实践：</strong> 我们使用Keras在MNIST数据集上构建、训练并评估了一个简单的CNN。</li>
+<li><strong>CNN优势：</strong> 参数共享、局部连接、平移不变性、层次化特征学习。</li>
+<li><strong>知名架构：</strong> 简要介绍了AlexNet, VGG, GoogLeNet, ResNet等里程碑式的CNN模型。</li>
+</ul>
+<p>CNN是深度学习在计算机视觉领域取得巨大成功的基石。理解其工作原理和构建方法对于处理图像及类似网格结构的数据至关重要。下一章，我们将探讨另一种重要的神经网络架构——循环神经网络 (RNN)，它特别擅长处理序列数据。</p>
+</section>
+<section id="思考与练习" class="level2">
+<h2 class="anchored" data-anchor-id="思考与练习">11.8 思考与练习</h2>
+<section id="基础概念回顾" class="level3">
+<h3 class="anchored" data-anchor-id="基础概念回顾">11.8.1 基础概念回顾</h3>
+<ol type="1">
+<li><strong>CNN的动机与优势：</strong>
+<ul>
+<li>全连接网络在处理图像数据时面临哪些主要挑战？CNN是如何尝试解决这些挑战的？</li>
+<li>解释参数共享和局部连接在CNN中的含义及其带来的好处。</li>
+<li>什么是平移不变性？CNN如何实现一定程度的平移不变性？</li>
+</ul></li>
+<li><strong>卷积层：</strong>
+<ul>
+<li>描述卷积操作的过程。滤波器（核心）的作用是什么？</li>
+<li>解释步长 (stride) 和填充 (padding) 的概念。为什么需要填充？“Same” padding 和 “Valid” padding 有什么区别？</li>
+<li>如果一个输入图像的尺寸是 <code>32x32x3</code>，使用16个 <code>5x5</code> 的滤波器，步长为1，无填充 (valid padding)，那么卷积层输出的特征图尺寸是多少？这一层有多少可学习的参数（不包括偏置）？</li>
+</ul></li>
+<li><strong>池化层：</strong>
+<ul>
+<li>池化层的主要作用是什么？</li>
+<li>最大池化和平均池化有什么区别？哪种更常用，为什么？</li>
+<li>池化层有可学习的参数吗？</li>
+</ul></li>
+<li><strong>CNN架构：</strong>
+<ul>
+<li>一个典型的CNN通常包含哪些类型的层？它们通常是如何排列的？</li>
+<li>为什么在CNN的末端通常会使用全连接层？Flatten层的作用是什么？</li>
+</ul></li>
+</ol>
+</section>
+<section id="keras实践与探索-mnistcifar-10" class="level3">
+<h3 class="anchored" data-anchor-id="keras实践与探索-mnistcifar-10">11.8.2 Keras实践与探索 (MNIST/CIFAR-10)</h3>
+<p><strong>项目目标：</strong> 进一步实践CNN的构建、训练和评估，探索不同参数和结构对模型性能的影响。</p>
+<p><strong>任务步骤：</strong></p>
+<ol type="1">
+<li><strong>MNIST实验扩展：</strong>
+<ul>
+<li><strong>调整CNN结构：</strong> 在本章的MNIST示例代码基础上，尝试以下修改，并观察对验证集准确率和训练时间的影响：
+<ul>
+<li>改变卷积层中滤波器的数量（例如，增加到64、128，或减少到16）。</li>
+<li>改变滤波器的大小（例如，使用 <code>5x5</code> 代替 <code>3x3</code>）。</li>
+<li>增加或减少卷积/池化块的数量。</li>
+<li>在全连接层之前或之间添加更多的Dropout层，或调整Dropout率。</li>
+</ul></li>
+<li><strong>不使用填充：</strong> 修改卷积层，使其使用 <code>padding='valid'</code>，观察输出特征图尺寸的变化以及对模型性能的影响。你需要如何调整网络结构以使其正常工作？</li>
+<li><strong>比较池化类型：</strong> 将 <code>MaxPooling2D</code> 替换为 <code>AveragePooling2D</code>，比较结果。</li>
+</ul></li>
+<li><strong>挑战CIFAR-10数据集：</strong>
+<ul>
+<li>CIFAR-10 是一个更具挑战性的彩色图像分类数据集（32x32x3像素，10个类别：飞机、汽车、鸟、猫、鹿、狗、青蛙、马、船、卡车）。</li>
+<li><strong>加载数据：</strong> 使用 <code>tensorflow.keras.datasets.cifar10.load_data()</code> 加载数据。</li>
+<li><strong>数据预处理：</strong>
+<ul>
+<li>像素值归一化到 <code>[0, 1]</code>。</li>
+<li>标签进行One-Hot编码。</li>
+<li>注意CIFAR-10的输入形状是 <code>(32, 32, 3)</code>。</li>
+</ul></li>
+<li><strong>构建CNN模型：</strong> 设计一个CNN模型来对CIFAR-10进行分类。你可能需要一个比MNIST示例更深或更宽的网络。考虑以下结构：
+<ul>
+<li>至少包含2-3个卷积块（卷积层 + ReLU + 池化层）。</li>
+<li>逐渐增加卷积层中的滤波器数量（例如，32 -&gt; 64 -&gt; 128）。</li>
+<li>在全连接层中使用Dropout。</li>
+</ul></li>
+<li><strong>训练与评估：</strong> 训练你的模型，并在测试集上评估其准确率。绘制学习曲线。CIFAR-10的基线准确率（随机猜测）是10%。一个简单的CNN通常可以达到60-75%的准确率，更复杂的可以更高。</li>
+<li><strong>(可选) 数据增强：</strong> 尝试使用Keras的 <code>ImageDataGenerator</code> 或 <code>tf.keras.layers.RandomFlip</code>, <code>RandomRotation</code> 等层进行数据增强，观察是否能提升模型性能。</li>
+</ul></li>
+</ol>
+</section>
+<section id="深入思考与挑战" class="level3">
+<h3 class="anchored" data-anchor-id="深入思考与挑战">11.8.3 深入思考与挑战</h3>
+<ol type="1">
+<li><strong>感受野 (Receptive Field)：</strong>
+<ul>
+<li>什么是神经元的感受野？</li>
+<li>在一个多层CNN中，深层神经元的感受野与浅层神经元的感受野相比有何不同？为什么这种层次化的感受野对于学习复杂特征很重要？</li>
+</ul></li>
+<li><strong><code>1x1</code> 卷积：</strong>
+<ul>
+<li><code>1x1</code> 卷积核有什么作用？它看起来似乎只是对每个像素点做了一个线性变换，但在CNN中它有哪些实际用途？（提示：考虑通道间的交互、降维/升维）</li>
+</ul></li>
+<li><strong>迁移学习 (Transfer Learning) 简介：</strong>
+<ul>
+<li>什么是迁移学习？为什么它在计算机视觉中非常流行？</li>
+<li>想象一下，你如何使用一个在ImageNet大型数据集上预训练好的CNN模型（如VGG16或ResNet50，Keras中有提供）来帮助你解决一个新的、但数据量较小的图像分类任务？（提示：考虑冻结部分层、替换顶层分类器）</li>
+</ul></li>
+<li><strong>(选做) CNN可视化：</strong>
+<ul>
+<li>研究如何可视化CNN学习到的特征。例如，如何查看卷积层滤波器学习到的模式？如何可视化特定输入图像在不同层产生的激活图 (feature maps)？（Keras和TensorFlow提供了一些工具和技术，或者可以查阅相关教程。）</li>
+</ul></li>
+</ol>
+</section>
+<section id="推荐阅读" class="level3">
+<h3 class="anchored" data-anchor-id="推荐阅读">11.8.4 推荐阅读</h3>
+<ol type="1">
+<li><strong>Chollet, F. (2021). <em>Deep Learning with Python</em> (2nd ed.). Manning Publications. (Chapter 8: Introduction to deep learning for computer vision)</strong> - 提供了关于CNN的优秀实践和Keras示例。</li>
+<li><strong>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>. MIT Press. (Chapter 9: Convolutional Networks)</strong> - 对CNN理论的深入讲解。</li>
+<li><strong>Nielsen, M. A. (2015). <em>Neural Networks and Deep Learning</em>. Determination Press. (Chapter 6: Convolutional Neural Networks)</strong> - 对CNN概念的清晰解释。</li>
+<li><strong>Stanford CS231n: Convolutional Neural Networks for Visual Recognition:</strong> 课程笔记和材料是非常好的学习资源。 <a href="https://cs231n.github.io/">https://cs231n.github.io/</a></li>
+<li><strong>Distill.pub:</strong> 一个致力于清晰解释机器学习研究的在线期刊，有很多关于CNN可视化和理解的优秀文章。 <a href="https://distill.pub/">https://distill.pub/</a></li>
+</ol>
+<hr>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./10-deep-learning-basics.html" class="pagination-link" aria-label="深度学习基础">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">深度学习基础</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./12-rnn.html" class="pagination-link" aria-label="循环神经网络 (RNN)">
+        <span class="nav-page-text"><span class="chapter-title">循环神经网络 (RNN)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

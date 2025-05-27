@@ -1,0 +1,416 @@
+---
+title: "Python机器学习环境与核心库"
+jupyter: python3
+---
+
+::: {.callout-note appearance="simple"}
+**学习目标：**
+
+* 理解Python在机器学习领域流行的原因。
+* 熟悉主要的Python机器学习开发环境。
+* 掌握Numpy, Pandas, Matplotlib/Seaborn等核心库的基本操作。
+* 了解Scikit-learn库的基本功能和在机器学习流程中的作用。
+* 初步掌握使用Git进行版本控制。
+:::
+
+## 2.1 Python在机器学习中的核心地位
+
+Python 凭借其简洁的语法、丰富的库生态系统以及强大的社区支持，已成为机器学习和数据科学领域最受欢迎的编程语言之一。
+
+**Python流行的主要原因：**
+
+-   **易学易用：** Python的语法清晰，接近自然语言，使得初学者可以快速上手。
+-   **庞大的库支持：**
+    -   **NumPy:** 提供高效的多维数组对象和数学函数。
+    -   **Pandas:** 提供强大的数据结构（如DataFrame）和数据分析工具。
+    -   **Matplotlib & Seaborn:** 用于数据可视化，生成各种静态、动态、交互式图表。
+    -   **Scikit-learn:** 包含大量经典机器学习算法、预处理工具、模型评估方法等。
+    -   **TensorFlow & PyTorch & Keras:** 流行的深度学习框架。
+-   **强大的社区：** 遇到问题时，很容易找到解决方案和帮助。
+-   **胶水语言特性：** Python可以轻松地与其他语言（如C/C++, Fortran）编写的代码集成，方便调用高性能模块。
+-   **广泛的应用：** 从Web开发到数据分析，再到机器学习，Python都有广泛的应用场景。
+
+## 2.2 开发环境选择与配置
+
+为了进行Python机器学习实践，我们需要一个合适的开发环境。以下是一些常用的选择：
+
+### 2.2.1 Anaconda发行版
+
+**Anaconda** 是一个开源的Python和R语言发行版，专为数据科学和机器学习设计。它包含了conda（一个强大的包管理器和环境管理器）以及数百个预安装的科学计算库。
+
+::: callout-note
+#### 为什么推荐Anaconda？
+
+-   **简化安装：** 一次安装即可获得Python解释器和大量常用库。
+-   **环境管理：** 可以轻松创建和管理多个独立的Python环境，避免库版本冲突。
+-   **包管理：** `conda install` 命令可以方便地安装、更新和卸载库。
+:::
+
+**安装步骤：**
+
+1.  访问 [Anaconda官方网站](https://www.anaconda.com/products/distribution) 下载适合您操作系统的安装包。
+2.  按照安装向导的指示完成安装。建议将Anaconda添加到系统路径（PATH），或者记住Anaconda Prompt（Windows）或终端（macOS/Linux）中conda命令的位置。
+
+**创建和管理环境 (推荐)：**
+
+打开Anaconda Prompt或终端，使用以下命令：
+
+``` bash
+# 创建一个名为ml_env的新环境，并指定Python版本 (例如3.9)
+conda create --name ml_env python=3.9
+
+# 激活新创建的环境
+conda activate ml_env
+
+# 在当前环境中安装库 (例如numpy, pandas, scikit-learn)
+conda install numpy pandas scikit-learn matplotlib seaborn jupyterlab
+
+# 查看已安装的库
+conda list
+
+# 退出当前环境
+conda deactivate
+```
+
+### 2.2.2 Jupyter Notebook / JupyterLab
+
+**Jupyter Notebook** 和 **JupyterLab** 是基于Web的交互式计算环境，非常适合数据探索、代码编写、结果可视化和文档撰写。
+
+-   **Jupyter Notebook:** 以文档为中心，代码和文本块（Markdown、LaTeX）交错排列。
+-   **JupyterLab:** 提供更类似IDE的用户界面，支持Notebook、文本编辑器、终端等多种组件。
+
+**启动JupyterLab (在激活的conda环境中):**
+
+``` bash
+jupyter lab
+```
+
+这会在您的默认浏览器中打开JupyterLab界面。
+
+### 2.2.3 Visual Studio Code (VS Code)
+
+**VS Code** 是一款功能强大且轻量级的源代码编辑器，通过安装Python扩展和Jupyter扩展，可以获得优秀的Python和Jupyter Notebook支持。
+
+::: callout-note
+VS Code 提供了代码自动补全、调试、Git集成、终端等功能，是许多开发者的首选。
+:::
+
+**配置建议：** 1. 安装 [VS Code](https://code.visualstudio.com/)。 2. 在VS Code的扩展市场中搜索并安装 "Python" (Microsoft官方) 和 "Jupyter" (Microsoft官方) 扩展。 3. VS Code可以自动检测并使用您的Conda环境。
+
+## 2.3 核心库回顾与进阶
+
+以下是对机器学习中几个核心Python库的简要回顾。我们假设您已具备这些库的基础知识 (对应先修课程《Python程序设计》和《数据结构（Python语言）》)。
+
+### 2.3.1 NumPy (Numerical Python)
+
+NumPy是Python中科学计算的基础包。它提供了一个强大的N维数组对象 (`ndarray`)，以及用于处理这些数组的各种函数。
+
+**核心功能：**
+
+* 创建和操作多维数组。
+* 高效的数学运算（线性代数、傅里叶变换、随机数生成等）。
+
+**示例代码：**
+
+``` python
+# 导入NumPy库
+import numpy as np
+
+# 创建一个一维数组
+arr1 = np.array([1, 2, 3, 4, 5])
+print(f"一维数组: {arr1}")
+print(f"数组形状: {arr1.shape}")
+
+# 创建一个二维数组 (矩阵)
+matrix1 = np.array([[1, 2, 3], [4, 5, 6]])
+print(f"二维数组:\n{matrix1}")
+print(f"矩阵形状: {matrix1.shape}")
+
+# 数组运算
+print(f"数组元素加倍: {arr1 * 2}")
+print(f"数组点积: {np.dot(arr1, arr1)}") # 对于一维数组，是内积
+
+# 创建特定数组
+zeros_arr = np.zeros((2, 3)) # 全0数组
+ones_arr = np.ones((3, 2))   # 全1数组
+random_arr = np.random.rand(2, 2) # 0-1之间的随机数数组
+print(f"全0数组:\n{zeros_arr}")
+print(f"随机数组:\n{random_arr}")
+
+# 数组索引和切片
+print(f"matrix1的第一行: {matrix1[0, :]}")
+print(f"matrix1的第二列: {matrix1[:, 1]}")
+```
+
+### 2.3.2 Pandas (Python Data Analysis Library)
+
+Pandas 提供了高性能、易于使用的数据结构和数据分析工具。最核心的数据结构是 `Series` (一维) 和 `DataFrame` (二维表格型数据)。
+
+**核心功能：**
+
+* 数据的读取与写入 (CSV, Excel, SQL数据库等)。
+* 数据的清洗、转换、重塑。
+* 数据的选择、过滤、分组、聚合。
+* 处理缺失数据。
+* 时间序列数据处理。
+
+**示例代码：**
+
+``` python
+# 导入Pandas库
+import pandas as pd
+
+# 创建一个Series
+s = pd.Series([10, 20, 30, 40, 50], index=['a', 'b', 'c', 'd', 'e'])
+print(f"Series s:\n{s}")
+
+# 创建一个DataFrame
+data = {'姓名': ['张三', '李四', '王五'],
+        '年龄': [25, 30, 22],
+        '城市': ['北京', '上海', '广州']}
+df = pd.DataFrame(data)
+print(f"\nDataFrame df:\n{df}")
+
+# 读取CSV文件 (假设当前目录有 data.csv)
+# df_from_csv = pd.read_csv('data.csv')
+# print(f"\n从CSV读取的DataFrame:\n{df_from_csv}")
+
+# 查看DataFrame基本信息
+print(f"\nDataFrame信息:")
+df.info()
+
+print(f"\n描述性统计:\n{df.describe()}")
+
+# 选择数据
+print(f"\n选择'姓名'列:\n{df['姓名']}")
+print(f"\n选择第一行:\n{df.iloc[0]}") # 按位置选择
+print(f"\n选择年龄大于23的行:\n{df[df['年龄'] > 23]}")
+
+# 添加新列
+df['职业'] = ['工程师', '设计师', '学生']
+print(f"\n添加职业列后的DataFrame:\n{df}")
+```
+
+### 2.3.3 Matplotlib & Seaborn (数据可视化)
+
+Matplotlib 是一个基础的绘图库，提供了广泛的绘图功能。Seaborn 是基于Matplotlib的高级绘图库，提供了更美观、更简洁的统计图形接口。
+
+**核心功能：**
+
+* 绘制各种类型的图表：折线图、散点图、柱状图、直方图、箱线图、热力图等。
+* 自定义图表的样式、标签、标题等。
+
+**示例代码：**
+
+``` python
+# 导入库
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import pandas as pd
+
+# Matplotlib 示例
+x_mpl = np.linspace(0, 10, 100)
+y_mpl = np.sin(x_mpl)
+
+plt.figure(figsize=(8, 4)) # 设置图形大小
+plt.plot(x_mpl, y_mpl, label='sin(x)', color='blue', linestyle='--')
+plt.title('Matplotlib 折线图示例')
+plt.xlabel('X轴')
+plt.ylabel('Y轴')
+plt.legend() # 显示图例
+plt.grid(True) # 显示网格
+plt.show() # 显示图形
+
+# Seaborn 示例
+# 创建一个示例DataFrame用于Seaborn绘图
+data_sb = {'x_values': np.random.rand(100),
+           'y_values': np.random.rand(100) * 5,
+           'category': np.random.choice(['A', 'B', 'C'], 100)}
+df_sb = pd.DataFrame(data_sb)
+
+plt.figure(figsize=(8, 4))
+sns.scatterplot(x='x_values', y='y_values', hue='category', data=df_sb)
+plt.title('Seaborn 散点图示例')
+plt.show()
+
+plt.figure(figsize=(8, 4))
+sns.histplot(data=df_sb, x='y_values', kde=True, hue='category')
+plt.title('Seaborn 直方图示例 (带核密度估计)')
+plt.show()
+```
+
+::: {.callout-tip title="Seaborn的优势"}
+Seaborn通常只需要更少的代码就能生成更具信息量和美观的统计图形。它与Pandas DataFrame的集成非常好。
+:::
+
+## 2.4 Scikit-learn：机器学习核心库概览
+
+Scikit-learn (通常简写为`sklearn`) 是Python中最流行和功能最全面的机器学习库之一。它提供了大量用于监督学习、无监督学习、模型选择、预处理、评估等的工具。
+
+**Scikit-learn的主要特点：**
+
+* **简单高效：** API设计一致且易于使用。
+* **算法丰富：** 包含了绝大多数经典的机器学习算法。
+* **文档完善：** 官方文档详细且包含大量示例。
+* **社区活跃：** 遇到问题容易找到帮助。
+* **与其他库良好集成：** 与NumPy, SciPy, Pandas等库无缝集成。
+
+**Scikit-learn的核心模块（部分）：**
+
+-   `sklearn.preprocessing`: 数据预处理（标准化、归一化、编码等）。
+-   `sklearn.model_selection`: 模型选择与评估（交叉验证、参数调优）。
+-   `sklearn.linear_model`: 线性模型（线性回归、逻辑回归、Ridge、Lasso等）。
+-   `sklearn.neighbors`: 近邻算法（KNN）。
+-   `sklearn.svm`: 支持向量机。
+-   `sklearn.tree`: 决策树。
+-   `sklearn.ensemble`: 集成学习方法（随机森林、AdaBoost、Gradient Boosting等）。
+-   `sklearn.cluster`: 聚类算法（K-Means、DBSCAN等）。
+-   `sklearn.decomposition`: 降维算法（PCA）。
+-   `sklearn.metrics`: 模型评估指标。
+
+我们将在后续章节中大量使用Scikit-learn来实现各种机器学习算法。
+
+**一个简单的Scikit-learn使用流程示例 (以K近邻分类为例)：**
+
+``` python
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import load_iris # 导入一个示例数据集
+
+# 1. 加载数据
+iris = load_iris()
+X, y = iris.data, iris.target # X是特征, y是标签
+
+# 2. 划分训练集和测试集
+# random_state保证每次划分结果一致，便于复现
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 3. 创建并训练模型
+knn = KNeighborsClassifier(n_neighbors=3) # 创建一个KNN分类器，K=3
+knn.fit(X_train, y_train) # 使用训练数据训练模型
+
+# 4. 进行预测
+y_pred = knn.predict(X_test) # 对测试数据进行预测
+
+# 5. 评估模型
+accuracy = accuracy_score(y_test, y_pred)
+print(f"K近邻模型在Iris数据集上的准确率: {accuracy:.4f}")
+```
+
+这段代码展示了使用Scikit-learn加载数据、划分数据集、训练模型、进行预测和评估模型的基本步骤。
+
+## 2.5 版本控制工具：Git与GitHub入门
+
+在进行机器学习项目时，尤其是涉及多人协作或长期开发时，版本控制是一个至关重要的实践。Git是最流行的分布式版本控制系统。GitHub则是一个基于Git的代码托管平台。
+
+**为什么需要版本控制？**
+
+* **追踪历史：** 记录文件的每一次修改，可以随时回溯到任何历史版本。
+* **协作开发：** 多人可以并行修改代码，并通过分支、合并等机制高效协作。
+* **备份与恢复：** 代码存储在远程仓库（如GitHub），即使本地数据丢失也能恢复。
+* **分支管理：** 可以在不影响主线开发的情况下，创建分支进行新功能开发或实验。
+
+**Git基本概念与操作 (命令行)：**
+
+-   **仓库 (Repository / Repo):** 存储项目文件及其历史记录的地方。
+-   **初始化仓库:** (在项目文件夹内) `git init`
+-   **克隆远程仓库:** `git clone <repository_url>`
+-   **查看状态:** `git status`
+-   **添加文件到暂存区:** 
+```bash
+git add <filename>   # 添加指定文件 
+git add .            # 添加所有已修改或新文件
+```
+-   **提交更改到本地仓库:** `git commit -m "清晰的提交信息，说明本次修改的内容"`
+-   **分支 (Branch):** 
+```bash
+git branch                   # 查看所有分支     
+git branch <new_branch_name> # 创建新分支     
+git checkout <branch_name>   # 切换到指定分支     
+git merge <branch_name>      # 将指定分支合并到当前分支
+```
+-   **远程仓库操作 (与GitHub等平台交互):** 
+```bash
+git remote add origin <repository_url> # 关联远程仓库 (通常在init后)
+git push -u origin main              # 推送本地main分支到远程origin (首次)
+git push                             # 推送本地提交到远程仓库
+git pull                             # 从远程仓库拉取最新更改
+```
+
+::: {.callout-important title="Git学习资源"}
+Git的学习曲线可能有些陡峭，但掌握其基本用法对于任何开发者都非常有价值。
+* [Pro Git Book (中文版)](https://git-scm.com/book/zh/v2)
+* [廖雪峰的Git教程](https://www.liaoxuefeng.com/wiki/896043488029600)
+* GitHub官方的 [GitHub Skills](https://skills.github.com/)
+:::
+
+**实践2.1：环境配置与Git练习**
+
+我们将在本章的实践部分，进行以下操作： 1. 确保您的Anaconda环境已正确配置，并安装了必要的库。 2. 在本地创建一个新的项目文件夹。 3. 使用 `git init` 初始化一个新的Git仓库。 4. 创建一个简单的Python脚本（例如，打印 "Hello ML!"），将其添加到Git暂存区并提交。 5. (可选，但推荐) 在GitHub上创建一个新的远程仓库，并将本地仓库与之关联，然后推送您的提交。
+
+## 2.6 本章小结
+
+本章我们讨论了Python在机器学习中的重要性，介绍了常用的开发环境（Anaconda, Jupyter, VS Code），并回顾了核心数据科学库NumPy, Pandas, Matplotlib和Seaborn的基本用法。同时，我们初步认识了强大的机器学习库Scikit-learn及其基本使用流程。最后，我们强调了版本控制工具Git的重要性，并介绍了其基本概念和操作。
+
+掌握这些工具和库是进行后续机器学习实践的基础。请务必动手完成本章相关的环境配置和基础库的练习。
+
+## 2.7 思考与练习
+
+### 2.7.1 基础练习
+
+1.  **环境配置检查:**
+    *   确认您已成功安装Anaconda。在终端或Anaconda Prompt中，运行 `conda --version` 和 `python --version`，记录下输出的版本号。
+    *   创建一个新的conda环境（例如，命名为 `my_ml_practice_env`），并指定Python版本为3.9或更高。激活该环境。
+    *   在该新环境中，使用conda或pip安装`numpy`, `pandas`, `matplotlib`, `seaborn`, `scikit-learn`, `jupyterlab`。使用 `conda list` 验证它们是否已成功安装。
+2.  **NumPy练习:**
+    *   创建一个包含10个随机整数（范围0-99）的一维NumPy数组。
+    *   计算该数组的平均值、标准差、最大值和最小值。
+    *   将该数组变形为一个2x5的二维数组。
+    *   提取第二行所有元素。
+3.  **Pandas练习:**
+    *   创建一个Pandas DataFrame，包含三列："学生姓名"（字符串），"期中成绩"（整数），"期末成绩"（整数）。至少包含5行数据。
+    *   添加一列名为 "总成绩"，其值为期中成绩的40%加上期末成绩的60%。
+    *   筛选出总成绩大于80分的学生。
+    *   按总成绩对DataFrame进行降序排序。
+4.  **Matplotlib/Seaborn练习:**
+    *   使用Matplotlib，绘制 `y = x^2` 在 `x` 从 -5 到 5 范围内的折线图。添加标题和坐标轴标签。
+    *   使用Seaborn，针对上述Pandas练习中创建的DataFrame，绘制一个展示期中成绩和期末成绩关系的散点图。
+5.  **Git基本操作:**
+    *   在您的电脑上创建一个新的文件夹作为项目目录。
+    *   进入该目录，并使用 `git init` 初始化一个新的Git仓库。
+    *   创建一个简单的文本文件（例如 `notes.txt`），写入一些内容。
+    *   使用 `git add notes.txt` 和 `git commit -m "Initial commit with notes"` 将其提交到仓库。
+    *   修改 `notes.txt` 文件，然后再次添加并提交，写清楚提交信息。
+    *   使用 `git log` 查看提交历史。
+
+### 2.7.2 扩展练习
+
+1.  **数据探索与可视化:**
+    *   Scikit-learn内置了一些小型数据集，例如 `sklearn.datasets.load_wine()` 或 `sklearn.datasets.load_diabetes()`。加载其中一个数据集。
+    *   将其特征数据（X）和目标数据（y）转换为Pandas DataFrame。
+    *   使用Pandas的 `.describe()` 方法查看数据的基本统计信息。
+    *   使用Matplotlib或Seaborn，选择至少两个特征，绘制它们之间的关系图（例如散点图），并根据目标变量 `y` 进行着色，观察是否存在明显模式。
+    *   对数据集中你认为重要的一个或多个特征绘制其分布直方图。
+2.  **JupyterLab/VS Code Notebook 探索:**
+    *   如果您主要使用其中一个工具，尝试在另一个工具中完成上述基础练习或扩展练习的一部分，体验不同开发环境的特点。
+    *   在Jupyter Notebook或VS Code Notebook中，尝试使用Markdown单元格来记录您的代码解释、分析和结论。
+3.  **Git分支与远程仓库:**
+    *   在您之前创建的Git仓库中，创建一个新的分支（例如 `feature-x`）。
+    *   切换到新分支，对 `notes.txt` 文件做一些修改并提交。
+    *   切换回主分支（通常是 `main` 或 `master`），将 `feature-x` 分支合并回来。
+    *   （可选，但强烈推荐）在GitHub, GitLab或Gitee等平台上创建一个空的远程仓库。将您的本地仓库与该远程仓库关联，并将您的提交推送到远程仓库。
+
+### 2.7.3 推荐阅读
+
+*   **Python官方文档:** ([https://docs.python.org/3/](https://docs.python.org/3/)) 学习Python语言本身的最佳资源。
+*   **NumPy官方文档 - Absolute Beginner's Guide:** ([https://numpy.org/doc/stable/user/absolute_beginners.html](https://numpy.org/doc/stable/user/absolute_beginners.html))
+*   **Pandas官方文档 - 10 minutes to pandas:** ([https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html](https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html))
+*   **Matplotlib官方教程:** ([https://matplotlib.org/stable/tutorials/index.html](https://matplotlib.org/stable/tutorials/index.html))
+*   **Seaborn官方教程:** ([https://seaborn.pydata.org/tutorial.html](https://seaborn.pydata.org/tutorial.html))
+*   **Scikit-learn官方文档 - Getting Started:** ([https://scikit-learn.org/stable/getting_started.html](https://scikit-learn.org/stable/getting_started.html))
+*   **Pro Git Book (中文版):** ([https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)) 全面学习Git的权威指南。
+*   **廖雪峰的Git教程:** ([https://www.liaoxuefeng.com/wiki/896043488029600](https://www.liaoxuefeng.com/wiki/896043488029600)) 更适合中文初学者快速入门。
+*   **《Python for Data Analysis》 by Wes McKinney:** Pandas库的作者撰写，是学习Pandas的经典书籍。
+*   **《Python机器学习基础教程》([德] Andreas C. Müller, [美] Sarah Guido 著):** 对Scikit-learn的入门和实践非常有帮助 (对应课程大纲参考书)。
