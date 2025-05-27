@@ -1,7 +1,0 @@
----
-description: 
-globs: *.qmd
-alwaysApply: false
----
-对于简单的流程图或关系图，优先使用 svg 在 Quarto 中直接绘制。
-对于复杂的图示（如神经网络结构图），建议从允许使用的资源（如您提到的 PyTorch 官网教程截图，或 microsoft/ML-For-Beginners 中明确可以复用的图片，并遵循其许可要求进行署名）下载图片，将其放入您的 Quarto 项目文件夹（例如，创建一个 images 子文件夹），然后在 .qmd 文件中使用相对路径引用它们，例如 ![](images/my_cnn_diagram.png)。这样能保证图片的稳定性和版权的清晰。
