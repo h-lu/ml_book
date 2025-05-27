@@ -110,8 +110,9 @@ quarto preview
 ## 📧 联系方式
 
 如有问题或建议，请通过以下方式联系：
+- 陆海波 上海应用技术大学 经济与管理学院
 - 提交 GitHub Issue
-- 邮箱: [你的邮箱]
+- 邮箱: luhaibo1985@gmail.com
 
 ---
 
